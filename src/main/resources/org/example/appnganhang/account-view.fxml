@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="550.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+    </padding>
+    <children>
+        <Label text="THÔNG TIN TÀI KHOẢN &amp; SỐ DƯ">
+            <font>
+                <Font name="System Bold" size="22.0" />
+            </font>
+        </Label>
+
+        <!-- Thẻ ngân hàng ảo (Card UI) -->
+        <AnchorPane prefHeight="180.0" prefWidth="490.0" style="-fx-background-color: linear-gradient(to right, #0f172a, #334155); -fx-background-radius: 15; -fx-padding: 20;">
+            <children>
+                <Label layoutX="25.0" layoutY="20.0" text="VIETNAM DIGITAL BANK" textFill="#94a3b8">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                </Label>
+                <Label layoutX="25.0" layoutY="65.0" text="Số tài khoản:" textFill="#cbd5e1" />
+                <Label fx:id="lblSoTaiKhoan" layoutX="115.0" layoutY="63.0" text="1903 8888 9999" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                    </font>
+                </Label>
+
+                <Label layoutX="25.0" layoutY="110.0" text="Số dư khả dụng:" textFill="#cbd5e1" />
+                <Label fx:id="lblSoDu" layoutX="135.0" layoutY="105.0" text="15,450,000 VNĐ" textFill="#38bdf8">
+                    <font>
+                        <Font name="System Bold" size="20.0" />
+                    </font>
+                </Label>
+            </children>
+        </AnchorPane>
+
+        <VBox spacing="10.0" style="-fx-background-color: #f8fafc; -fx-background-radius: 10; -fx-padding: 15;">
+            <children>
+                <Label text="Thông tin chủ thẻ:" textFill="#64748b">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Label>
+                <Label fx:id="lblTenChuThe" text="Họ tên: NGUYỄN VĂN A" />
+                <Label fx:id="lblTrangThaiThe" text="Trạng thái thẻ: Hoạt động (Active)" textFill="#16a34a" />
+            </children>
+        </VBox>
+
+        <Button fx:id="btnLamMoi" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #0284c7; -fx-text-fill: white; -fx-font-weight: bold;" text="Làm mới số dư" />
+    </children>
+</VBox>

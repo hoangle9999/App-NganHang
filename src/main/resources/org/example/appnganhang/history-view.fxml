@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="550.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+    </padding>
+    <children>
+        <Label text="LỊCH SỬ GIAO DỊCH">
+            <font>
+                <Font name="System Bold" size="22.0" />
+            </font>
+        </Label>
+
+        <Label text="Danh sách các giao dịch gần đây của bạn:" textFill="#64748b" />
+
+        <TableView fx:id="tblLichSu" prefHeight="360.0" prefWidth="490.0">
+            <columns>
+                <TableColumn fx:id="colMaGD" prefWidth="90.0" text="Mã GD" />
+                <TableColumn fx:id="colNgay" prefWidth="110.0" text="Thời gian" />
+                <TableColumn fx:id="colLoai" prefWidth="100.0" text="Loại GD" />
+                <TableColumn fx:id="colSoTien" prefWidth="100.0" text="Số tiền (VNĐ)" />
+                <TableColumn fx:id="colTrangThai" prefWidth="90.0" text="Trạng thái" />
+            </columns>
+        </TableView>
+    </children>
+</VBox>

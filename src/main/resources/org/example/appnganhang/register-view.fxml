@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="12" prefWidth="450.0" prefHeight="550.0"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.appnganhang.RegisterController">
+    <padding>
+        <Insets top="20" right="30" bottom="20" left="30"/>
+    </padding>
+
+    <Label text="ĐĂNG KÝ TÀI KHOẢN" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1E3D59;" />
+    <Label text="Điền thông tin để tạo tài khoản mới" style="-fx-text-fill: #555555; -fx-padding: 0 0 10 0;" />
+
+    <TextField fx:id="txtHoTen" promptText="Họ và tên đầy đủ" prefHeight="35"/>
+    <TextField fx:id="txtCCCD" promptText="Số CCCD (12 chữ số)" prefHeight="35"/>
+    <TextField fx:id="txtSoDienThoai" promptText="Số điện thoại" prefHeight="35"/>
+    <TextField fx:id="txtEmail" promptText="Email" prefHeight="35"/>
+    <TextField fx:id="txtTenDangNhap" promptText="Tên đăng nhập" prefHeight="35"/>
+    <PasswordField fx:id="txtMatKhau" promptText="Mật khẩu" prefHeight="35"/>
+
+    <Label fx:id="lblThongBao" text="" style="-fx-font-size: 13px;" />
+
+    <Button text="XÁC NHẬN ĐĂNG KÝ" onAction="#handleRegister" prefWidth="400" prefHeight="40"
+            style="-fx-background-color: #1E3D59; -fx-text-fill: white; -fx-font-weight: bold;" />
+
+    <Button text="Quay lại Đăng nhập" onAction="#handleBackToLogin" prefWidth="400" prefHeight="30"
+            style="-fx-background-color: transparent; -fx-text-fill: #0066cc;" />
+</VBox>
