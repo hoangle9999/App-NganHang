@@ -1,4 +1,4 @@
-package org.example.appnganhang;
+package org.example.appnganhang.controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
