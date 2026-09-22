@@ -1,8 +1,8 @@
 package org.example.appnganhang.controller;
 
-import org.example.appnganhang.modell.NhanVien;
-import org.example.appnganhang.service.Iml.NhanVienServiceImpl;
-import org.example.appnganhang.service.NhanVienService;
+import org.example.appnganhang.model.NhanVien;
+import org.example.appnganhang.controller.service.Iml.NhanVienServiceImpl;
+import org.example.appnganhang.controller.service.NhanVienService;
 
 import java.util.List;
 import java.util.Optional;
