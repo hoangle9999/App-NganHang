@@ -1,8 +1,8 @@
 package org.example.appnganhang.controller.service.Iml;
 
-import org.example.appnganhang.model.dao.HamMucDAO;
+import org.example.appnganhang.model.dao.HanMucDAO;
 import org.example.appnganhang.model.dao.Impl.HanMucDAOImpl;
-import org.example.appnganhang.model.HanMucGiaoDich;
+import org.example.appnganhang.model.entity.HanMucGiaoDich;
 import org.example.appnganhang.controller.service.HanMucService;
 
 import java.math.BigDecimal;
@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class HanMucServiceImpl implements HanMucService {
 
-    private final HamMucDAO hanMucDAO;
+    private final HanMucDAO hanMucDAO;
 
     public HanMucServiceImpl() {
         this.hanMucDAO = new HanMucDAOImpl();
@@ -74,16 +74,4 @@ public class HanMucServiceImpl implements HanMucService {
         return hanMucDAO.getHanMuc(maHanMuc);
     }
 
-    @Override
-    public boolean kiemTraHanMuc(String maTaiKhoan, BigDecimal soTien) {
-        if (maTaiKhoan == null || maTaiKhoan.trim().isEmpty()) {
-            return false;
-        }
-
-        if (soTien == null ||
-                soTien.compareTo(BigDecimal.ZERO) <= 0) {
-            return false;
-        }
-        return hanMucDAO.kiemTraHanMuc(maTaiKhoan, soTien);
-    }
 }

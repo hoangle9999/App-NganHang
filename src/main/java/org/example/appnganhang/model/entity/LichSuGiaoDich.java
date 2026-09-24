@@ -1,4 +1,4 @@
-package org.example.appnganhang.model;
+package org.example.appnganhang.model.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

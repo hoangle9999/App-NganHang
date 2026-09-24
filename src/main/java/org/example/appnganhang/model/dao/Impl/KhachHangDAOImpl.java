@@ -1,7 +1,7 @@
 package org.example.appnganhang.model.dao.Impl;
 
 import org.example.appnganhang.model.dao.KhachHangDAO;
-import org.example.appnganhang.model.KhachHang;
+import org.example.appnganhang.model.entity.KhachHang;
 import org.example.appnganhang.model.util.DBConnection;
 
 import java.sql.Connection;

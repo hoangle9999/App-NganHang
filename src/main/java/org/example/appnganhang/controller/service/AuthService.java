@@ -1,7 +1,7 @@
 package org.example.appnganhang.controller.service;
 
-import org.example.appnganhang.model.KhachHang;
-import org.example.appnganhang.model.TaiKhoanDangNhap_VaiTro;
+import org.example.appnganhang.model.entity.KhachHang;
+import org.example.appnganhang.model.entity.TaiKhoanDangNhap_VaiTro;
 
 public interface AuthService {
     boolean login(String tenDangNhap, String matKhau);

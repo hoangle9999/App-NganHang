@@ -1,6 +1,6 @@
 package org.example.appnganhang.controller;
 
-import org.example.appnganhang.model.KhachHang;
+import org.example.appnganhang.model.entity.KhachHang;
 import org.example.appnganhang.controller.service.KhachHangService;
 import org.example.appnganhang.controller.service.Iml.KhachHangServiceImpl;
 

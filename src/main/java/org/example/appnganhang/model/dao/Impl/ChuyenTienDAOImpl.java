@@ -1,7 +1,7 @@
 package org.example.appnganhang.model.dao.Impl;
 
 import org.example.appnganhang.model.dao.ChuyenTienDAO;
-import org.example.appnganhang.model.GiaoDichChuyenTien;
+import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 import org.example.appnganhang.model.util.DBConnection;
 
 import java.math.BigDecimal;

@@ -1,7 +1,7 @@
 package org.example.appnganhang.model.dao.Impl;
 
-import org.example.appnganhang.model.dao.HamMucDAO;
-import org.example.appnganhang.model.HanMucGiaoDich;
+import org.example.appnganhang.model.dao.HanMucDAO;
+import org.example.appnganhang.model.entity.HanMucGiaoDich;
 import org.example.appnganhang.model.util.DBConnection;
 
 import java.math.BigDecimal;
@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-public class HanMucDAOImpl implements HamMucDAO {
+public class HanMucDAOImpl implements HanMucDAO {
     private static final String SQL_THEM_HAN_MUC = """
             INSERT INTO HanMucGiaoDịch
             (MaHanMuc, TenHanMuc, HanMucNgay)
@@ -36,14 +36,6 @@ public class HanMucDAOImpl implements HamMucDAO {
                    HanMucNgay
             FROM HanMucGiaoDịch
             WHERE MaHanMuc = ?
-            """;
-
-    private static final String SQL_KIEM_TRA_HAN_MUC = """
-            SELECT HMGD.HanMucNgay
-            FROM TaiKhoanNganHang TKNH
-            INNER JOIN HanMucGiaoDịch HMGD
-                ON TKNH.MaHanMuc = HMGD.MaHanMuc
-            WHERE TKNH.MaTaiKhoan = ?
             """;
 
     @Override
@@ -121,27 +113,4 @@ public class HanMucDAOImpl implements HamMucDAO {
         return Optional.empty();
     }
 
-    @Override
-    public boolean kiemTraHanMuc(String maTaiKhoan, BigDecimal soTien) {
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(SQL_KIEM_TRA_HAN_MUC)) {
-
-            ps.setString(1, maTaiKhoan);
-
-            try (ResultSet rs = ps.executeQuery()) {
-
-                if (rs.next()) {
-                    BigDecimal hanMucNgay =
-                            rs.getBigDecimal("HanMucNgay");
-
-                    return soTien.compareTo(hanMucNgay) <= 0;
-                }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
 }

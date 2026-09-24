@@ -1,7 +1,7 @@
 package org.example.appnganhang.model.dao.Impl;
 
 import org.example.appnganhang.model.dao.TaiKhoanDangNhapDAO;
-import org.example.appnganhang.model.TaiKhoanDangNhap_VaiTro;
+import org.example.appnganhang.model.entity.TaiKhoanDangNhap_VaiTro;
 import org.example.appnganhang.model.util.DBConnection;
 
 import java.sql.Connection;

@@ -1,7 +1,7 @@
 package org.example.appnganhang.model.dao;
 
-import org.example.appnganhang.model.GiaoDichChuyenTien;
-import org.example.appnganhang.model.LichSuGiaoDich;
+import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
+import org.example.appnganhang.model.entity.LichSuGiaoDich;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,6 +1,6 @@
 package org.example.appnganhang.model.dao;
 
-import org.example.appnganhang.model.TaiKhoanDangNhap_VaiTro;
+import org.example.appnganhang.model.entity.TaiKhoanDangNhap_VaiTro;
 
 import java.util.Optional;
 

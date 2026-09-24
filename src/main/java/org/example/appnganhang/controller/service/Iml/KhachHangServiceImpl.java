@@ -2,7 +2,7 @@ package org.example.appnganhang.controller.service.Iml;
 
 import org.example.appnganhang.model.dao.Impl.KhachHangDAOImpl;
 import org.example.appnganhang.model.dao.KhachHangDAO;
-import org.example.appnganhang.model.KhachHang;
+import org.example.appnganhang.model.entity.KhachHang;
 import org.example.appnganhang.controller.service.KhachHangService;
 
 import java.util.List;

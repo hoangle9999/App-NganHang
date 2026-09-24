@@ -4,16 +4,15 @@ import org.example.appnganhang.model.dao.Impl.KhachHangDAOImpl;
 import org.example.appnganhang.model.dao.Impl.TaiKhoanDangNhapDAOImpl;
 import org.example.appnganhang.model.dao.KhachHangDAO;
 import org.example.appnganhang.model.dao.TaiKhoanDangNhapDAO;
-import org.example.appnganhang.model.KhachHang;
-import org.example.appnganhang.model.TaiKhoanDangNhap_VaiTro;
+import org.example.appnganhang.model.entity.KhachHang;
+import org.example.appnganhang.model.entity.TaiKhoanDangNhap_VaiTro;
 import org.example.appnganhang.controller.service.AuthService;
 
 import java.util.Optional;
 
 public class AuthServiceImpl implements AuthService {
     private final TaiKhoanDangNhapDAO taiKhoanDangNhapDAO;
-    final KhachHangDAO khachHangDAO;
-
+    private final KhachHangDAO khachHangDAO;
 
     private TaiKhoanDangNhap_VaiTro currentUser;
 

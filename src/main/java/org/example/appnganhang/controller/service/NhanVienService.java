@@ -1,6 +1,6 @@
 package org.example.appnganhang.controller.service;
 
-import org.example.appnganhang.model.NhanVien;
+import org.example.appnganhang.model.entity.NhanVien;
 
 import java.util.List;
 import java.util.Optional;

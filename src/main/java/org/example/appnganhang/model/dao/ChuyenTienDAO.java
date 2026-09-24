@@ -1,6 +1,6 @@
 package org.example.appnganhang.model.dao;
 
-import org.example.appnganhang.model.GiaoDichChuyenTien;
+import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 
 import java.math.BigDecimal;
 import java.util.Optional;

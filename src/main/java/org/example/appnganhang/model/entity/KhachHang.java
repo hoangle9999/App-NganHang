@@ -1,4 +1,4 @@
-package org.example.appnganhang.model;
+package org.example.appnganhang.model.entity;
 
 public class KhachHang {
     private String maKhachHang;

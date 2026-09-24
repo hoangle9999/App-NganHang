@@ -1,8 +1,8 @@
 package org.example.appnganhang.model.dao.Impl;
 
 import org.example.appnganhang.model.dao.GiaoDichDAO;
-import org.example.appnganhang.model.GiaoDichChuyenTien;
-import org.example.appnganhang.model.LichSuGiaoDich;
+import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
+import org.example.appnganhang.model.entity.LichSuGiaoDich;
 import org.example.appnganhang.model.util.DBConnection;
 
 import java.sql.*;

@@ -2,8 +2,8 @@ package org.example.appnganhang.controller.service.Iml;
 
 import org.example.appnganhang.model.dao.GiaoDichDAO;
 import org.example.appnganhang.model.dao.Impl.GiaoDichDAOImpl;
-import org.example.appnganhang.model.GiaoDichChuyenTien;
-import org.example.appnganhang.model.LichSuGiaoDich;
+import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
+import org.example.appnganhang.model.entity.LichSuGiaoDich;
 import org.example.appnganhang.controller.service.GiaoDichService;
 
 import java.time.LocalDateTime;

@@ -1,6 +1,6 @@
 package org.example.appnganhang.controller.service;
 
-import org.example.appnganhang.model.LoaiGiaoDich;
+import org.example.appnganhang.model.entity.LoaiGiaoDich;
 
 import java.util.List;
 

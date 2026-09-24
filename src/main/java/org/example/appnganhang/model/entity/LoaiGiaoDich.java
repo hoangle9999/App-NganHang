@@ -1,4 +1,4 @@
-package org.example.appnganhang.model;
+package org.example.appnganhang.model.entity;
 
 public class LoaiGiaoDich {
     private String maLoaiGD;

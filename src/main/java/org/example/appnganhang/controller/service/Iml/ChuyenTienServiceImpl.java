@@ -2,7 +2,7 @@ package org.example.appnganhang.controller.service.Iml;
 
 import org.example.appnganhang.model.dao.ChuyenTienDAO;
 import org.example.appnganhang.model.dao.Impl.ChuyenTienDAOImpl;
-import org.example.appnganhang.model.GiaoDichChuyenTien;
+import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 import org.example.appnganhang.controller.service.ChuyenTienService;
 
 import java.math.BigDecimal;

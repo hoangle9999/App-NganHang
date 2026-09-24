@@ -2,7 +2,7 @@ package org.example.appnganhang.controller.service.Iml;
 
 import org.example.appnganhang.model.dao.NhanVienDAO;
 import org.example.appnganhang.model.dao.Impl.NhanVienDAOImpl;
-import org.example.appnganhang.model.NhanVien;
+import org.example.appnganhang.model.entity.NhanVien;
 import org.example.appnganhang.controller.service.NhanVienService;
 
 import java.util.List;

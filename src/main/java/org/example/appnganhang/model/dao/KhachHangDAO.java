@@ -1,6 +1,6 @@
 package org.example.appnganhang.model.dao;
 
-import org.example.appnganhang.model.KhachHang;
+import org.example.appnganhang.model.entity.KhachHang;
 
 import java.util.List;
 import java.util.Optional;
