@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.scene.Parent;
 import org.example.appnganhang.MainApp;
 import org.example.appnganhang.model.entity.KhachHang;
 import org.example.appnganhang.controller.service.AuthService;
@@ -69,14 +70,36 @@ public class RegisterController {
     }
 
     // Xử lý sự kiện nút Quay lại Đăng nhập
+
     @FXML
     protected void handleBackToLogin() {
         try {
             Stage stage = (Stage) txtHoTen.getScene().getWindow();
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("login-view.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 450, 500);
-            stage.setTitle("Hệ Thống Chuyển Tiền Ngân Hàng - Đăng Nhập");
+
+            FXMLLoader fxmlLoader =
+                    new FXMLLoader(MainApp.class.getResource("login-view.fxml"));
+
+            Parent root = fxmlLoader.load();
+
+            Scene scene = new Scene(root, 500, 850);
+
             stage.setScene(scene);
+            stage.setTitle("SMART BANK - Đăng Nhập");
+
+            // Đưa kích thước Stage về đúng kích thước Login
+            stage.setWidth(500);
+            stage.setHeight(850);
+
+            stage.setMinWidth(500);
+            stage.setMinHeight(850);
+
+            stage.setMaxWidth(500);
+            stage.setMaxHeight(850);
+
+            stage.setResizable(false);
+            stage.centerOnScreen();
+            stage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -11,7 +11,8 @@ public class DBConnection {
                     "databaseName=DB_ChuyenTienNganHang;" +
                     "encrypt=true;" +
                     "trustServerCertificate=true;" +
-                    "integratedSecurity=true";
+                    "user=sa;" +
+                    "password=123456";
 
     public static Connection getConnection() throws SQLException {
         Connection databaseLink = DriverManager.getConnection(URL);
