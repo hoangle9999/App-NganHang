@@ -9,19 +9,28 @@ import java.io.IOException;
 import java.net.URL;
 
 public class MainApp extends Application {
+
     @Override
     public void start(Stage stage) throws IOException {
-        // Sử dụng đường dẫn tuyệt đối bắt đầu từ dấu gạch chéo '/'
-        URL fxmlLocation = MainApp.class.getResource("/org/example/appnganhang/login-view.fxml");
+
+        URL fxmlLocation =
+                MainApp.class.getResource("/org/example/appnganhang/login-view.fxml");
 
         if (fxmlLocation == null) {
-            throw new IOException("Không thể tìm thấy file login-view.fxml tại đường dẫn resources!");
+            throw new IOException(
+                    "Không thể tìm thấy file login-view.fxml tại đường dẫn resources!"
+            );
         }
 
         FXMLLoader fxmlLoader = new FXMLLoader(fxmlLocation);
-        Scene scene = new Scene(fxmlLoader.load(), 450, 500);
-        stage.setTitle("Hệ Thống Chuyển Tiền Ngân Hàng - Đăng Nhập");
+
+        Scene scene = new Scene(fxmlLoader.load(), 500, 850);
+
+        stage.setTitle("SMART BANK");
         stage.setScene(scene);
+
+        stage.setResizable(false);
+
         stage.show();
     }
 

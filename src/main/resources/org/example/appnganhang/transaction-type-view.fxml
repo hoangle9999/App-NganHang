@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -12,7 +13,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.appnganhang.controller.LichSuGiaoDichController"
+            fx:controller="org.example.appnganhang.controller.LoaiGiaoDichController"
             prefWidth="1280"
             prefHeight="760"
             style="-fx-background-color: #F7F8FC;">
@@ -67,9 +68,13 @@
                         style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
                 <Button text="Tra cứu giao dịch" maxWidth="Infinity" alignment="CENTER_LEFT"
                         style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
+                <Button text="Lịch sử giao dịch" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
+                <Button text="Hạn mức" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
 
-                <!-- Mục đang chọn: Lịch sử giao dịch -->
-                <Button text="Lịch sử giao dịch"
+                <!-- Mục đang chọn: Loại giao dịch -->
+                <Button text="Loại giao dịch"
                         maxWidth="Infinity"
                         alignment="CENTER_LEFT"
                         style="-fx-background-color: rgba(255, 255, 255, 0.15);
@@ -80,10 +85,6 @@
                                -fx-padding: 10 12;
                                -fx-cursor: hand;"/>
 
-                <Button text="Hạn mức" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
-                <Button text="Loại giao dịch" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
                 <Button text="Chi nhánh" maxWidth="Infinity" alignment="CENTER_LEFT"
                         style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
                 <Button text="Nhân viên" maxWidth="Infinity" alignment="CENTER_LEFT"
@@ -114,58 +115,63 @@
                 <Insets top="30" right="35" bottom="30" left="35"/>
             </padding>
 
-            <!-- Header phải -->
+            <!-- Header phải & Nhập liệu -->
             <top>
-                <VBox spacing="5">
+                <VBox spacing="15">
                     <VBox spacing="4">
-                        <Label text="Lịch sử giao dịch"
+                        <Label text="Quản lý loại giao dịch"
                                style="-fx-font-size: 26px;
                                       -fx-font-weight: bold;
                                       -fx-text-fill: #171A35;"/>
-                        <Label text="Danh sách các giao dịch gần đây của bạn"
+                        <Label text="Thêm, sửa và quản lý danh mục loại giao dịch trong hệ thống"
                                style="-fx-font-size: 13px;
                                       -fx-text-fill: #85879A;"/>
                     </VBox>
-                    <Region prefHeight="15"/>
+
+                    <!-- Khung nhập liệu / lọc loại giao dịch -->
+                    <VBox spacing="12"
+                          style="-fx-background-color: white;
+                                 -fx-background-radius: 14;
+                                 -fx-border-color: #E6E7EF;
+                                 -fx-border-radius: 14;
+                                 -fx-border-width: 1;">
+                        <padding>
+                            <Insets top="16" right="20" bottom="16" left="20"/>
+                        </padding>
+                        <Label text="Thông tin loại giao dịch"
+                               style="-fx-font-size: 15px;
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: #171A35;"/>
+
+                        <HBox spacing="15.0" alignment="CENTER_LEFT">
+                            <TextField fx:id="txtMaLoaiGD"
+                                       prefWidth="220.0"
+                                       promptText="Mã loại giao dịch"
+                                       style="-fx-background-color: #F7F8FC; -fx-background-radius: 8; -fx-border-color: #E6E7EF; -fx-border-radius: 8; -fx-padding: 9 12; -fx-font-size: 13px;"/>
+
+                            <TextField fx:id="txtTenLoaiGD"
+                                       prefWidth="320.0"
+                                       promptText="Tên loại giao dịch"
+                                       style="-fx-background-color: #F7F8FC; -fx-background-radius: 8; -fx-border-color: #E6E7EF; -fx-border-radius: 8; -fx-padding: 9 12; -fx-font-size: 13px;"/>
+                        </HBox>
+                    </VBox>
                 </VBox>
             </top>
 
-            <!-- Center phải: Bảng lịch sử giao dịch nằm trong card trắng -->
+            <!-- Center phải: Bảng dữ liệu loại giao dịch -->
             <center>
-                <VBox spacing="15"
-                      VBox.vgrow="ALWAYS"
-                      style="-fx-background-color: white;
-                             -fx-background-radius: 14;
-                             -fx-border-color: #E6E7EF;
-                             -fx-border-radius: 14;
-                             -fx-border-width: 1;">
-                    <padding>
-                        <Insets top="20" right="20" bottom="20" left="20"/>
-                    </padding>
-
-                    <HBox alignment="CENTER_LEFT">
-                        <Label text="Chi tiết giao dịch"
-                               style="-fx-font-size: 16px;
-                                      -fx-font-weight: bold;
-                                      -fx-text-fill: #171A35;"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Label text="Cập nhật thời gian thực"
-                               style="-fx-font-size: 12px;
-                                      -fx-text-fill: #85879A;"/>
-                    </HBox>
-
-                    <TableView fx:id="tblLichSu"
+                <VBox spacing="12">
+                    <Region prefHeight="5"/>
+                    <TableView fx:id="tblLoaiGiaoDich"
                                VBox.vgrow="ALWAYS"
-                               style="-fx-background-color: transparent;
-                                      -fx-border-color: #E6E7EF;
-                                      -fx-border-radius: 10;
-                                      -fx-background-radius: 10;">
+                               style="-fx-background-color: transparent; -fx-border-color: #E6E7EF; -fx-border-radius: 10; -fx-background-radius: 10;">
                         <columns>
-                            <TableColumn fx:id="colMaGD" prefWidth="130.0" text="Mã GD" />
-                            <TableColumn fx:id="colNgay" prefWidth="180.0" text="Thời gian" />
-                            <TableColumn fx:id="colLoai" prefWidth="160.0" text="Loại GD" />
-                            <TableColumn fx:id="colSoTien" prefWidth="180.0" text="Số tiền (VNĐ)" />
-                            <TableColumn fx:id="colTrangThai" prefWidth="150.0" text="Trạng thái" />
+                            <TableColumn fx:id="colMaLoaiGD"
+                                         prefWidth="300.0"
+                                         text="Mã loại giao dịch"/>
+                            <TableColumn fx:id="colTenLoaiGD"
+                                         prefWidth="500.0"
+                                         text="Tên loại giao dịch"/>
                         </columns>
                         <columnResizePolicy>
                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
@@ -173,6 +179,39 @@
                     </TableView>
                 </VBox>
             </center>
+
+            <!-- Bottom phải: Các nút thao tác thêm, sửa, xóa, làm mới -->
+            <bottom>
+                <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                    <padding>
+                        <Insets top="15" right="0" bottom="0" left="0"/>
+                    </padding>
+
+                    <Button fx:id="btnThem"
+                            mnemonicParsing="false"
+                            prefWidth="110.0"
+                            text="Thêm"
+                            style="-fx-background-color: #5148C9; -fx-background-radius: 8; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 0; -fx-cursor: hand;"/>
+
+                    <Button fx:id="btnSua"
+                            mnemonicParsing="false"
+                            prefWidth="110.0"
+                            text="Sửa"
+                            style="-fx-background-color: #E9E8FF; -fx-background-radius: 8; -fx-text-fill: #5148C9; -fx-font-weight: bold; -fx-padding: 10 0; -fx-cursor: hand;"/>
+
+                    <Button fx:id="btnXoa"
+                            mnemonicParsing="false"
+                            prefWidth="110.0"
+                            text="Xóa"
+                            style="-fx-background-color: #FFF0F0; -fx-background-radius: 8; -fx-text-fill: #D64545; -fx-font-weight: bold; -fx-padding: 10 0; -fx-cursor: hand;"/>
+
+                    <Button fx:id="btnLamMoi"
+                            mnemonicParsing="false"
+                            prefWidth="110.0"
+                            text="Làm mới"
+                            style="-fx-background-color: #E5E7EB; -fx-background-radius: 8; -fx-text-fill: #374151; -fx-font-weight: bold; -fx-padding: 10 0; -fx-cursor: hand;"/>
+                </HBox>
+            </bottom>
 
         </BorderPane>
     </center>

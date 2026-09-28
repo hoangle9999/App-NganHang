@@ -73,10 +73,27 @@ public class LoginController {
     protected void onRegisterLinkClick() {
         try {
             Stage stage = (Stage) txtTenDangNhap.getScene().getWindow();
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("register-view.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 450, 550);
-            stage.setTitle("Hệ Thống Chuyển Tiền Ngân Hàng - Đăng Ký");
+
+            FXMLLoader fxmlLoader =
+                    new FXMLLoader(MainApp.class.getResource("register-view.fxml"));
+
+            Parent root = fxmlLoader.load();
+
+            Scene scene = new Scene(root, 1100, 750);
+
             stage.setScene(scene);
+            stage.setTitle("SMART BANK - Đăng Ký");
+
+            stage.setWidth(1100);
+            stage.setHeight(750);
+
+            stage.setMinWidth(1100);
+            stage.setMinHeight(750);
+
+            stage.setResizable(false);
+            stage.centerOnScreen();
+            stage.show();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
