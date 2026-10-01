@@ -1,107 +1,221 @@
 package org.example.appnganhang.controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.scene.Parent;
-import org.example.appnganhang.MainApp;
-import org.example.appnganhang.model.entity.KhachHang;
-import org.example.appnganhang.controller.service.AuthService;
-import org.example.appnganhang.controller.service.Iml.AuthServiceImpl;
 
 import java.io.IOException;
 
 public class RegisterController {
-    private AuthService authService;
 
-    public RegisterController() {
-        this.authService = new AuthServiceImpl();
+    @FXML
+    private TextField txtHoTen;
+
+    @FXML
+    private TextField txtCCCD;
+
+    @FXML
+    private TextField txtSoDienThoai;
+
+    @FXML
+    private TextField txtEmail;
+
+    @FXML
+    private TextField txtTenDangNhap;
+
+    @FXML
+    private PasswordField txtMatKhau;
+
+    @FXML
+    private Label lblThongBao;
+
+    @FXML
+    private Button btnDangKy;
+
+    @FXML
+    private void initialize() {
+        lblThongBao.setText("");
     }
 
-    @FXML private TextField txtHoTen;
-    @FXML private TextField txtCCCD;
-    @FXML private TextField txtSoDienThoai;
-    @FXML private TextField txtEmail;
-    @FXML private TextField txtTenDangNhap;
-    @FXML private PasswordField txtMatKhau;
-    @FXML private Label lblThongBao;
+    // =========================================================
+    // ĐĂNG KÝ
+    // =========================================================
 
-    // Xử lý sự kiện khi bấm nút XÁC NHẬN ĐĂNG KÝ
     @FXML
-    protected void handleRegister() {
+    private void onRegisterButtonClick() {
+
         String hoTen = txtHoTen.getText().trim();
         String cccd = txtCCCD.getText().trim();
-        String sdt = txtSoDienThoai.getText().trim();
+        String soDienThoai = txtSoDienThoai.getText().trim();
         String email = txtEmail.getText().trim();
-        String tenDN = txtTenDangNhap.getText().trim();
-        String matKhau = txtMatKhau.getText().trim();
+        String tenDangNhap = txtTenDangNhap.getText().trim();
+        String matKhau = txtMatKhau.getText();
 
-        if (hoTen.isEmpty() || cccd.isEmpty() || sdt.isEmpty() || tenDN.isEmpty() || matKhau.isEmpty()) {
-            lblThongBao.setStyle("-fx-text-fill: red;");
-            lblThongBao.setText("Vui lòng điền đầy đủ các thông tin bắt buộc!");
+        if (hoTen.isEmpty()
+                || cccd.isEmpty()
+                || soDienThoai.isEmpty()
+                || email.isEmpty()
+                || tenDangNhap.isEmpty()
+                || matKhau.isEmpty()) {
+
+            hienThiThongBao(
+                    "Vui lòng nhập đầy đủ thông tin!",
+                    false
+            );
+
             return;
         }
 
-        // Tự động sinh mã khách hàng dựa trên thời gian
-        String maKhachHang = "KH" + (System.currentTimeMillis() % 100000);
+        if (cccd.length() != 12) {
 
-        KhachHang khachHang = new KhachHang();
+            hienThiThongBao(
+                    "CCCD phải gồm 12 số!",
+                    false
+            );
 
-        khachHang.setMaKhachHang(maKhachHang);
-        khachHang.setHoTen(hoTen);
-        khachHang.setSoCCCD(cccd);
-        khachHang.setSoDienThoai(sdt);
-        khachHang.setEmail(email.isEmpty() ? null : email);
-        khachHang.setTenDangNhap(tenDN);
-
-        boolean ketQua = authService.register(khachHang, matKhau);
-
-        if (ketQua) {
-            lblThongBao.setStyle("-fx-text-fill: green;");
-            lblThongBao.setText("Đăng ký thành công! Bạn có thể quay lại để đăng nhập.");
-        } else {
-            lblThongBao.setStyle("-fx-text-fill: red;");
-            lblThongBao.setText("Đăng ký thất bại! Tên đăng nhập, CCCD hoặc SĐT có thể đã tồn tại.");
+            return;
         }
+
+        if (!soDienThoai.matches("\\d+")) {
+
+            hienThiThongBao(
+                    "Số điện thoại chỉ được chứa chữ số!",
+                    false
+            );
+
+            return;
+        }
+
+        if (!email.contains("@")) {
+
+            hienThiThongBao(
+                    "Email không hợp lệ!",
+                    false
+            );
+
+            return;
+        }
+
+        if (matKhau.length() < 6) {
+
+            hienThiThongBao(
+                    "Mật khẩu phải có ít nhất 6 ký tự!",
+                    false
+            );
+
+            return;
+        }
+
+        /*
+         * Hiện tại chưa kết nối Database.
+         * Khi làm phần Service/DAO sẽ xử lý đăng ký
+         * tài khoản thật tại đây.
+         */
+
+        hienThiThongBao(
+                "Đăng ký tài khoản thành công!",
+                true
+        );
+
+        lamSachForm();
     }
 
-    // Xử lý sự kiện nút Quay lại Đăng nhập
+    // =========================================================
+    // QUAY LẠI ĐĂNG NHẬP
+    // =========================================================
 
     @FXML
-    protected void handleBackToLogin() {
+    private void onBackToLogin(ActionEvent event) {
+
         try {
-            Stage stage = (Stage) txtHoTen.getScene().getWindow();
 
-            FXMLLoader fxmlLoader =
-                    new FXMLLoader(MainApp.class.getResource("login-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "/org/example/appnganhang/login-view.fxml"
+                    )
+            );
 
-            Parent root = fxmlLoader.load();
+            Parent root = loader.load();
 
+            Stage stage =
+                    (Stage) ((Node) event.getSource())
+                            .getScene()
+                            .getWindow();
+
+            // Tạo lại Scene Login
             Scene scene = new Scene(root, 500, 850);
 
-            stage.setScene(scene);
-            stage.setTitle("SMART BANK - Đăng Nhập");
-
-            // Đưa kích thước Stage về đúng kích thước Login
-            stage.setWidth(500);
-            stage.setHeight(850);
-
+            // Quan trọng:
+            // Register đã đặt minWidth = 1100,
+            // nên phải trả giới hạn về kích thước của Login.
             stage.setMinWidth(500);
             stage.setMinHeight(850);
 
-            stage.setMaxWidth(500);
-            stage.setMaxHeight(850);
+            stage.setScene(scene);
+
+            stage.setWidth(500);
+            stage.setHeight(850);
 
             stage.setResizable(false);
+
+            stage.setTitle("SMART BANK");
+
             stage.centerOnScreen();
+
             stage.show();
 
         } catch (IOException e) {
+
             e.printStackTrace();
+        }
+    }
+
+    // =========================================================
+    // XÓA FORM
+    // =========================================================
+
+    private void lamSachForm() {
+
+        txtHoTen.clear();
+        txtCCCD.clear();
+        txtSoDienThoai.clear();
+        txtEmail.clear();
+        txtTenDangNhap.clear();
+        txtMatKhau.clear();
+    }
+
+    // =========================================================
+    // THÔNG BÁO
+    // =========================================================
+
+    private void hienThiThongBao(
+            String noiDung,
+            boolean thanhCong
+    ) {
+
+        lblThongBao.setText(noiDung);
+
+        if (thanhCong) {
+
+            lblThongBao.setStyle(
+                    "-fx-font-size: 12px;" +
+                            "-fx-text-fill: #2E8B57;"
+            );
+
+        } else {
+
+            lblThongBao.setStyle(
+                    "-fx-font-size: 12px;" +
+                            "-fx-text-fill: #D9534F;"
+            );
         }
     }
 }

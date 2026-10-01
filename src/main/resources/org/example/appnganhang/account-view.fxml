@@ -17,56 +17,95 @@
             prefHeight="760"
             style="-fx-background-color: #F7F8FC;">
 
-    <!-- ================= SIDEBAR TRÁI ================= -->
+    <!-- ===================================================== -->
+    <!-- SIDEBAR -->
+    <!-- ===================================================== -->
+
     <left>
+
         <VBox prefWidth="260"
               style="-fx-background-color: #262261;"
               spacing="8">
+
             <padding>
-                <Insets top="25" right="15" bottom="20" left="20"/>
+                <Insets top="25"
+                        right="15"
+                        bottom="20"
+                        left="20"/>
             </padding>
 
-            <!-- Logo / Brand -->
+
+            <!-- LOGO -->
+
             <Label text="SMART BANK"
                    style="-fx-font-size: 24px;
                           -fx-font-weight: bold;
                           -fx-text-fill: white;"/>
+
             <Label text="YOUR SMART BANKING"
                    style="-fx-font-size: 10px;
                           -fx-text-fill: #A0A0C0;"/>
 
+
             <Region prefHeight="15"/>
 
-            <!-- User Info Box -->
-            <VBox style="-fx-background-color: rgba(255, 255, 255, 0.08);
+
+            <!-- USER -->
+
+            <VBox spacing="3"
+                  style="-fx-background-color: rgba(255,255,255,0.08);
                          -fx-background-radius: 12;
-                         -fx-padding: 12 15;"
-                  spacing="3">
+                         -fx-padding: 12 15;">
+
                 <Label text="Xin chào"
                        style="-fx-font-size: 11px;
                               -fx-text-fill: #A0A0C0;"/>
+
                 <Label text="Người dùng"
                        style="-fx-font-size: 15px;
                               -fx-font-weight: bold;
                               -fx-text-fill: white;"/>
+
             </VBox>
 
+
             <Region prefHeight="10"/>
+
+
+            <!-- MENU -->
+
             <Label text="MENU"
                    style="-fx-font-size: 10px;
                           -fx-text-fill: #A0A0C0;
                           -fx-padding: 0 0 5 5;"/>
 
-            <!-- Danh sách menu điều hướng dọc -->
-            <VBox spacing="4" VBox.vgrow="ALWAYS">
-                <Button text="Khách hàng" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
 
-                <!-- Mục đang chọn: Tài khoản -->
+            <VBox spacing="4"
+                  VBox.vgrow="ALWAYS">
+
+
+                <!-- KHÁCH HÀNG -->
+
+                <Button text="Khách hàng"
+                        maxWidth="Infinity"
+                        alignment="CENTER_LEFT"
+                        onAction="#onKhachHang"
+                        mnemonicParsing="false"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #D0D0E0;
+                               -fx-font-size: 13px;
+                               -fx-padding: 10 12;
+                               -fx-cursor: hand;"/>
+
+
+                <!-- TÀI KHOẢN - ACTIVE -->
+
                 <Button text="Tài khoản"
                         maxWidth="Infinity"
                         alignment="CENTER_LEFT"
-                        style="-fx-background-color: rgba(255, 255, 255, 0.15);
+                        onAction="#onTaiKhoan"
+                        mnemonicParsing="false"
+                        style="-fx-background-color: rgba(255,255,255,0.15);
                                -fx-background-radius: 10;
                                -fx-text-fill: white;
                                -fx-font-size: 13px;
@@ -74,110 +113,337 @@
                                -fx-padding: 10 12;
                                -fx-cursor: hand;"/>
 
-                <Button text="Chuyển tiền" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
-                <Button text="Tra cứu giao dịch" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
-                <Button text="Lịch sử giao dịch" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
-                <Button text="Hạn mức" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
-                <Button text="Loại giao dịch" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
-                <Button text="Chi nhánh" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
-                <Button text="Nhân viên" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
-                <Button text="Báo cáo" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
-                <Button text="Đổi mật khẩu" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;"/>
+
+                <!-- CHUYỂN TIỀN -->
+
+                <Button text="Chuyển tiền"
+                        maxWidth="Infinity"
+                        alignment="CENTER_LEFT"
+                        onAction="#onChuyenTien"
+                        mnemonicParsing="false"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #D0D0E0;
+                               -fx-font-size: 13px;
+                               -fx-padding: 10 12;
+                               -fx-cursor: hand;"/>
+
+
+                <!-- TRA CỨU GIAO DỊCH -->
+
+                <Button text="Tra cứu giao dịch"
+                        maxWidth="Infinity"
+                        alignment="CENTER_LEFT"
+                        onAction="#onTraCuuGiaoDich"
+                        mnemonicParsing="false"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #D0D0E0;
+                               -fx-font-size: 13px;
+                               -fx-padding: 10 12;
+                               -fx-cursor: hand;"/>
+
+
+                <!-- LỊCH SỬ -->
+
+                <Button text="Lịch sử giao dịch"
+                        maxWidth="Infinity"
+                        alignment="CENTER_LEFT"
+                        onAction="#onLichSuGiaoDich"
+                        mnemonicParsing="false"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #D0D0E0;
+                               -fx-font-size: 13px;
+                               -fx-padding: 10 12;
+                               -fx-cursor: hand;"/>
+
+
+                <!-- HẠN MỨC -->
+
+                <Button text="Hạn mức"
+                        maxWidth="Infinity"
+                        alignment="CENTER_LEFT"
+                        onAction="#onHanMuc"
+                        mnemonicParsing="false"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #D0D0E0;
+                               -fx-font-size: 13px;
+                               -fx-padding: 10 12;
+                               -fx-cursor: hand;"/>
+
+
+                <!-- LOẠI GIAO DỊCH -->
+
+                <Button text="Loại giao dịch"
+                        maxWidth="Infinity"
+                        alignment="CENTER_LEFT"
+                        onAction="#onLoaiGiaoDich"
+                        mnemonicParsing="false"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #D0D0E0;
+                               -fx-font-size: 13px;
+                               -fx-padding: 10 12;
+                               -fx-cursor: hand;"/>
+
+
+                <!-- CHI NHÁNH -->
+
+                <Button text="Chi nhánh"
+                        maxWidth="Infinity"
+                        alignment="CENTER_LEFT"
+                        onAction="#onChiNhanh"
+                        mnemonicParsing="false"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #D0D0E0;
+                               -fx-font-size: 13px;
+                               -fx-padding: 10 12;
+                               -fx-cursor: hand;"/>
+
+
+                <!-- NHÂN VIÊN -->
+
+                <Button text="Nhân viên"
+                        maxWidth="Infinity"
+                        alignment="CENTER_LEFT"
+                        onAction="#onNhanVien"
+                        mnemonicParsing="false"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #D0D0E0;
+                               -fx-font-size: 13px;
+                               -fx-padding: 10 12;
+                               -fx-cursor: hand;"/>
+
+
+                <!-- BÁO CÁO -->
+
+                <Button text="Báo cáo"
+                        maxWidth="Infinity"
+                        alignment="CENTER_LEFT"
+                        onAction="#onBaoCao"
+                        mnemonicParsing="false"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #D0D0E0;
+                               -fx-font-size: 13px;
+                               -fx-padding: 10 12;
+                               -fx-cursor: hand;"/>
+
+
+                <!-- ĐỔI MẬT KHẨU -->
+
+                <Button text="Đổi mật khẩu"
+                        maxWidth="Infinity"
+                        alignment="CENTER_LEFT"
+                        onAction="#onDoiMatKhau"
+                        mnemonicParsing="false"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #D0D0E0;
+                               -fx-font-size: 13px;
+                               -fx-padding: 10 12;
+                               -fx-cursor: hand;"/>
+
             </VBox>
 
-            <!-- Đăng xuất -->
+
+            <!-- ĐĂNG XUẤT -->
+
             <Button text="Đăng xuất"
                     maxWidth="Infinity"
                     alignment="CENTER_LEFT"
-                    style="-fx-background-color: rgba(255, 255, 255, 0.08);
+                    onAction="#onDangXuat"
+                    mnemonicParsing="false"
+                    style="-fx-background-color: rgba(255,255,255,0.08);
                            -fx-background-radius: 10;
                            -fx-text-fill: white;
                            -fx-font-size: 13px;
                            -fx-padding: 10 12;
                            -fx-cursor: hand;"/>
+
         </VBox>
+
     </left>
 
-    <!-- ================= NỘI DUNG CHÍNH BÊN PHẢI ================= -->
+
+    <!-- ===================================================== -->
+    <!-- NỘI DUNG CHÍNH -->
+    <!-- ===================================================== -->
+
     <center>
+
         <BorderPane style="-fx-background-color: #F7F8FC;">
+
             <padding>
-                <Insets top="30" right="35" bottom="30" left="35"/>
+                <Insets top="30"
+                        right="35"
+                        bottom="30"
+                        left="35"/>
             </padding>
 
-            <!-- Header phải -->
+
+            <!-- HEADER -->
+
             <top>
+
                 <VBox spacing="5">
+
                     <HBox alignment="CENTER_LEFT">
+
                         <VBox spacing="4">
+
                             <Label text="Thông tin tài khoản &amp; số dư"
                                    style="-fx-font-size: 26px;
                                           -fx-font-weight: bold;
                                           -fx-text-fill: #171A35;"/>
+
                             <Label text="Quản lý thông tin thẻ và số dư khả dụng"
                                    style="-fx-font-size: 13px;
                                           -fx-text-fill: #85879A;"/>
+
                         </VBox>
+
                     </HBox>
+
                     <Region prefHeight="20"/>
+
                 </VBox>
+
             </top>
 
-            <!-- Center phải: Thẻ ngân hàng ảo & thông tin chủ thẻ -->
+
+            <!-- NỘI DUNG -->
+
             <center>
-                <VBox spacing="20" maxWidth="600" alignment="TOP_LEFT">
 
-                    <!-- Thẻ ngân hàng ảo (Card UI) -->
-                    <AnchorPane prefHeight="190.0" prefWidth="550.0" style="-fx-background-color: linear-gradient(to right, #171A35, #5148C9); -fx-background-radius: 18; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(30,30,70,0.15), 15, 0.1, 0, 5);">
+                <VBox spacing="20"
+                      maxWidth="600"
+                      alignment="TOP_LEFT">
+
+
+                    <!-- THẺ NGÂN HÀNG -->
+
+                    <AnchorPane prefHeight="190"
+                                prefWidth="550"
+                                style="-fx-background-color: linear-gradient(to right, #171A35, #5148C9);
+                                       -fx-background-radius: 18;
+                                       -fx-padding: 20;
+                                       -fx-effect: dropshadow(gaussian, rgba(30,30,70,0.15), 15, 0.1, 0, 5);">
+
                         <children>
-                            <Label layoutX="25.0" layoutY="20.0" text="SMART BANKING" textFill="#D9D8F5">
+
+                            <Label layoutX="25"
+                                   layoutY="20"
+                                   text="SMART BANKING"
+                                   textFill="#D9D8F5">
+
                                 <font>
-                                    <Font name="System Bold" size="13.0" />
+                                    <Font name="System Bold"
+                                          size="13"/>
                                 </font>
-                            </Label>
-                            <Label layoutX="25.0" layoutY="70.0" text="Số tài khoản:" textFill="#cbd5e1" />
-                            <Label fx:id="lblSoTaiKhoan" layoutX="120.0" layoutY="67.0" text="1903 8888 9999" textFill="WHITE">
-                                <font>
-                                    <Font name="System Bold" size="16.0" />
-                                </font>
+
                             </Label>
 
-                            <Label layoutX="25.0" layoutY="120.0" text="Số dư khả dụng:" textFill="#cbd5e1" />
-                            <Label fx:id="lblSoDu" layoutX="140.0" layoutY="113.0" text="15,450,000 VNĐ" textFill="#38bdf8">
+
+                            <Label layoutX="25"
+                                   layoutY="70"
+                                   text="Số tài khoản:"
+                                   textFill="#CBD5E1"/>
+
+
+                            <Label fx:id="lblSoTaiKhoan"
+                                   layoutX="120"
+                                   layoutY="67"
+                                   text="1903 8888 9999"
+                                   textFill="WHITE">
+
                                 <font>
-                                    <Font name="System Bold" size="20.0" />
+                                    <Font name="System Bold"
+                                          size="16"/>
                                 </font>
+
                             </Label>
+
+
+                            <Label layoutX="25"
+                                   layoutY="120"
+                                   text="Số dư khả dụng:"
+                                   textFill="#CBD5E1"/>
+
+
+                            <Label fx:id="lblSoDu"
+                                   layoutX="140"
+                                   layoutY="113"
+                                   text="15,450,000 VNĐ"
+                                   textFill="#38BDF8">
+
+                                <font>
+                                    <Font name="System Bold"
+                                          size="20"/>
+                                </font>
+
+                            </Label>
+
                         </children>
+
                     </AnchorPane>
 
-                    <!-- Khung thông tin chủ thẻ -->
-                    <VBox spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 14; -fx-border-color: #E6E7EF; -fx-border-radius: 14; -fx-border-width: 1; -fx-padding: 20;">
+
+                    <!-- THÔNG TIN CHỦ TÀI KHOẢN -->
+
+                    <VBox spacing="10"
+                          style="-fx-background-color: white;
+                                 -fx-background-radius: 14;
+                                 -fx-border-color: #E6E7EF;
+                                 -fx-border-radius: 14;
+                                 -fx-border-width: 1;
+                                 -fx-padding: 20;">
+
                         <children>
-                            <Label text="Thông tin chủ thẻ:" textFill="#171A35">
+
+                            <Label text="Thông tin chủ tài khoản:"
+                                   textFill="#171A35">
+
                                 <font>
-                                    <Font name="System Bold" size="15.0" />
+                                    <Font name="System Bold"
+                                          size="15"/>
                                 </font>
+
                             </Label>
-                            <Label fx:id="lblTenChuThe" text="Họ tên: NGUYỄN VĂN A" style="-fx-font-size: 13px; -fx-text-fill: #334155;" />
-                            <Label fx:id="lblTrangThaiThe" text="Trạng thái thẻ: Hoạt động (Active)" style="-fx-font-size: 13px; -fx-text-fill: #16a34a; -fx-font-weight: bold;" />
+
+
+                            <Label fx:id="lblTenChuThe"
+                                   text="Họ tên: NGUYỄN VĂN A"
+                                   style="-fx-font-size: 13px;
+                                          -fx-text-fill: #334155;"/>
+
+
+                            <Label fx:id="lblTrangThaiThe"
+                                   text="Trạng thái tài khoản: Hoạt động"
+                                   style="-fx-font-size: 13px;
+                                          -fx-text-fill: #16A34A;
+                                          -fx-font-weight: bold;"/>
+
                         </children>
+
                     </VBox>
 
-                    <!-- Nút làm mới -->
-                    <Button fx:id="btnLamMoi" mnemonicParsing="false" prefHeight="40.0" prefWidth="160.0" style="-fx-background-color: #5148C9; -fx-background-radius: 10; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Làm mới số dư" />
+
+                    <!-- LÀM MỚI -->
+
+                    <Button fx:id="btnLamMoi"
+                            text="Làm mới số dư"
+                            onAction="#onLamMoi"
+                            mnemonicParsing="false"
+                            prefHeight="40"
+                            prefWidth="160"
+                            style="-fx-background-color: #5148C9;
+                                   -fx-background-radius: 10;
+                                   -fx-text-fill: white;
+                                   -fx-font-weight: bold;
+                                   -fx-cursor: hand;"/>
+
                 </VBox>
+
             </center>
+
         </BorderPane>
+
     </center>
 
 </BorderPane>

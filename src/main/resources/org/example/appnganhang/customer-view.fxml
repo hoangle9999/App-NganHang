@@ -7,271 +7,509 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.ColumnConstraints?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.example.appnganhang.controller.KhachHangController"
-            prefWidth="1100"
-            prefHeight="750"
-            style="-fx-background-color: #F7F8FC;">
+            prefWidth="1100.0"
+            prefHeight="750.0">
 
-    <padding>
-        <Insets top="35"
-                right="40"
-                bottom="35"
-                left="40"/>
-    </padding>
+    <!-- ==================== SIDEBAR ==================== -->
+    <left>
+        <VBox prefWidth="235.0"
+              style="-fx-background-color: #171A35;">
 
-    <!-- ================= HEADER ================= -->
+            <padding>
+                <Insets top="25" right="15" bottom="20" left="15"/>
+            </padding>
 
-    <top>
-        <VBox spacing="5">
-            <HBox alignment="CENTER_LEFT">
-                <VBox spacing="5">
-                    <Label text="Quản lý khách hàng"
-                           style="-fx-font-size: 29px;
-                                  -fx-font-weight: bold;
-                                  -fx-text-fill: #171A35;"/>
-                    <Label text="Quản lý, thêm mới và tra cứu thông tin khách hàng hệ thống"
-                           style="-fx-font-size: 13px;
-                                  -fx-text-fill: #85879A;"/>
-                </VBox>
+            <!-- LOGO -->
+            <VBox spacing="2">
+                <Label text="SMART BANK"
+                       style="-fx-text-fill: white;
+                              -fx-font-size: 24px;
+                              -fx-font-weight: bold;"/>
 
-                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="YOUR SMART BANKING"
+                       style="-fx-text-fill: #BFC2D8;
+                              -fx-font-size: 10px;"/>
+            </VBox>
 
-                <Button fx:id="btnLamMoi"
-                        text="Làm mới"
-                        onAction="#onLamMoi"
-                        mnemonicParsing="false"
-                        style="-fx-background-color: #E9E8FF;
-                               -fx-background-radius: 11;
-                               -fx-text-fill: #5148C9;
-                               -fx-font-size: 13px;
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- USER -->
+            <VBox spacing="3">
+                <Label text="Xin chào"
+                       style="-fx-text-fill: #BFC2D8;
+                              -fx-font-size: 12px;"/>
+
+                <Label text="Người dùng"
+                       style="-fx-text-fill: white;
+                              -fx-font-size: 14px;
+                              -fx-font-weight: bold;"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Label text="MENU"
+                   style="-fx-text-fill: #8F93AF;
+                          -fx-font-size: 10px;
+                          -fx-font-weight: bold;">
+                <VBox.margin>
+                    <Insets bottom="8"/>
+                </VBox.margin>
+            </Label>
+
+            <!-- MENU -->
+            <VBox spacing="5">
+
+                <!-- KHÁCH HÀNG - ACTIVE -->
+                <Button text="Khách hàng"
+                        maxWidth="Infinity"
+                        onAction="#onKhachHang"
+                        style="-fx-background-color: rgba(255,255,255,0.15);
+                               -fx-background-radius: 10;
+                               -fx-text-fill: white;
                                -fx-font-weight: bold;
-                               -fx-padding: 11 18;
-                               -fx-cursor: hand;"/>
-            </HBox>
-            <Region prefHeight="10"/>
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 10 12;
+                               -fx-font-size: 13px;"/>
+
+                <Button text="Tài khoản"
+                        maxWidth="Infinity"
+                        onAction="#onTaiKhoan"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: white;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 10 12;
+                               -fx-background-radius: 10;
+                               -fx-font-size: 13px;"/>
+
+                <Button text="Chuyển tiền"
+                        maxWidth="Infinity"
+                        onAction="#onChuyenTien"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: white;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 10 12;
+                               -fx-background-radius: 10;
+                               -fx-font-size: 13px;"/>
+
+                <Button text="Tra cứu giao dịch"
+                        maxWidth="Infinity"
+                        onAction="#onTraCuuGiaoDich"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: white;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 10 12;
+                               -fx-background-radius: 10;
+                               -fx-font-size: 13px;"/>
+
+                <Button text="Lịch sử giao dịch"
+                        maxWidth="Infinity"
+                        onAction="#onLichSuGiaoDich"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: white;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 10 12;
+                               -fx-background-radius: 10;
+                               -fx-font-size: 13px;"/>
+
+                <Button text="Hạn mức"
+                        maxWidth="Infinity"
+                        onAction="#onHanMuc"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: white;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 10 12;
+                               -fx-background-radius: 10;
+                               -fx-font-size: 13px;"/>
+
+                <Button text="Loại giao dịch"
+                        maxWidth="Infinity"
+                        onAction="#onLoaiGiaoDich"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: white;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 10 12;
+                               -fx-background-radius: 10;
+                               -fx-font-size: 13px;"/>
+
+                <Button text="Chi nhánh"
+                        maxWidth="Infinity"
+                        onAction="#onChiNhanh"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: white;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 10 12;
+                               -fx-background-radius: 10;
+                               -fx-font-size: 13px;"/>
+
+                <Button text="Nhân viên"
+                        maxWidth="Infinity"
+                        onAction="#onNhanVien"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: white;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 10 12;
+                               -fx-background-radius: 10;
+                               -fx-font-size: 13px;"/>
+
+                <Button text="Báo cáo"
+                        maxWidth="Infinity"
+                        onAction="#onBaoCao"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: white;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 10 12;
+                               -fx-background-radius: 10;
+                               -fx-font-size: 13px;"/>
+
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- BOTTOM MENU -->
+            <VBox spacing="5">
+
+                <Button text="Đổi mật khẩu"
+                        maxWidth="Infinity"
+                        onAction="#onDoiMatKhau"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: white;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 10 12;
+                               -fx-background-radius: 10;
+                               -fx-font-size: 13px;"/>
+
+                <Button text="Đăng xuất"
+                        maxWidth="Infinity"
+                        onAction="#onDangXuat"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: white;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 10 12;
+                               -fx-background-radius: 10;
+                               -fx-font-size: 13px;"/>
+
+            </VBox>
+
         </VBox>
-    </top>
+    </left>
 
-
-    <!-- ================= MAIN CONTENT ================= -->
-
+    <!-- ==================== CONTENT ==================== -->
     <center>
 
-        <HBox spacing="20">
+        <VBox spacing="20"
+              style="-fx-background-color: #F7F8FC;">
 
-            <!-- CỘT TRÁI: FORM NHẬP THÔNG TIN KHÁCH HÀNG -->
+            <padding>
+                <Insets top="30" right="35" bottom="30" left="35"/>
+            </padding>
+
+            <!-- HEADER -->
+            <VBox spacing="5">
+
+                <Label text="Quản lý khách hàng"
+                       style="-fx-text-fill: #171A35;
+                              -fx-font-size: 26px;
+                              -fx-font-weight: bold;"/>
+
+                <Label text="Quản lý thông tin khách hàng trong hệ thống"
+                       style="-fx-text-fill: #777B91;
+                              -fx-font-size: 13px;"/>
+
+            </VBox>
+
+            <!-- ==================== FORM CARD ==================== -->
             <VBox spacing="15"
-                  prefWidth="350"
-                  maxWidth="350"
                   style="-fx-background-color: white;
-                         -fx-background-radius: 18;
-                         -fx-border-color: #E6E7EF;
-                         -fx-border-radius: 18;
-                         -fx-border-width: 1;">
+                         -fx-background-radius: 20;
+                         -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 18, 0.15, 0, 5);">
+
+                <padding>
+                    <Insets top="20" right="25" bottom="20" left="25"/>
+                </padding>
+
+                <Label text="Thông tin khách hàng"
+                       style="-fx-text-fill: #171A35;
+                              -fx-font-size: 17px;
+                              -fx-font-weight: bold;"/>
+
+                <!-- ROW 1 -->
+                <HBox spacing="12">
+
+                    <VBox spacing="6"
+                          HBox.hgrow="ALWAYS">
+
+                        <Label text="Mã khách hàng"
+                               style="-fx-text-fill: #4D5063;
+                                      -fx-font-size: 12px;
+                                      -fx-font-weight: bold;"/>
+
+                        <TextField fx:id="txtMaKhachHang"
+                                   promptText="Nhập mã khách hàng"
+                                   prefHeight="42"
+                                   style="-fx-background-color: white;
+                                          -fx-background-radius: 13;
+                                          -fx-border-color: #E0E1E8;
+                                          -fx-border-radius: 13;
+                                          -fx-padding: 0 15;"/>
+
+                    </VBox>
+
+                    <VBox spacing="6"
+                          HBox.hgrow="ALWAYS">
+
+                        <Label text="Họ và tên"
+                               style="-fx-text-fill: #4D5063;
+                                      -fx-font-size: 12px;
+                                      -fx-font-weight: bold;"/>
+
+                        <TextField fx:id="txtHoTen"
+                                   promptText="Nhập họ và tên"
+                                   prefHeight="42"
+                                   style="-fx-background-color: white;
+                                          -fx-background-radius: 13;
+                                          -fx-border-color: #E0E1E8;
+                                          -fx-border-radius: 13;
+                                          -fx-padding: 0 15;"/>
+
+                    </VBox>
+
+                </HBox>
+
+                <!-- ROW 2 -->
+                <HBox spacing="12">
+
+                    <VBox spacing="6"
+                          HBox.hgrow="ALWAYS">
+
+                        <Label text="CCCD"
+                               style="-fx-text-fill: #4D5063;
+                                      -fx-font-size: 12px;
+                                      -fx-font-weight: bold;"/>
+
+                        <TextField fx:id="txtCCCD"
+                                   promptText="Nhập số CCCD"
+                                   prefHeight="42"
+                                   style="-fx-background-color: white;
+                                          -fx-background-radius: 13;
+                                          -fx-border-color: #E0E1E8;
+                                          -fx-border-radius: 13;
+                                          -fx-padding: 0 15;"/>
+
+                    </VBox>
+
+                    <VBox spacing="6"
+                          HBox.hgrow="ALWAYS">
+
+                        <Label text="Số điện thoại"
+                               style="-fx-text-fill: #4D5063;
+                                      -fx-font-size: 12px;
+                                      -fx-font-weight: bold;"/>
+
+                        <TextField fx:id="txtSoDienThoai"
+                                   promptText="Nhập số điện thoại"
+                                   prefHeight="42"
+                                   style="-fx-background-color: white;
+                                          -fx-background-radius: 13;
+                                          -fx-border-color: #E0E1E8;
+                                          -fx-border-radius: 13;
+                                          -fx-padding: 0 15;"/>
+
+                    </VBox>
+
+                </HBox>
+
+                <!-- ROW 3 -->
+                <HBox spacing="12">
+
+                    <VBox spacing="6"
+                          HBox.hgrow="ALWAYS">
+
+                        <Label text="Email"
+                               style="-fx-text-fill: #4D5063;
+                                      -fx-font-size: 12px;
+                                      -fx-font-weight: bold;"/>
+
+                        <TextField fx:id="txtEmail"
+                                   promptText="Nhập email"
+                                   prefHeight="42"
+                                   style="-fx-background-color: white;
+                                          -fx-background-radius: 13;
+                                          -fx-border-color: #E0E1E8;
+                                          -fx-border-radius: 13;
+                                          -fx-padding: 0 15;"/>
+
+                    </VBox>
+
+                    <VBox spacing="6"
+                          HBox.hgrow="ALWAYS">
+
+                        <Label text="Địa chỉ"
+                               style="-fx-text-fill: #4D5063;
+                                      -fx-font-size: 12px;
+                                      -fx-font-weight: bold;"/>
+
+                        <TextField fx:id="txtDiaChi"
+                                   promptText="Nhập địa chỉ"
+                                   prefHeight="42"
+                                   style="-fx-background-color: white;
+                                          -fx-background-radius: 13;
+                                          -fx-border-color: #E0E1E8;
+                                          -fx-border-radius: 13;
+                                          -fx-padding: 0 15;"/>
+
+                    </VBox>
+
+                </HBox>
+
+                <!-- ROW 4 -->
+                <HBox spacing="12">
+
+                    <VBox spacing="6"
+                          HBox.hgrow="ALWAYS">
+
+                        <Label text="Tên đăng nhập"
+                               style="-fx-text-fill: #4D5063;
+                                      -fx-font-size: 12px;
+                                      -fx-font-weight: bold;"/>
+
+                        <TextField fx:id="txtTenDangNhap"
+                                   promptText="Nhập tên đăng nhập"
+                                   prefHeight="42"
+                                   style="-fx-background-color: white;
+                                          -fx-background-radius: 13;
+                                          -fx-border-color: #E0E1E8;
+                                          -fx-border-radius: 13;
+                                          -fx-padding: 0 15;"/>
+
+                    </VBox>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                </HBox>
+
+                <!-- BUTTONS -->
+                <HBox spacing="10">
+
+                    <Button fx:id="btnTimKiem"
+                            text="Tìm kiếm"
+                            prefHeight="42"
+                            prefWidth="120"
+                            onAction="#onTimKiem"
+                            style="-fx-background-color: #5148C9;
+                                   -fx-background-radius: 13;
+                                   -fx-text-fill: white;
+                                   -fx-font-weight: bold;"/>
+
+                    <Button fx:id="btnLamMoi"
+                            text="Làm mới"
+                            prefHeight="42"
+                            prefWidth="110"
+                            onAction="#onLamMoi"
+                            style="-fx-background-color: #E9EAF2;
+                                   -fx-background-radius: 13;
+                                   -fx-text-fill: #171A35;
+                                   -fx-font-weight: bold;"/>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <Button fx:id="btnThem"
+                            text="Thêm"
+                            prefHeight="42"
+                            prefWidth="90"
+                            onAction="#onThem"
+                            style="-fx-background-color: #5148C9;
+                                   -fx-background-radius: 13;
+                                   -fx-text-fill: white;
+                                   -fx-font-weight: bold;"/>
+
+                    <Button fx:id="btnSua"
+                            text="Sửa"
+                            prefHeight="42"
+                            prefWidth="90"
+                            onAction="#onSua"
+                            style="-fx-background-color: #E9EAF2;
+                                   -fx-background-radius: 13;
+                                   -fx-text-fill: #171A35;
+                                   -fx-font-weight: bold;"/>
+
+                    <Button fx:id="btnXoa"
+                            text="Xóa"
+                            prefHeight="42"
+                            prefWidth="90"
+                            onAction="#onXoa"
+                            style="-fx-background-color: #FDECEC;
+                                   -fx-background-radius: 13;
+                                   -fx-text-fill: #D9534F;
+                                   -fx-font-weight: bold;"/>
+
+                </HBox>
+
+            </VBox>
+
+            <!-- ==================== TABLE CARD ==================== -->
+            <VBox spacing="12"
+                  VBox.vgrow="ALWAYS"
+                  style="-fx-background-color: white;
+                         -fx-background-radius: 20;
+                         -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 18, 0.15, 0, 5);">
 
                 <padding>
                     <Insets top="20" right="20" bottom="20" left="20"/>
                 </padding>
 
-                <Label text="Thông tin chi tiết"
-                       style="-fx-font-size: 16px;
-                              -fx-font-weight: bold;
-                              -fx-text-fill: #171A35;"/>
+                <Label text="Danh sách khách hàng"
+                       style="-fx-text-fill: #171A35;
+                              -fx-font-size: 17px;
+                              -fx-font-weight: bold;"/>
 
-                <VBox spacing="10" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tblKhachHang"
+                           VBox.vgrow="ALWAYS"
+                           prefHeight="300">
 
-                    <!-- Mã khách hàng -->
-                    <VBox spacing="5">
-                        <Label text="Mã khách hàng" style="-fx-font-size: 12px; -fx-text-fill: #5A5C69; -fx-font-weight: bold;"/>
-                        <TextField fx:id="txtMaKhachHang" promptText="VD: KH001"
-                                   style="-fx-background-color: #F7F8FC; -fx-background-radius: 10; -fx-border-color: #E6E7EF; -fx-border-radius: 10; -fx-padding: 10;"/>
-                    </VBox>
+                    <columns>
 
-                    <!-- Họ tên -->
-                    <VBox spacing="5">
-                        <Label text="Họ và tên" style="-fx-font-size: 12px; -fx-text-fill: #5A5C69; -fx-font-weight: bold;"/>
-                        <TextField fx:id="txtHoTen" promptText="Nhập họ tên đầy đủ"
-                                   style="-fx-background-color: #F7F8FC; -fx-background-radius: 10; -fx-border-color: #E6E7EF; -fx-border-radius: 10; -fx-padding: 10;"/>
-                    </VBox>
+                        <TableColumn fx:id="colMaKhachHang"
+                                     text="Mã KH"
+                                     prefWidth="90"/>
 
-                    <!-- CCCD -->
-                    <VBox spacing="5">
-                        <Label text="Số CCCD" style="-fx-font-size: 12px; -fx-text-fill: #5A5C69; -fx-font-weight: bold;"/>
-                        <TextField fx:id="txtCCCD" promptText="Nhập 12 số CCCD"
-                                   style="-fx-background-color: #F7F8FC; -fx-background-radius: 10; -fx-border-color: #E6E7EF; -fx-border-radius: 10; -fx-padding: 10;"/>
-                    </VBox>
+                        <TableColumn fx:id="colHoTen"
+                                     text="Họ và tên"
+                                     prefWidth="150"/>
 
-                    <!-- Số điện thoại -->
-                    <VBox spacing="5">
-                        <Label text="Số điện thoại" style="-fx-font-size: 12px; -fx-text-fill: #5A5C69; -fx-font-weight: bold;"/>
-                        <TextField fx:id="txtSoDienThoai" promptText="Nhập số điện thoại"
-                                   style="-fx-background-color: #F7F8FC; -fx-background-radius: 10; -fx-border-color: #E6E7EF; -fx-border-radius: 10; -fx-padding: 10;"/>
-                    </VBox>
+                        <TableColumn fx:id="colCCCD"
+                                     text="CCCD"
+                                     prefWidth="120"/>
 
-                    <!-- Email -->
-                    <VBox spacing="5">
-                        <Label text="Email" style="-fx-font-size: 12px; -fx-text-fill: #5A5C69; -fx-font-weight: bold;"/>
-                        <TextField fx:id="txtEmail" promptText="example@email.com"
-                                   style="-fx-background-color: #F7F8FC; -fx-background-radius: 10; -fx-border-color: #E6E7EF; -fx-border-radius: 10; -fx-padding: 10;"/>
-                    </VBox>
+                        <TableColumn fx:id="colSoDienThoai"
+                                     text="Số điện thoại"
+                                     prefWidth="120"/>
 
-                    <!-- Tên đăng nhập -->
-                    <VBox spacing="5">
-                        <Label text="Tên đăng nhập" style="-fx-font-size: 12px; -fx-text-fill: #5A5C69; -fx-font-weight: bold;"/>
-                        <TextField fx:id="txtTenDangNhap" promptText="Tên đăng nhập app"
-                                   style="-fx-background-color: #F7F8FC; -fx-background-radius: 10; -fx-border-color: #E6E7EF; -fx-border-radius: 10; -fx-padding: 10;"/>
-                    </VBox>
+                        <TableColumn fx:id="colEmail"
+                                     text="Email"
+                                     prefWidth="170"/>
 
-                </VBox>
+                        <TableColumn fx:id="colDiaChi"
+                                     text="Địa chỉ"
+                                     prefWidth="180"/>
 
-                <!-- KHU VỰC NÚT THAO TÁC FORM -->
-                <VBox spacing="10">
-                    <Button fx:id="btnThem"
-                            text="Thêm mới"
-                            onAction="#onThem"
-                            mnemonicParsing="false"
-                            maxWidth="Infinity"
-                            style="-fx-background-color: #5148C9;
-                                   -fx-background-radius: 10;
-                                   -fx-text-fill: white;
-                                   -fx-font-size: 13px;
-                                   -fx-font-weight: bold;
-                                   -fx-padding: 11;
-                                   -fx-cursor: hand;"/>
+                        <TableColumn fx:id="colTenDangNhap"
+                                     text="Tên đăng nhập"
+                                     prefWidth="130"/>
 
-                    <HBox spacing="10">
-                        <Button fx:id="btnSua"
-                                text="Cập nhật"
-                                onAction="#onSua"
-                                mnemonicParsing="false"
-                                HBox.hgrow="ALWAYS"
-                                maxWidth="Infinity"
-                                style="-fx-background-color: #E9E8FF;
-                                       -fx-background-radius: 10;
-                                       -fx-text-fill: #5148C9;
-                                       -fx-font-size: 13px;
-                                       -fx-font-weight: bold;
-                                       -fx-padding: 11;
-                                       -fx-cursor: hand;"/>
+                    </columns>
 
-                        <Button fx:id="btnXoa"
-                                text="Xóa"
-                                onAction="#onXoa"
-                                mnemonicParsing="false"
-                                HBox.hgrow="ALWAYS"
-                                maxWidth="Infinity"
-                                style="-fx-background-color: #FFF0F0;
-                                       -fx-background-radius: 10;
-                                       -fx-text-fill: #D64545;
-                                       -fx-font-size: 13px;
-                                       -fx-font-weight: bold;
-                                       -fx-padding: 11;
-                                       -fx-cursor: hand;"/>
-                    </HBox>
-                </VBox>
+                </TableView>
 
             </VBox>
 
-
-            <!-- CỘT PHẢI: TÌM KIẾM & BẢNG DANH SÁCH -->
-            <VBox spacing="20" HBox.hgrow="ALWAYS">
-
-                <!-- SEARCH CARD -->
-                <VBox spacing="10"
-                      style="-fx-background-color: white;
-                             -fx-background-radius: 18;
-                             -fx-border-color: #E6E7EF;
-                             -fx-border-radius: 18;
-                             -fx-border-width: 1;">
-                    <padding>
-                        <Insets top="18" right="20" bottom="18" left="20"/>
-                    </padding>
-                    <Label text="Tìm kiếm khách hàng"
-                           style="-fx-font-size: 15px;
-                                  -fx-font-weight: bold;
-                                  -fx-text-fill: #171A35;"/>
-                    <HBox spacing="10">
-                        <TextField fx:id="txtTimKiem"
-                                   promptText="Nhập mã khách hàng, họ tên, CCCD hoặc số điện thoại cần tìm..."
-                                   HBox.hgrow="ALWAYS"
-                                   style="-fx-background-color: #F7F8FC;
-                                          -fx-background-radius: 10;
-                                          -fx-border-color: #E6E7EF;
-                                          -fx-border-radius: 10;
-                                          -fx-border-width: 1;
-                                          -fx-padding: 10 14;
-                                          -fx-font-size: 13px;"/>
-
-                        <Button fx:id="btnTimKiem"
-                                text="Tìm kiếm"
-                                onAction="#onTimKiem"
-                                mnemonicParsing="false"
-                                style="-fx-background-color: #5148C9;
-                                       -fx-background-radius: 10;
-                                       -fx-text-fill: white;
-                                       -fx-font-size: 13px;
-                                       -fx-font-weight: bold;
-                                       -fx-padding: 10 18;
-                                       -fx-cursor: hand;"/>
-                    </HBox>
-                </VBox>
-
-
-                <!-- TABLE CARD -->
-                <VBox spacing="12"
-                      VBox.vgrow="ALWAYS"
-                      style="-fx-background-color: white;
-                             -fx-background-radius: 18;
-                             -fx-border-color: #E6E7EF;
-                             -fx-border-radius: 18;
-                             -fx-border-width: 1;">
-                    <padding>
-                        <Insets top="18" right="20" bottom="18" left="20"/>
-                    </padding>
-
-                    <HBox alignment="CENTER_LEFT">
-                        <Label text="Danh sách khách hàng"
-                               style="-fx-font-size: 15px;
-                                      -fx-font-weight: bold;
-                                      -fx-text-fill: #171A35;"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Label text="Chọn một dòng để xem hoặc chỉnh sửa"
-                               style="-fx-font-size: 12px;
-                                      -fx-text-fill: #85879A;"/>
-                    </HBox>
-
-                    <TableView fx:id="tblKhachHang"
-                               VBox.vgrow="ALWAYS"
-                               style="-fx-background-color: transparent;
-                                      -fx-border-color: #E6E7EF;
-                                      -fx-border-radius: 10;
-                                      -fx-background-radius: 10;">
-                        <columns>
-                            <TableColumn fx:id="colMaKhachHang" text="Mã KH" prefWidth="90"/>
-                            <TableColumn fx:id="colHoTen" text="Họ tên" prefWidth="140"/>
-                            <TableColumn fx:id="colCCCD" text="CCCD" prefWidth="110"/>
-                            <TableColumn fx:id="colSoDienThoai" text="Số điện thoại" prefWidth="110"/>
-                            <TableColumn fx:id="colEmail" text="Email" prefWidth="150"/>
-                            <TableColumn fx:id="colTenDangNhap" text="Tên đăng nhập" prefWidth="110"/>
-                        </columns>
-                        <columnResizePolicy>
-                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                        </columnResizePolicy>
-                    </TableView>
-
-                </VBox>
-
-            </VBox>
-
-        </HBox>
+        </VBox>
 
     </center>
 

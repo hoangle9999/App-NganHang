@@ -6,37 +6,46 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class DashboardController {
+public class TransferController {
 
-    private String currentUser;
+    @FXML
+    private TextField txtSoTaiKhoanNhan;
+
+    @FXML
+    private ComboBox<String> cbNganHang;
+
+    @FXML
+    private TextField txtSoTien;
+
+    @FXML
+    private TextArea txtNoiDung;
 
     @FXML
     private void initialize() {
+        cbNganHang.getItems().addAll(
+                "SMART BANK",
+                "Vietcombank",
+                "BIDV",
+                "VietinBank",
+                "Agribank",
+                "Techcombank",
+                "MB Bank"
+        );
     }
 
-    // =========================================================
-    // NHẬN USERNAME
-    // =========================================================
-
-    public void initData(String username) {
-        this.currentUser = username;
-    }
-
-    // =========================================================
+    // =========================
     // MỞ VIEW
-    // =========================================================
+    // =========================
 
-    private void moView(
-            String tenFile,
-            ActionEvent event
-    ) {
-
+    private void moView(String tenFile, ActionEvent event) {
         try {
-
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource(
                             "/org/example/appnganhang/" + tenFile
@@ -45,32 +54,22 @@ public class DashboardController {
 
             Parent root = loader.load();
 
-            Stage stage =
-                    (Stage) ((Node) event.getSource())
-                            .getScene()
-                            .getWindow();
+            Stage stage = (Stage) ((Node) event.getSource())
+                    .getScene()
+                    .getWindow();
 
             stage.setScene(new Scene(root));
-
-            stage.setTitle(
-                    "Hệ Thống Chuyển Tiền Ngân Hàng - SMART BANK"
-            );
-
+            stage.setTitle("Hệ Thống Chuyển Tiền Ngân Hàng - SMART BANK");
             stage.show();
 
         } catch (IOException e) {
-
-            System.err.println(
-                    "Không thể mở view: " + tenFile
-            );
-
             e.printStackTrace();
         }
     }
 
-    // =========================================================
+    // =========================
     // SIDEBAR
-    // =========================================================
+    // =========================
 
     @FXML
     private void onKhachHang(ActionEvent event) {
@@ -84,7 +83,7 @@ public class DashboardController {
 
     @FXML
     private void onChuyenTien(ActionEvent event) {
-        moView("transfer-view.fxml", event);
+        // Đang ở trang Chuyển tiền
     }
 
     @FXML
@@ -132,27 +131,22 @@ public class DashboardController {
         moView("login-view.fxml", event);
     }
 
-    // =========================================================
-    // QUICK ACTION
-    // =========================================================
+    // =========================
+    // XÁC NHẬN CHUYỂN KHOẢN
+    // =========================
 
     @FXML
-    private void handleTrangChu(ActionEvent event) {
-        // Đang ở trang chủ
-    }
+    private void onXacNhan() {
 
-    @FXML
-    private void handleChuyenTien(ActionEvent event) {
-        moView("transfer-view.fxml", event);
-    }
+        String soTaiKhoanNhan = txtSoTaiKhoanNhan.getText();
+        String nganHang = cbNganHang.getValue();
+        String soTien = txtSoTien.getText();
+        String noiDung = txtNoiDung.getText();
 
-    @FXML
-    private void handleLichSu(ActionEvent event) {
-        moView("history-view.fxml", event);
-    }
-
-    @FXML
-    private void handleDangXuat(ActionEvent event) {
-        moView("login-view.fxml", event);
+        System.out.println("===== XÁC NHẬN CHUYỂN KHOẢN =====");
+        System.out.println("Số tài khoản nhận: " + soTaiKhoanNhan);
+        System.out.println("Ngân hàng: " + nganHang);
+        System.out.println("Số tiền: " + soTien);
+        System.out.println("Nội dung: " + noiDung);
     }
 }

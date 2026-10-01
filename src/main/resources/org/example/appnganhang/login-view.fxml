@@ -11,6 +11,12 @@
 <?import javafx.scene.layout.VBox?>
 
 <StackPane xmlns="http://javafx.com/javafx/21"
+           prefWidth="500.0"
+           prefHeight="720.0"
+           minWidth="500.0"
+           minHeight="720.0"
+           maxWidth="500.0"
+           maxHeight="720.0"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.example.appnganhang.controller.LoginController"
            style="-fx-background-color: linear-gradient(to bottom right, #FAFAFF, #EEF0FF);">
