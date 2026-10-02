@@ -8,6 +8,6 @@ public interface AuthService {
     boolean register(KhachHang khachHang, String matKhau);
     void logout();
     boolean changePassword(String tenDangNhap, String matKhauCu, String matKhauMoi);
-    boolean hasPermission(String tenDangNhap, String roleName);
+    boolean hasPermission(String roleName);
     TaiKhoanDangNhap_VaiTro getCurrentUser();
 }

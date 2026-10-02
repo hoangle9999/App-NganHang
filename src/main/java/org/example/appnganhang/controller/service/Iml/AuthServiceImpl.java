@@ -118,16 +118,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public boolean hasPermission(String tenDangNhap, String roleName) {
-        Optional<TaiKhoanDangNhap_VaiTro> result = taiKhoanDangNhapDAO.findByUsername(tenDangNhap);
+    public boolean hasPermission(String roleName) {
 
-        if (result.isEmpty()) {
+        if (currentUser == null) {
             return false;
         }
 
-        String currentRole = result.get().getRoleName();
+        String currentRole = currentUser.getRoleName();
 
-        return currentRole != null && currentRole.equalsIgnoreCase(roleName);
+        return currentRole != null &&
+                currentRole.equalsIgnoreCase(roleName);
     }
 
     @Override

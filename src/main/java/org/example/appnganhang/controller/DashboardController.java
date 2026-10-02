@@ -13,6 +13,8 @@ import java.io.IOException;
 public class DashboardController {
 
     private String currentUser;
+    private String roleName;
+    private String maNguoiDung;
 
     @FXML
     private void initialize() {
@@ -24,6 +26,12 @@ public class DashboardController {
 
     public void initData(String username) {
         this.currentUser = username;
+    }
+
+    public void initData(String username, String roleName, String maNguoiDung) {
+        this.currentUser = username;
+        this.roleName = roleName;
+        this.maNguoiDung = maNguoiDung;
     }
 
     // =========================================================

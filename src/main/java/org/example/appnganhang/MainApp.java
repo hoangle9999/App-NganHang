@@ -14,7 +14,7 @@ public class MainApp extends Application {
     public void start(Stage stage) throws IOException {
 
         URL fxmlLocation =
-                MainApp.class.getResource("/org/example/appnganhang/login-view.fxml");
+                MainApp.class.getResource("/org/example/appnganhang/util-view/login-view.fxml");
 
         if (fxmlLocation == null) {
             throw new IOException(

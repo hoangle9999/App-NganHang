@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import org.example.appnganhang.MainApp;
 import org.example.appnganhang.controller.service.AuthService;
 import org.example.appnganhang.controller.service.Iml.AuthServiceImpl;
+import org.example.appnganhang.model.entity.TaiKhoanDangNhap_VaiTro;
 
 import java.io.IOException;
 
@@ -44,13 +45,26 @@ public class LoginController {
 
         // áp dụng service vừa tạo
         if (authService.login(tenDangNhap, matKhau)){
+
+            // Lấy thông tin tài khoản vừa đăng nhập
+            TaiKhoanDangNhap_VaiTro currentUser = authService.getCurrentUser();
+
+            if (currentUser == null) {
+                lblThongBao.setStyle("-fx-text-fill: red;");
+                lblThongBao.setText("Không lấy được thông tin tài khoản!");
+                return;
+            }
+
+            // Lấy RoleName và MaNguoiDung
+            String roleName = currentUser.getRoleName();
+            String maNguoiDung = currentUser.getMaNguoiDung();
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/appnganhang/dashboard-view.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/appnganhang/nhanVien-view/dashboard-view.fxml"));
                 Parent root = loader.load();
 
                 // Truyền tên đăng nhập sang DashboardController
                 DashboardController dashboardController = loader.getController();
-                dashboardController.initData(tenDangNhap);
+                dashboardController.initData(tenDangNhap, roleName, maNguoiDung);
 
                 // Lấy stage hiện tại và chuyển scene
                 Stage stage = (Stage) txtTenDangNhap.getScene().getWindow();

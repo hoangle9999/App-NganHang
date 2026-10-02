@@ -139,7 +139,7 @@ public class RegisterController {
 
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource(
-                            "/org/example/appnganhang/login-view.fxml"
+                            "/org/example/appnganhang/util-view/login-view.fxml"
                     )
             );
 
