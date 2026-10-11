@@ -1,6 +1,6 @@
 package org.example.appnganhang.model.dao.Impl;
 
-import org.example.appnganhang.model.dao.BaoCaoDAO;
+import org.example.appnganhang.model.dao.intf.BaoCaoDAO;
 import org.example.appnganhang.model.util.DBConnection;
 
 import java.math.BigDecimal;

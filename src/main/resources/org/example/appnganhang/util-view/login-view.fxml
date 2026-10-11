@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
@@ -10,16 +11,16 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns="http://javafx.com/javafx/21"
-           prefWidth="500.0"
-           prefHeight="720.0"
-           minWidth="500.0"
-           minHeight="720.0"
+<StackPane maxHeight="720.0"
            maxWidth="500.0"
-           maxHeight="720.0"
+           minHeight="720.0"
+           minWidth="500.0"
+           prefHeight="720.0"
+           prefWidth="500.0"
+           style="-fx-background-color: linear-gradient(to bottom right, #FAFAFF, #EEF0FF);"
+           xmlns="http://javafx.com/javafx/26"
            xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="org.example.appnganhang.controller.LoginController"
-           style="-fx-background-color: linear-gradient(to bottom right, #FAFAFF, #EEF0FF);">
+           fx:controller="org.example.appnganhang.controller.util.LoginController">
 
     <VBox alignment="TOP_CENTER"
           maxWidth="430"
@@ -27,30 +28,33 @@
           spacing="0">
 
         <padding>
-            <Insets top="35" right="35" bottom="30" left="35"/>
+            <Insets bottom="30"
+                    left="35"
+                    right="35"
+                    top="35" />
         </padding>
 
         <!-- TÊN NGÂN HÀNG -->
 
-        <Label text="SMART BANK"
-               style="-fx-font-size: 28px;
+        <Label style="-fx-font-size: 28px;
                       -fx-font-weight: bold;
-                      -fx-text-fill: #111426;"/>
+                      -fx-text-fill: #111426;"
+               text="SMART BANK" />
 
-        <Label text="YOUR SMART BANKING"
-               style="-fx-font-size: 11px;
+        <Label style="-fx-font-size: 11px;
                       -fx-font-weight: bold;
                       -fx-text-fill: #777B8A;"
-               translateY="5"/>
+               text="YOUR SMART BANKING"
+               translateY="5" />
 
-        <Region prefHeight="28"/>
+        <Region prefHeight="28" />
 
         <!-- BANK CARD -->
 
-        <StackPane prefWidth="360"
-                   prefHeight="205"
+        <StackPane maxHeight="205"
                    maxWidth="360"
-                   maxHeight="205"
+                   prefHeight="205"
+                   prefWidth="360"
                    style="-fx-background-color: linear-gradient(to bottom right, #171A35, #4C45C7);
                           -fx-background-radius: 25;
                           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.20), 20, 0.2, 0, 8);">
@@ -58,61 +62,64 @@
             <VBox spacing="0">
 
                 <padding>
-                    <Insets top="22" right="25" bottom="20" left="25"/>
+                    <Insets bottom="20"
+                            left="25"
+                            right="25"
+                            top="22" />
                 </padding>
 
                 <HBox alignment="CENTER_LEFT">
 
-                    <Label text="SMART BANK"
-                           style="-fx-font-size: 13px;
+                    <Label style="-fx-font-size: 13px;
                                   -fx-font-weight: bold;
-                                  -fx-text-fill: white;"/>
+                                  -fx-text-fill: white;"
+                           text="SMART BANK" />
 
-                    <Region HBox.hgrow="ALWAYS"/>
+                    <Region HBox.hgrow="ALWAYS" />
 
-                    <Label text="VISA"
-                           style="-fx-font-size: 15px;
+                    <Label style="-fx-font-size: 15px;
                                   -fx-font-weight: bold;
-                                  -fx-text-fill: white;"/>
+                                  -fx-text-fill: white;"
+                           text="VISA" />
 
                 </HBox>
 
-                <Region prefHeight="35"/>
+                <Region prefHeight="35" />
 
-                <Label text="••••  ••••  ••••  4800"
-                       style="-fx-font-size: 18px;
+                <Label style="-fx-font-size: 18px;
                               -fx-font-weight: bold;
-                              -fx-text-fill: white;"/>
+                              -fx-text-fill: white;"
+                       text="••••  ••••  ••••  4800" />
 
-                <Region prefHeight="15"/>
+                <Region prefHeight="15" />
 
                 <HBox>
 
                     <VBox>
 
-                        <Label text="CARD HOLDER"
-                               style="-fx-font-size: 8px;
-                                      -fx-text-fill: #D8D8EE;"/>
+                        <Label style="-fx-font-size: 8px;
+                                      -fx-text-fill: #D8D8EE;"
+                               text="CARD HOLDER" />
 
-                        <Label text="SMART BANK USER"
-                               style="-fx-font-size: 10px;
+                        <Label style="-fx-font-size: 10px;
                                       -fx-font-weight: bold;
-                                      -fx-text-fill: white;"/>
+                                      -fx-text-fill: white;"
+                               text="SMART BANK USER" />
 
                     </VBox>
 
-                    <Region HBox.hgrow="ALWAYS"/>
+                    <Region HBox.hgrow="ALWAYS" />
 
                     <VBox alignment="CENTER_RIGHT">
 
-                        <Label text="VALID THRU"
-                               style="-fx-font-size: 8px;
-                                      -fx-text-fill: #D8D8EE;"/>
+                        <Label style="-fx-font-size: 8px;
+                                      -fx-text-fill: #D8D8EE;"
+                               text="VALID THRU" />
 
-                        <Label text="12/29"
-                               style="-fx-font-size: 10px;
+                        <Label style="-fx-font-size: 10px;
                                       -fx-font-weight: bold;
-                                      -fx-text-fill: white;"/>
+                                      -fx-text-fill: white;"
+                               text="12/29" />
 
                     </VBox>
 
@@ -122,41 +129,41 @@
 
         </StackPane>
 
-        <Region prefHeight="32"/>
+        <Region prefHeight="32" />
 
         <!-- WELCOME -->
 
-        <VBox spacing="6"
-              alignment="CENTER_LEFT"
-              maxWidth="360">
+        <VBox alignment="CENTER_LEFT"
+              maxWidth="360"
+              spacing="6">
 
-            <Label text="Welcome back"
-                   style="-fx-font-size: 27px;
+            <Label style="-fx-font-size: 27px;
                           -fx-font-weight: bold;
-                          -fx-text-fill: #111426;"/>
+                          -fx-text-fill: #111426;"
+                   text="Welcome back" />
 
-            <Label text="Đăng nhập để tiếp tục sử dụng dịch vụ ngân hàng"
-                   wrapText="true"
-                   style="-fx-font-size: 13px;
-                          -fx-text-fill: #777B8A;"/>
+            <Label style="-fx-font-size: 13px;
+                          -fx-text-fill: #777B8A;"
+                   text="Đăng nhập để tiếp tục sử dụng dịch vụ ngân hàng"
+                   wrapText="true" />
 
         </VBox>
 
-        <Region prefHeight="22"/>
+        <Region prefHeight="22" />
 
         <!-- TÊN ĐĂNG NHẬP -->
 
-        <VBox spacing="7"
-              maxWidth="360">
+        <VBox maxWidth="360"
+              spacing="7">
 
-            <Label text="Tên đăng nhập"
-                   style="-fx-font-size: 12px;
+            <Label style="-fx-font-size: 12px;
                           -fx-font-weight: bold;
-                          -fx-text-fill: #343746;"/>
+                          -fx-text-fill: #343746;"
+                   text="Tên đăng nhập" />
 
             <TextField fx:id="txtTenDangNhap"
-                       prefHeight="48"
                        maxWidth="360"
+                       prefHeight="48"
                        promptText="Nhập tên đăng nhập"
                        style="-fx-background-color: white;
                               -fx-background-radius: 13;
@@ -164,25 +171,26 @@
                               -fx-border-radius: 13;
                               -fx-border-width: 1;
                               -fx-padding: 0 15;
-                              -fx-font-size: 13px;"/>
+                              -fx-font-size: 13px;" />
 
         </VBox>
 
-        <Region prefHeight="15"/>
+        <Region prefHeight="15" />
 
         <!-- MẬT KHẨU -->
 
-        <VBox spacing="7"
-              maxWidth="360">
+        <VBox maxWidth="360"
+              spacing="7">
 
-            <Label text="Mật khẩu"
-                   style="-fx-font-size: 12px;
+            <Label style="-fx-font-size: 12px;
                           -fx-font-weight: bold;
-                          -fx-text-fill: #343746;"/>
+                          -fx-text-fill: #343746;"
+                   text="Mật khẩu" />
 
             <PasswordField fx:id="txtMatKhau"
-                           prefHeight="48"
                            maxWidth="360"
+                           onAction="#onLoginButtonClick"
+                           prefHeight="48"
                            promptText="Nhập mật khẩu"
                            style="-fx-background-color: white;
                                   -fx-background-radius: 13;
@@ -190,71 +198,83 @@
                                   -fx-border-radius: 13;
                                   -fx-border-width: 1;
                                   -fx-padding: 0 15;
-                                  -fx-font-size: 13px;"/>
+                                  -fx-font-size: 13px;" />
 
         </VBox>
 
-        <Region prefHeight="8"/>
+        <Region prefHeight="8" />
 
         <!-- THÔNG BÁO -->
 
         <Label fx:id="lblThongBao"
                maxWidth="360"
                minHeight="18"
-               wrapText="true"
                style="-fx-font-size: 11px;
-                      -fx-text-fill: #E53935;"/>
+                      -fx-text-fill: #E53935;"
+               wrapText="true" />
 
-        <Region prefHeight="5"/>
+        <Region prefHeight="5" />
 
         <!-- ĐĂNG NHẬP -->
 
-        <Button text="ĐĂNG NHẬP"
-                onAction="#onLoginButtonClick"
+        <Button maxWidth="360"
                 mnemonicParsing="false"
+                onAction="#onLoginButtonClick"
                 prefHeight="50"
-                maxWidth="360"
                 style="-fx-background-color: #111426;
                        -fx-background-radius: 14;
                        -fx-text-fill: white;
                        -fx-font-size: 14px;
                        -fx-font-weight: bold;
-                       -fx-cursor: hand;"/>
+                       -fx-cursor: hand;"
+                text="ĐĂNG NHẬP">
+            <cursor>
+                <Cursor fx:constant="HAND" />
+            </cursor>
+        </Button>
 
-        <Region prefHeight="18"/>
+        <Region prefHeight="18" />
 
         <!-- ĐĂNG KÝ -->
 
         <HBox alignment="CENTER"
               spacing="5">
 
-            <Label text="Chưa có tài khoản?"
-                   style="-fx-font-size: 12px;
-                          -fx-text-fill: #777B8A;"/>
+            <Label style="-fx-font-size: 12px;
+                          -fx-text-fill: #777B8A;"
+                   text="Chưa có tài khoản?" />
 
-            <Button text="Đăng ký"
-                    mnemonicParsing="false"
+            <Button mnemonicParsing="false"
                     onAction="#onRegisterLinkClick"
                     style="-fx-background-color: transparent;
                            -fx-text-fill: #635BDB;
                            -fx-font-size: 12px;
                            -fx-font-weight: bold;
                            -fx-padding: 0;
-                           -fx-cursor: hand;"/>
+                           -fx-cursor: hand;"
+                    text="Đăng ký">
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor>
+            </Button>
 
         </HBox>
 
-        <Region prefHeight="8"/>
+        <Region prefHeight="8" />
 
         <!-- THOÁT -->
 
-        <Button text="Thoát"
-                mnemonicParsing="false"
+        <Button mnemonicParsing="false"
                 onAction="#onExitButtonClick"
                 style="-fx-background-color: transparent;
                        -fx-text-fill: #999AAA;
                        -fx-font-size: 11px;
-                       -fx-cursor: hand;"/>
+                       -fx-cursor: hand;"
+                text="Thoát">
+            <cursor>
+                <Cursor fx:constant="HAND" />
+            </cursor>
+        </Button>
 
     </VBox>
 

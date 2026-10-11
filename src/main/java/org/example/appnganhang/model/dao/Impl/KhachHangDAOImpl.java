@@ -1,53 +1,202 @@
 package org.example.appnganhang.model.dao.Impl;
 
-import org.example.appnganhang.model.dao.KhachHangDAO;
+import org.example.appnganhang.model.dao.intf.KhachHangDAO;
 import org.example.appnganhang.model.entity.KhachHang;
 import org.example.appnganhang.model.util.DBConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class KhachHangDAOImpl implements KhachHangDAO {
-    private static final String SQL_FIND_ALL =
-            "SELECT MaKhachHang, HoTen, SoCCCD, SoDienThoai, Email, TenDangNhap FROM KhachHang";
-    private static final String SQL_FIND_BY_ID =
-            "SELECT MaKhachHang, HoTen, SoCCCD, SoDienThoai, Email, TenDangNhap FROM KhachHang WHERE MaKhachHang = ?";
-    private static final String SQL_FIND_BY_CCCD =
-            "SELECT MaKhachHang, HoTen, SoCCCD, SoDienThoai, Email, TenDangNhap FROM KhachHang WHERE SoCCCD = ?";
-    private static final String SQL_FIND_BY_PHONE =
-            "SELECT MaKhachHang, HoTen, SoCCCD, SoDienThoai, Email, TenDangNhap FROM KhachHang WHERE SoDienThoai = ?";
-    private static final String SQL_FIND_BY_USERNAME =
-            "SELECT MaKhachHang, HoTen, SoCCCD, SoDienThoai, Email, TenDangNhap FROM KhachHang WHERE TenDangNhap = ?";
-    private static final String SQL_INSERT =
-            "INSERT INTO KhachHang (MaKhachHang, HoTen, SoCCCD, SoDienThoai, Email, TenDangNhap) VALUES (?, ?, ?, ?, ?, ?)";
-    private static final String SQL_UPDATE =
-            "UPDATE KhachHang SET HoTen = ?, SoCCCD = ?, SoDienThoai = ?, TenDangNhap = ? " + "WHERE MaKhachHang = ?";
+    private static final String SQL_FIND_ALL = """
+            SELECT MaKhachHang,
+                   HoTen,
+                   SoCCCD,
+                   SoDienThoai,
+                   Email,
+                   DiaChi,
+                   TenDangNhap
+            FROM KhachHang
+            """;
+
+    private static final String SQL_FIND_BY_ID = """
+            SELECT MaKhachHang,
+                   HoTen,
+                   SoCCCD,
+                   SoDienThoai,
+                   Email,
+                   DiaChi,
+                   TenDangNhap
+            FROM KhachHang
+            WHERE MaKhachHang = ?
+            """;
+
+    private static final String SQL_FIND_BY_CCCD = """
+            SELECT MaKhachHang,
+                   HoTen,
+                   SoCCCD,
+                   SoDienThoai,
+                   Email,
+                   DiaChi,
+                   TenDangNhap
+            FROM KhachHang
+            WHERE SoCCCD = ?
+            """;
+
+    private static final String SQL_FIND_BY_PHONE = """
+            SELECT MaKhachHang,
+                   HoTen,
+                   SoCCCD,
+                   SoDienThoai,
+                   Email,
+                   DiaChi,
+                   TenDangNhap
+            FROM KhachHang
+            WHERE SoDienThoai = ?
+            """;
+
+    private static final String SQL_FIND_BY_USERNAME = """
+            SELECT MaKhachHang,
+                   HoTen,
+                   SoCCCD,
+                   SoDienThoai,
+                   Email,
+                   DiaChi,
+                   TenDangNhap
+            FROM KhachHang
+            WHERE TenDangNhap = ?
+            """;
+
+    private static final String SQL_FIND_BY_HO_TEN = """
+            SELECT MaKhachHang,
+                   HoTen,
+                   SoCCCD,
+                   SoDienThoai,
+                   Email,
+                   DiaChi,
+                   TenDangNhap
+            FROM KhachHang
+            WHERE HoTen LIKE ?
+            """;
+
+    private static final String SQL_FIND_BY_EMAIL = """
+            SELECT MaKhachHang,
+                   HoTen,
+                   SoCCCD,
+                   SoDienThoai,
+                   Email,
+                   DiaChi,
+                   TenDangNhap
+            FROM KhachHang
+            WHERE Email LIKE ?
+            """;
+
+    private static final String SQL_FIND_BY_DIA_CHI = """
+            SELECT MaKhachHang,
+                   HoTen,
+                   SoCCCD,
+                   SoDienThoai,
+                   Email,
+                   DiaChi,
+                   TenDangNhap
+            FROM KhachHang
+            WHERE DiaChi LIKE ?
+            """;
+
+    private static final String SQL_TIM_KIEM_KHACH_HANG = """
+            SELECT MaKhachHang,
+                   HoTen,
+                   SoCCCD,
+                   SoDienThoai,
+                   Email,
+                   DiaChi,
+                   TenDangNhap
+            FROM KhachHang
+            WHERE (? = '' OR MaKhachHang LIKE ?)
+              AND (? = '' OR HoTen LIKE ?)
+              AND (? = '' OR SoCCCD LIKE ?)
+              AND (? = '' OR SoDienThoai LIKE ?)
+              AND (? = '' OR Email LIKE ?)
+              AND (? = '' OR DiaChi LIKE ?)
+              AND (? = '' OR TenDangNhap LIKE ?)
+            """;
+
+    private static final String SQL_INSERT = """
+            INSERT INTO KhachHang
+            (
+                MaKhachHang,
+                HoTen,
+                SoCCCD,
+                SoDienThoai,
+                Email,
+                DiaChi,
+                TenDangNhap
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """;
+
+    private static final String SQL_UPDATE = """
+            UPDATE KhachHang
+            SET HoTen = ?,
+                SoCCCD = ?,
+                SoDienThoai = ?,
+                Email = ?,
+                DiaChi = ?,
+                TenDangNhap = ?
+            WHERE MaKhachHang = ?
+            """;
+
     private static final String SQL_DELETE =
             "DELETE FROM KhachHang WHERE MaKhachHang = ?";
 
+
+    @Override
+    public String taoMaKhachHang() {
+        String sql = "{CALL dbo.sp_TaoMaKhachHang(?)}";
+
+        try (Connection conn = DBConnection.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            stmt.registerOutParameter(1, Types.VARCHAR);
+            stmt.execute();
+
+            return stmt.getString(1);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Lỗi tạo mã khách hàng: " + e.getMessage(), e
+            );
+        }
+    }
+
     @Override
     public boolean insert(KhachHang kh) {
-        try(Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(SQL_INSERT)){
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(SQL_INSERT)) {
+
             ps.setString(1, kh.getMaKhachHang());
             ps.setString(2, kh.getHoTen());
             ps.setString(3, kh.getSoCCCD());
             ps.setString(4, kh.getSoDienThoai());
             ps.setString(5, kh.getEmail());
-            ps.setString(6, kh.getTenDangNhap());
+            ps.setString(6, kh.getDiaChi());
+            ps.setString(7, kh.getTenDangNhap());
 
             return ps.executeUpdate() == 1;
+
         } catch (SQLException e) {
-            throw new RuntimeException("Lỗi insert KhachHang: " + e.getMessage(), e);
+            throw new RuntimeException(
+                    "Lỗi insert KhachHang: " + e.getMessage(), e
+            );
         }
     }
 
     @Override
     public boolean update(KhachHang kh) {
+
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(SQL_UPDATE)) {
 
@@ -55,8 +204,9 @@ public class KhachHangDAOImpl implements KhachHangDAO {
             ps.setString(2, kh.getSoCCCD());
             ps.setString(3, kh.getSoDienThoai());
             ps.setString(4, kh.getEmail());
-            ps.setString(5, kh.getTenDangNhap());
-            ps.setString(6, kh.getMaKhachHang());
+            ps.setString(5, kh.getDiaChi());
+            ps.setString(6, kh.getTenDangNhap());
+            ps.setString(7, kh.getMaKhachHang());
 
             return ps.executeUpdate() == 1;
 
@@ -93,15 +243,7 @@ public class KhachHangDAOImpl implements KhachHangDAO {
             try (ResultSet rs = ps.executeQuery()) {
 
                 if (rs.next()) {
-                    KhachHang kh = new KhachHang();
-                    kh.setMaKhachHang(rs.getString("MaKhachHang"));
-                    kh.setHoTen(rs.getString("hoTen"));
-                    kh.setSoCCCD(rs.getString("SoCCCD"));
-                    kh.setSoDienThoai(rs.getString("SoDienThoai"));
-                    kh.setEmail(rs.getString("Email"));
-                    kh.setTenDangNhap(rs.getString("TenDangNhap"));
-
-                    return Optional.of(kh);
+                    return Optional.of(taoKhachHang(rs));
                 }
 
                 return Optional.empty();
@@ -124,16 +266,7 @@ public class KhachHangDAOImpl implements KhachHangDAO {
             try (ResultSet rs = ps.executeQuery()) {
 
                 if (rs.next()) {
-                    KhachHang kh = new KhachHang();
-
-                    kh.setMaKhachHang(rs.getString("MaKhachHang"));
-                    kh.setHoTen(rs.getString("HoTen"));
-                    kh.setSoCCCD(rs.getString("SoCCCD"));
-                    kh.setSoDienThoai(rs.getString("SoDienThoai"));
-                    kh.setEmail(rs.getString("Email"));
-                    kh.setTenDangNhap(rs.getString("TenDangNhap"));
-
-                    return Optional.of(kh);
+                    return Optional.of(taoKhachHang(rs));
                 }
 
                 return Optional.empty();
@@ -156,16 +289,7 @@ public class KhachHangDAOImpl implements KhachHangDAO {
             try (ResultSet rs = ps.executeQuery()) {
 
                 if (rs.next()) {
-                    KhachHang kh = new KhachHang();
-
-                    kh.setMaKhachHang(rs.getString("MaKhachHang"));
-                    kh.setHoTen(rs.getString("HoTen"));
-                    kh.setSoCCCD(rs.getString("SoCCCD"));
-                    kh.setSoDienThoai(rs.getString("SoDienThoai"));
-                    kh.setEmail(rs.getString("Email"));
-                    kh.setTenDangNhap(rs.getString("TenDangNhap"));
-
-                    return Optional.of(kh);
+                    return Optional.of(taoKhachHang(rs));
                 }
 
                 return Optional.empty();
@@ -188,16 +312,8 @@ public class KhachHangDAOImpl implements KhachHangDAO {
             try (ResultSet rs = ps.executeQuery()) {
 
                 if (rs.next()) {
-                    KhachHang kh = new KhachHang();
 
-                    kh.setMaKhachHang(rs.getString("MaKhachHang"));
-                    kh.setHoTen(rs.getString("HoTen"));
-                    kh.setSoCCCD(rs.getString("SoCCCD"));
-                    kh.setSoDienThoai(rs.getString("SoDienThoai"));
-                    kh.setEmail(rs.getString("Email"));
-                    kh.setTenDangNhap(rs.getString("TenDangNhap"));
-
-                    return Optional.of(kh);
+                    return Optional.of(taoKhachHang(rs));
                 }
 
                 return Optional.empty();
@@ -211,6 +327,132 @@ public class KhachHangDAOImpl implements KhachHangDAO {
     }
 
     @Override
+    public List<KhachHang> findByHoTen(String hoTen) {
+
+        List<KhachHang> danhSach = new ArrayList<>();
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(SQL_FIND_BY_HO_TEN)) {
+
+            ps.setString(1, "%" + hoTen + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    danhSach.add(taoKhachHang(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Lỗi tìm khách hàng theo họ tên: " + e.getMessage(), e
+            );
+        }
+
+        return danhSach;
+    }
+
+    @Override
+    public List<KhachHang> findByEmail(String email) {
+
+        List<KhachHang> danhSach = new ArrayList<>();
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(SQL_FIND_BY_EMAIL)) {
+
+            ps.setString(1, "%" + email + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    danhSach.add(taoKhachHang(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Lỗi tìm khách hàng theo email: " + e.getMessage(), e
+            );
+        }
+
+        return danhSach;
+    }
+
+    @Override
+    public List<KhachHang> findByDiaChi(String diaChi) {
+
+        List<KhachHang> danhSach = new ArrayList<>();
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(SQL_FIND_BY_DIA_CHI)) {
+
+            ps.setString(1, "%" + diaChi + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    danhSach.add(taoKhachHang(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Lỗi tìm khách hàng theo địa chỉ: " + e.getMessage(), e
+            );
+        }
+
+        return danhSach;
+    }
+
+    @Override
+    public List<KhachHang> timKiemKhachHang(
+            String maKhachHang,
+            String hoTen,
+            String soCCCD,
+            String soDienThoai,
+            String email,
+            String diaChi,
+            String tenDangNhap) {
+
+        List<KhachHang> danhSach = new ArrayList<>();
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(SQL_TIM_KIEM_KHACH_HANG)) {
+
+            ps.setString(1, maKhachHang);
+            ps.setString(2, "%" + maKhachHang + "%");
+
+            ps.setString(3, hoTen);
+            ps.setString(4, "%" + hoTen + "%");
+
+            ps.setString(5, soCCCD);
+            ps.setString(6, "%" + soCCCD + "%");
+
+            ps.setString(7, soDienThoai);
+            ps.setString(8, "%" + soDienThoai + "%");
+
+            ps.setString(9, email);
+            ps.setString(10, "%" + email + "%");
+
+            ps.setString(11, diaChi);
+            ps.setString(12, "%" + diaChi + "%");
+
+            ps.setString(13, tenDangNhap);
+            ps.setString(14, "%" + tenDangNhap + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    danhSach.add(taoKhachHang(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Lỗi tìm kiếm khách hàng: " + e.getMessage(), e
+            );
+        }
+
+        return danhSach;
+    }
+
+    @Override
     public List<KhachHang> findAll() {
         List<KhachHang> danhSach = new ArrayList<>();
 
@@ -220,24 +462,28 @@ public class KhachHangDAOImpl implements KhachHangDAO {
 
             while (rs.next()) {
 
-                KhachHang kh = new KhachHang();
-
-                kh.setMaKhachHang(rs.getString("MaKhachHang"));
-                kh.setHoTen(rs.getString("HoTen"));
-                kh.setSoCCCD(rs.getString("SoCCCD"));
-                kh.setSoDienThoai(rs.getString("SoDienThoai"));
-                kh.setEmail(rs.getString("Email"));
-                kh.setTenDangNhap(rs.getString("TenDangNhap"));
-
-                danhSach.add(kh);
+                danhSach.add(taoKhachHang(rs));
             }
 
             return danhSach;
 
         } catch (SQLException e) {
-            throw new RuntimeException(
-                    "Lỗi findAll KhachHang: " + e.getMessage(), e
-            );
+            throw new RuntimeException("Lỗi findAll KhachHang: " + e.getMessage(), e);
         }
+    }
+
+    private KhachHang taoKhachHang(ResultSet rs) throws SQLException {
+
+        KhachHang kh = new KhachHang();
+
+        kh.setMaKhachHang(rs.getString("MaKhachHang"));
+        kh.setHoTen(rs.getString("HoTen"));
+        kh.setSoCCCD(rs.getString("SoCCCD"));
+        kh.setSoDienThoai(rs.getString("SoDienThoai"));
+        kh.setEmail(rs.getString("Email"));
+        kh.setDiaChi(rs.getString("DiaChi"));
+        kh.setTenDangNhap(rs.getString("TenDangNhap"));
+
+        return kh;
     }
 }

@@ -1,6 +1,6 @@
 package org.example.appnganhang.model.dao.Impl;
 
-import org.example.appnganhang.model.dao.GiaoDichDAO;
+import org.example.appnganhang.model.dao.intf.GiaoDichDAO;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 import org.example.appnganhang.model.entity.LichSuGiaoDich;
 import org.example.appnganhang.model.util.DBConnection;
@@ -61,6 +61,33 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
             ORDER BY ThoiGianGhiLog DESC
             """;
 
+    private static final String SQL_GET_TAT_CA_GIAO_DICH = """
+        SELECT MaGiaoDich,
+               MaTaiKhoanNguon,
+               MaTaiKhoanDich,
+               SoTien,
+               NgayGiaoDich,
+               NoiDung,
+               MaLoaiGD,
+               TrangThai
+        FROM GiaoDichChuyenTien
+        ORDER BY NgayGiaoDich DESC
+        """;
+
+    private static final String SQL_XEM_TAT_CA_LICH_SU =
+            """
+            SELECT ls.MaGiaoDich,
+                   ls.SoTaiKhoanLienQuan,
+                   ls.HanhDong,
+                   ls.SoDuSauThayDoi,
+                   gd.TrangThai,
+                   ls.ThoiGianGhiLog
+            FROM dbo.LichSuGiaoDich ls
+            INNER JOIN dbo.GiaoDichChuyenTien gd
+                ON ls.MaGiaoDich = gd.MaGiaoDich
+            ORDER BY ls.ThoiGianGhiLog DESC
+            """;
+
     @Override
     public Optional<GiaoDichChuyenTien> traCuuTheoMa(String maGiaoDich) {
         try (Connection conn = DBConnection.getConnection();
@@ -70,18 +97,7 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    GiaoDichChuyenTien giaoDich = new GiaoDichChuyenTien();
-
-                    giaoDich.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                    giaoDich.setMaTaiKhoanNguon(rs.getString("MaTaiKhoanNguon"));
-                    giaoDich.setMaTaiKhoanDich(rs.getString("MaTaiKhoanDich"));
-                    giaoDich.setSoTien(rs.getBigDecimal("SoTien"));
-                    giaoDich.setNgayGiaoDich(rs.getTimestamp("NgayGiaoDich").toLocalDateTime());
-                    giaoDich.setNoiDung(rs.getString("NoiDung"));
-                    giaoDich.setMaLoaiGD(rs.getString("MaLoaiGD"));
-                    giaoDich.setTrangThai(rs.getString("TrangThai"));
-
-                    return Optional.of(giaoDich);
+                    return Optional.of(taoGiaoDich(rs));
                 }
             }
         } catch (SQLException e) {
@@ -103,18 +119,7 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    GiaoDichChuyenTien giaoDich = new GiaoDichChuyenTien();
-
-                    giaoDich.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                    giaoDich.setMaTaiKhoanNguon(rs.getString("MaTaiKhoanNguon"));
-                    giaoDich.setMaTaiKhoanDich(rs.getString("MaTaiKhoanDich"));
-                    giaoDich.setSoTien(rs.getBigDecimal("SoTien"));
-                    giaoDich.setNgayGiaoDich(rs.getTimestamp("NgayGiaoDich").toLocalDateTime());
-                    giaoDich.setNoiDung(rs.getString("NoiDung"));
-                    giaoDich.setMaLoaiGD(rs.getString("MaLoaiGD"));
-                    giaoDich.setTrangThai(rs.getString("TrangThai"));
-
-                    danhSach.add(giaoDich);
+                    danhSach.add(taoGiaoDich(rs));
                 }
             }
 
@@ -137,18 +142,7 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    GiaoDichChuyenTien giaoDich = new GiaoDichChuyenTien();
-
-                    giaoDich.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                    giaoDich.setMaTaiKhoanNguon(rs.getString("MaTaiKhoanNguon"));
-                    giaoDich.setMaTaiKhoanDich(rs.getString("MaTaiKhoanDich"));
-                    giaoDich.setSoTien(rs.getBigDecimal("SoTien"));
-                    giaoDich.setNgayGiaoDich(rs.getTimestamp("NgayGiaoDich").toLocalDateTime());
-                    giaoDich.setNoiDung(rs.getString("NoiDung"));
-                    giaoDich.setMaLoaiGD(rs.getString("MaLoaiGD"));
-                    giaoDich.setTrangThai(rs.getString("TrangThai"));
-
-                    danhSach.add(giaoDich);
+                    danhSach.add(taoGiaoDich(rs));
                 }
             }
 
@@ -170,18 +164,7 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    GiaoDichChuyenTien giaoDich = new GiaoDichChuyenTien();
-
-                    giaoDich.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                    giaoDich.setMaTaiKhoanNguon(rs.getString("MaTaiKhoanNguon"));
-                    giaoDich.setMaTaiKhoanDich(rs.getString("MaTaiKhoanDich"));
-                    giaoDich.setSoTien(rs.getBigDecimal("SoTien"));
-                    giaoDich.setNgayGiaoDich(rs.getTimestamp("NgayGiaoDich").toLocalDateTime());
-                    giaoDich.setNoiDung(rs.getString("NoiDung"));
-                    giaoDich.setMaLoaiGD(rs.getString("MaLoaiGD"));
-                    giaoDich.setTrangThai(rs.getString("TrangThai"));
-
-                    danhSach.add(giaoDich);
+                    danhSach.add(taoGiaoDich(rs));
                 }
             }
 
@@ -203,18 +186,7 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    GiaoDichChuyenTien giaoDich = new GiaoDichChuyenTien();
-
-                    giaoDich.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                    giaoDich.setMaTaiKhoanNguon(rs.getString("MaTaiKhoanNguon"));
-                    giaoDich.setMaTaiKhoanDich(rs.getString("MaTaiKhoanDich"));
-                    giaoDich.setSoTien(rs.getBigDecimal("SoTien"));
-                    giaoDich.setNgayGiaoDich(rs.getTimestamp("NgayGiaoDich").toLocalDateTime());
-                    giaoDich.setNoiDung(rs.getString("NoiDung"));
-                    giaoDich.setMaLoaiGD(rs.getString("MaLoaiGD"));
-                    giaoDich.setTrangThai(rs.getString("TrangThai"));
-
-                    danhSach.add(giaoDich);
+                    danhSach.add(taoGiaoDich(rs));
                 }
             }
 
@@ -224,6 +196,7 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
 
         return danhSach;
     }
+
 
     @Override
     public List<LichSuGiaoDich> xemLichSuGiaoDich(String maTaiKhoan) {
@@ -244,9 +217,8 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
                     lichSu.setHanhDong(rs.getString("HanhDong"));
                     lichSu.setSoTienThayDoi(rs.getBigDecimal("SoTienThayDoi"));
                     lichSu.setSoDuSauThayDoi(rs.getBigDecimal("SoDuSauThayDoi"));
-                    lichSu.setThoiGianGhiLog(
-                            rs.getTimestamp("ThoiGianGhiLog").toLocalDateTime()
-                    );
+                    lichSu.setTrangThai(rs.getString("TrangThai"));
+                    lichSu.setThoiGianGhiLog(rs.getTimestamp("ThoiGianGhiLog").toLocalDateTime());
 
                     danhSach.add(lichSu);
                 }
@@ -257,5 +229,77 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
         }
 
         return danhSach;
+    }
+
+    @Override
+    public List<LichSuGiaoDich> xemTatCaLichSuGiaoDich() {
+        List<LichSuGiaoDich> danhSach = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_XEM_TAT_CA_LICH_SU);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                LichSuGiaoDich lichSu = new LichSuGiaoDich();
+
+                lichSu.setMaGiaoDich(rs.getString("MaGiaoDich"));
+                lichSu.setSoTaiKhoanLienQuan(
+                        rs.getString("SoTaiKhoanLienQuan")
+                );
+                lichSu.setHanhDong(rs.getString("HanhDong"));
+                lichSu.setSoDuSauThayDoi(
+                        rs.getBigDecimal("SoDuSauThayDoi")
+                );
+                lichSu.setTrangThai(rs.getString("TrangThai"));
+
+                Timestamp timestamp = rs.getTimestamp("ThoiGianGhiLog");
+                if (timestamp != null) {
+                    lichSu.setThoiGianGhiLog(timestamp.toLocalDateTime());
+                }
+
+                danhSach.add(lichSu);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Lỗi khi lấy toàn bộ lịch sử giao dịch.", e
+            );
+        }
+
+        return danhSach;
+    }
+
+    @Override
+    public List<GiaoDichChuyenTien> getTatCaGiaoDich() {
+        List<GiaoDichChuyenTien> danhSach = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_GET_TAT_CA_GIAO_DICH);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                danhSach.add(taoGiaoDich(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return danhSach;
+    }
+
+    private GiaoDichChuyenTien taoGiaoDich(ResultSet rs) throws SQLException{
+        GiaoDichChuyenTien giaoDich = new GiaoDichChuyenTien();
+
+        giaoDich.setMaGiaoDich(rs.getString("MaGiaoDich"));
+        giaoDich.setMaTaiKhoanNguon(rs.getString("MaTaiKhoanNguon"));
+        giaoDich.setMaTaiKhoanDich(rs.getString("MaTaiKhoanDich"));
+        giaoDich.setSoTien(rs.getBigDecimal("SoTien"));
+        giaoDich.setNgayGiaoDich(rs.getTimestamp("NgayGiaoDich").toLocalDateTime());
+        giaoDich.setNoiDung(rs.getString("NoiDung"));
+        giaoDich.setMaLoaiGD(rs.getString("MaLoaiGD"));
+        giaoDich.setTrangThai(rs.getString("TrangThai"));
+
+        return giaoDich;
     }
 }

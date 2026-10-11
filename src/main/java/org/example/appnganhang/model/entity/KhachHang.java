@@ -5,16 +5,18 @@ public class KhachHang {
     private String hoTen;
     private String soCCCD;
     private String soDienThoai;
+    private String diaChi;
     private String email;
     private String tenDangNhap;
 
     public KhachHang() {}
 
-    public KhachHang(String maKhachHang, String hoTen, String soCCCD, String soDienThoai, String email, String tenDangNhap) {
+    public KhachHang(String maKhachHang, String hoTen, String soCCCD, String soDienThoai, String diaChi, String email, String tenDangNhap) {
         this.maKhachHang = maKhachHang;
         this.hoTen = hoTen;
         this.soCCCD = soCCCD;
         this.soDienThoai = soDienThoai;
+        this.diaChi = diaChi;
         this.email = email;
         this.tenDangNhap = tenDangNhap;
     }
@@ -57,6 +59,14 @@ public class KhachHang {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getDiaChi() {
+        return diaChi;
+    }
+
+    public void setDiaChi(String diaChi) {
+        this.diaChi = diaChi;
     }
 
     public String getTenDangNhap() {

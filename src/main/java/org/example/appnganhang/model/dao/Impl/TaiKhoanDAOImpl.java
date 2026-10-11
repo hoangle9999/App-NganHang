@@ -1,6 +1,6 @@
 package org.example.appnganhang.model.dao.Impl;
 
-import org.example.appnganhang.model.dao.TaiKhoanDAO;
+import org.example.appnganhang.model.dao.intf.TaiKhoanDAO;
 import org.example.appnganhang.model.entity.TaiKhoanNganHang;
 import org.example.appnganhang.model.util.DBConnection;
 

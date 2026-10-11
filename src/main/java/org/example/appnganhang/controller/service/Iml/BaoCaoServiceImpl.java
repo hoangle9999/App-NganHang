@@ -1,8 +1,8 @@
 package org.example.appnganhang.controller.service.Iml;
 
-import org.example.appnganhang.model.dao.BaoCaoDAO;
+import org.example.appnganhang.model.dao.intf.BaoCaoDAO;
 import org.example.appnganhang.model.dao.Impl.BaoCaoDAOImpl;
-import org.example.appnganhang.controller.service.BaoCaoService;
+import org.example.appnganhang.controller.service.intf.BaoCaoService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

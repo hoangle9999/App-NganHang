@@ -1,8 +1,8 @@
 package org.example.appnganhang.controller.service.Iml;
 
-import org.example.appnganhang.controller.service.TaiKhoanService;
+import org.example.appnganhang.controller.service.intf.TaiKhoanService;
 import org.example.appnganhang.model.dao.Impl.TaiKhoanDAOImpl;
-import org.example.appnganhang.model.dao.TaiKhoanDAO;
+import org.example.appnganhang.model.dao.intf.TaiKhoanDAO;
 import org.example.appnganhang.model.entity.TaiKhoanNganHang;
 
 import java.util.List;

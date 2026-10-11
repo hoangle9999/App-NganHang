@@ -1,11 +1,12 @@
 package org.example.appnganhang.controller.service.Iml;
 
-import org.example.appnganhang.model.dao.HanMucDAO;
+import org.example.appnganhang.model.dao.intf.HanMucDAO;
 import org.example.appnganhang.model.dao.Impl.HanMucDAOImpl;
 import org.example.appnganhang.model.entity.HanMucGiaoDich;
-import org.example.appnganhang.controller.service.HanMucService;
+import org.example.appnganhang.controller.service.intf.HanMucService;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 public class HanMucServiceImpl implements HanMucService {
@@ -14,27 +15,6 @@ public class HanMucServiceImpl implements HanMucService {
 
     public HanMucServiceImpl() {
         this.hanMucDAO = new HanMucDAOImpl();
-    }
-
-    @Override
-    public boolean themHanMuc(HanMucGiaoDich hanMuc) {
-        if (hanMuc == null) {
-            return false;
-        }
-
-        if (hanMuc.getMaHanMuc() == null ||
-                hanMuc.getMaHanMuc().trim().isEmpty()) {
-            return false;
-        }
-
-        if (hanMuc.getTenHanMuc().trim().isEmpty()) {
-            return false;
-        }
-
-        if (hanMuc.getHanMucNgay().compareTo(BigDecimal.ZERO) <= 0) {
-            return false;
-        }
-        return hanMucDAO.themHanMuc(hanMuc);
     }
 
     @Override
@@ -72,6 +52,11 @@ public class HanMucServiceImpl implements HanMucService {
             return Optional.empty();
         }
         return hanMucDAO.getHanMuc(maHanMuc);
+    }
+
+    @Override
+    public List<HanMucGiaoDich> getDanhSachHanMuc() {
+        return hanMucDAO.getDanhSachHanMuc();
     }
 
 }

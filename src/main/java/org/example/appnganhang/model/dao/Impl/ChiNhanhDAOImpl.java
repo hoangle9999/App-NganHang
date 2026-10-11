@@ -1,6 +1,6 @@
 package org.example.appnganhang.model.dao.Impl;
 
-import org.example.appnganhang.model.dao.ChiNhanhDAO;
+import org.example.appnganhang.model.dao.intf.ChiNhanhDAO;
 import org.example.appnganhang.model.entity.ChiNhanh;
 import org.example.appnganhang.model.util.DBConnection;
 
@@ -30,20 +30,46 @@ public class ChiNhanhDAOImpl implements ChiNhanhDAO {
             WHERE MaChiNhanh = ?
             """;
 
-    private static final String SQL_TIM_KIEM_CHI_NHANH = """
-            SELECT MaChiNhanh,
-                   TenChiNhanh,
-                   DiaChi
-            FROM ChiNhanh
-            WHERE MaChiNhanh = ?
-            """;
-
     private static final String SQL_GET_DANH_SACH_CHI_NHANH = """
             SELECT MaChiNhanh,
                    TenChiNhanh,
                    DiaChi
             FROM ChiNhanh
             """;
+
+    private static final String SQL_TIM_KIEM_THEO_MA = """
+        SELECT MaChiNhanh,
+               TenChiNhanh,
+               DiaChi
+        FROM ChiNhanh
+        WHERE MaChiNhanh = ?
+        """;
+
+    private static final String SQL_TIM_KIEM_THEO_TEN = """
+        SELECT MaChiNhanh,
+               TenChiNhanh,
+               DiaChi
+        FROM ChiNhanh
+        WHERE TenChiNhanh LIKE ?
+        """;
+
+    private static final String SQL_TIM_KIEM_THEO_DIA_CHI = """
+        SELECT MaChiNhanh,
+               TenChiNhanh,
+               DiaChi
+        FROM ChiNhanh
+        WHERE DiaChi LIKE ?
+        """;
+
+    private static final String SQL_TIM_KIEM_CHI_NHANH = """
+        SELECT MaChiNhanh,
+               TenChiNhanh,
+               DiaChi
+        FROM ChiNhanh
+        WHERE (? = '' OR MaChiNhanh LIKE ?)
+          AND (? = '' OR TenChiNhanh LIKE ?)
+          AND (? = '' OR DiaChi LIKE ?)
+        """;
 
     @Override
     public boolean themChiNhanh(ChiNhanh chiNhanh) {
@@ -95,9 +121,9 @@ public class ChiNhanhDAOImpl implements ChiNhanhDAO {
     }
 
     @Override
-    public Optional<ChiNhanh> timKiemChiNhanh(String maChiNhanh) {
+    public Optional<ChiNhanh> timKiemChiNhanhTheoMa(String maChiNhanh) {
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(SQL_TIM_KIEM_CHI_NHANH)) {
+             PreparedStatement ps = conn.prepareStatement(SQL_TIM_KIEM_THEO_MA)) {
 
             ps.setString(1, maChiNhanh);
 
@@ -118,6 +144,99 @@ public class ChiNhanhDAOImpl implements ChiNhanhDAO {
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public List<ChiNhanh> timKiemChiNhanhTheoTen(String tenChiNhanh) {
+        List<ChiNhanh> danhSach = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_TIM_KIEM_THEO_TEN)) {
+
+            ps.setString(1, "%" + tenChiNhanh + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ChiNhanh chiNhanh = new ChiNhanh();
+
+                    chiNhanh.setMaChiNhanh(rs.getString("MaChiNhanh"));
+                    chiNhanh.setTenChiNhanh(rs.getString("TenChiNhanh"));
+                    chiNhanh.setDiaChi(rs.getString("DiaChi"));
+
+                    danhSach.add(chiNhanh);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return danhSach;
+    }
+
+    @Override
+    public List<ChiNhanh> timKiemChiNhanhTheoDiaChi(String diaChi) {
+        List<ChiNhanh> danhSach = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_TIM_KIEM_THEO_DIA_CHI)) {
+
+            ps.setString(1, "%" + diaChi + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ChiNhanh chiNhanh = new ChiNhanh();
+
+                    chiNhanh.setMaChiNhanh(rs.getString("MaChiNhanh"));
+                    chiNhanh.setTenChiNhanh(rs.getString("TenChiNhanh"));
+                    chiNhanh.setDiaChi(rs.getString("DiaChi"));
+
+                    danhSach.add(chiNhanh);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return danhSach;
+    }
+
+    @Override
+    public List<ChiNhanh> timKiemChiNhanh(
+            String maChiNhanh,
+            String tenChiNhanh,
+            String diaChi) {
+
+        List<ChiNhanh> danhSach = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_TIM_KIEM_CHI_NHANH)) {
+
+            ps.setString(1, maChiNhanh);
+            ps.setString(2, "%" + maChiNhanh + "%");
+            ps.setString(3, tenChiNhanh);
+            ps.setString(4, "%" + tenChiNhanh + "%");
+            ps.setString(5, diaChi);
+            ps.setString(6, "%" + diaChi + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ChiNhanh chiNhanh = new ChiNhanh();
+
+                    chiNhanh.setMaChiNhanh(rs.getString("MaChiNhanh"));
+                    chiNhanh.setTenChiNhanh(rs.getString("TenChiNhanh"));
+                    chiNhanh.setDiaChi(rs.getString("DiaChi"));
+
+                    danhSach.add(chiNhanh);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return danhSach;
     }
 
     @Override
@@ -144,4 +263,6 @@ public class ChiNhanhDAOImpl implements ChiNhanhDAO {
 
         return danhSach;
     }
+
+
 }

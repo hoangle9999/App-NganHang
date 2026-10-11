@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
@@ -8,396 +9,342 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.appnganhang.controller.DashboardController"
-            prefWidth="1100.0"
-            prefHeight="750.0">
+<BorderPane prefHeight="760" prefWidth="1280" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.appnganhang.controller.nhanvien.DashboardController">
 
-   <!-- ==================== SIDEBAR ==================== -->
-   <left>
-      <VBox prefWidth="235.0"
-            style="-fx-background-color: #171A35;">
+    <left>
+        <VBox prefWidth="235"
+              spacing="8"
+              style="-fx-background-color: linear-gradient(to bottom, #171A35, #5148C9);">
 
-         <padding>
-            <Insets top="25" right="15" bottom="20" left="15"/>
-         </padding>
+            <padding>
+                <Insets bottom="20"
+                        left="20"
+                        right="15"
+                        top="25" />
+            </padding>
 
-         <!-- LOGO -->
-         <VBox spacing="2">
-            <Label text="SMART BANK"
-                   style="-fx-text-fill: white;
-                              -fx-font-size: 24px;
-                              -fx-font-weight: bold;"/>
+            <Label style="-fx-font-size: 24px;
+                          -fx-font-weight: bold;
+                          -fx-text-fill: white;"
+                   text="SMART BANK" />
 
-            <Label text="YOUR SMART BANKING"
-                   style="-fx-text-fill: #BFC2D8;
-                              -fx-font-size: 10px;"/>
-         </VBox>
+            <Label style="-fx-font-size: 10px;
+                          -fx-text-fill: #BFC2D8;"
+                   text="YOUR SMART BANKING" />
 
-         <Region VBox.vgrow="ALWAYS"/>
+            <Region prefHeight="15" />
 
-         <!-- USER -->
-         <VBox spacing="3">
-            <Label text="Xin chào"
-                   style="-fx-text-fill: #BFC2D8;
-                              -fx-font-size: 12px;"/>
+            <VBox spacing="4"
+                  style="-fx-background-color: rgba(255,255,255,0.08);
+                         -fx-background-radius: 12;
+                         -fx-padding: 12 15;">
 
-            <Label text="Người dùng"
-                   style="-fx-text-fill: white;
-                              -fx-font-size: 14px;
-                              -fx-font-weight: bold;"/>
-         </VBox>
+                <Label style="-fx-font-size: 11px;
+                              -fx-text-fill: #BFC2D8;"
+                       text="Xin chào" />
 
-         <Region VBox.vgrow="ALWAYS"/>
+                <Label style="-fx-font-size: 15px;
+                              -fx-font-weight: bold;
+                              -fx-text-fill: white;"
+                       text="Người dùng" />
 
-         <Label text="MENU"
-                style="-fx-text-fill: #8F93AF;
-                          -fx-font-size: 10px;
-                          -fx-font-weight: bold;">
-            <VBox.margin>
-               <Insets bottom="8"/>
-            </VBox.margin>
-         </Label>
+            </VBox>
 
-         <!-- MENU -->
-         <VBox spacing="5">
+            <Region prefHeight="10" />
 
-            <!-- TRANG CHỦ -->
-            <Button text="Trang chủ"
-                    maxWidth="Infinity"
-                    onAction="#handleTrangChu"
-                    style="-fx-background-color: rgba(255,255,255,0.15);
+            <Label style="-fx-font-size: 10px;
+                          -fx-text-fill: #8F93AF;
+                          -fx-font-weight: bold;
+                          -fx-padding: 0 0 5 5;"
+                   text="MENU" />
+
+            <VBox spacing="4"
+                  VBox.vgrow="ALWAYS">
+
+                <Button alignment="CENTER_LEFT"
+                        maxWidth="Infinity"
+                        onAction="#onTrangChu"
+                        style="-fx-background-color: rgba(255,255,255,0.15);
                                -fx-background-radius: 10;
                                -fx-text-fill: white;
                                -fx-font-weight: bold;
-                               -fx-alignment: CENTER_LEFT;
+                               -fx-font-size: 13px;
                                -fx-padding: 10 12;
-                               -fx-font-size: 13px;"/>
+                               -fx-cursor: hand;"
+                        text="Trang chủ">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
 
-            <Button text="Khách hàng"
-                    maxWidth="Infinity"
-                    onAction="#onKhachHang"
-                    style="-fx-background-color: transparent;
+                <Button alignment="CENTER_LEFT"
+                        maxWidth="Infinity"
+                        onAction="#onKhachHang"
+                        style="-fx-background-color: transparent;
                                -fx-text-fill: white;
-                               -fx-alignment: CENTER_LEFT;
+                               -fx-font-size: 13px;
                                -fx-padding: 10 12;
                                -fx-background-radius: 10;
-                               -fx-font-size: 13px;"/>
+                               -fx-cursor: hand;"
+                        text="Khách hàng">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
 
-            <Button text="Tài khoản"
-                    maxWidth="Infinity"
-                    onAction="#onTaiKhoan"
-                    style="-fx-background-color: transparent;
+                <Button alignment="CENTER_LEFT"
+                        maxWidth="Infinity"
+                        onAction="#onChuyenTien"
+                        style="-fx-background-color: transparent;
                                -fx-text-fill: white;
-                               -fx-alignment: CENTER_LEFT;
+                               -fx-font-size: 13px;
                                -fx-padding: 10 12;
                                -fx-background-radius: 10;
-                               -fx-font-size: 13px;"/>
+                               -fx-cursor: hand;"
+                        text="Chuyển tiền">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
 
-            <Button text="Chuyển tiền"
-                    maxWidth="Infinity"
-                    onAction="#onChuyenTien"
-                    style="-fx-background-color: transparent;
+                <Button alignment="CENTER_LEFT"
+                        maxWidth="Infinity"
+                        onAction="#onTraCuuGiaoDich"
+                        style="-fx-background-color: transparent;
                                -fx-text-fill: white;
-                               -fx-alignment: CENTER_LEFT;
+                               -fx-font-size: 13px;
                                -fx-padding: 10 12;
                                -fx-background-radius: 10;
-                               -fx-font-size: 13px;"/>
+                               -fx-cursor: hand;"
+                        text="Tra cứu giao dịch">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
 
-            <Button text="Tra cứu giao dịch"
-                    maxWidth="Infinity"
-                    onAction="#onTraCuuGiaoDich"
-                    style="-fx-background-color: transparent;
+                <Button alignment="CENTER_LEFT"
+                        maxWidth="Infinity"
+                        onAction="#onLichSuGiaoDich"
+                        style="-fx-background-color: transparent;
                                -fx-text-fill: white;
-                               -fx-alignment: CENTER_LEFT;
+                               -fx-font-size: 13px;
                                -fx-padding: 10 12;
                                -fx-background-radius: 10;
-                               -fx-font-size: 13px;"/>
+                               -fx-cursor: hand;"
+                        text="Lịch sử giao dịch">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
 
-            <Button text="Lịch sử giao dịch"
-                    maxWidth="Infinity"
-                    onAction="#onLichSuGiaoDich"
-                    style="-fx-background-color: transparent;
+                <Button alignment="CENTER_LEFT"
+                        maxWidth="Infinity"
+                        onAction="#onHanMuc"
+                        style="-fx-background-color: transparent;
                                -fx-text-fill: white;
-                               -fx-alignment: CENTER_LEFT;
+                               -fx-font-size: 13px;
                                -fx-padding: 10 12;
                                -fx-background-radius: 10;
-                               -fx-font-size: 13px;"/>
+                               -fx-cursor: hand;"
+                        text="Hạn mức">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
 
-            <Button text="Hạn mức"
-                    maxWidth="Infinity"
-                    onAction="#onHanMuc"
-                    style="-fx-background-color: transparent;
+                <Button alignment="CENTER_LEFT"
+                        maxWidth="Infinity"
+                        onAction="#onLoaiGiaoDich"
+                        style="-fx-background-color: transparent;
                                -fx-text-fill: white;
-                               -fx-alignment: CENTER_LEFT;
+                               -fx-font-size: 13px;
                                -fx-padding: 10 12;
                                -fx-background-radius: 10;
-                               -fx-font-size: 13px;"/>
+                               -fx-cursor: hand;"
+                        text="Loại giao dịch">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
 
-            <Button text="Loại giao dịch"
-                    maxWidth="Infinity"
-                    onAction="#onLoaiGiaoDich"
-                    style="-fx-background-color: transparent;
+                <Button alignment="CENTER_LEFT"
+                        maxWidth="Infinity"
+                        onAction="#onChiNhanh"
+                        style="-fx-background-color: transparent;
                                -fx-text-fill: white;
-                               -fx-alignment: CENTER_LEFT;
+                               -fx-font-size: 13px;
                                -fx-padding: 10 12;
                                -fx-background-radius: 10;
-                               -fx-font-size: 13px;"/>
+                               -fx-cursor: hand;"
+                        text="Chi nhánh">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
 
-            <Button text="Chi nhánh"
-                    maxWidth="Infinity"
-                    onAction="#onChiNhanh"
-                    style="-fx-background-color: transparent;
+                <Button alignment="CENTER_LEFT"
+                        maxWidth="Infinity"
+                        onAction="#onNhanVien"
+                        style="-fx-background-color: transparent;
                                -fx-text-fill: white;
-                               -fx-alignment: CENTER_LEFT;
+                               -fx-font-size: 13px;
                                -fx-padding: 10 12;
                                -fx-background-radius: 10;
-                               -fx-font-size: 13px;"/>
+                               -fx-cursor: hand;"
+                        text="Nhân viên">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
 
-            <Button text="Nhân viên"
-                    maxWidth="Infinity"
-                    onAction="#onNhanVien"
-                    style="-fx-background-color: transparent;
+                <Button alignment="CENTER_LEFT"
+                        maxWidth="Infinity"
+                        onAction="#onBaoCao"
+                        style="-fx-background-color: transparent;
                                -fx-text-fill: white;
-                               -fx-alignment: CENTER_LEFT;
+                               -fx-font-size: 13px;
                                -fx-padding: 10 12;
                                -fx-background-radius: 10;
-                               -fx-font-size: 13px;"/>
+                               -fx-cursor: hand;"
+                        text="Báo cáo">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
 
-            <Button text="Báo cáo"
-                    maxWidth="Infinity"
-                    onAction="#onBaoCao"
-                    style="-fx-background-color: transparent;
+                <Button alignment="CENTER_LEFT"
+                        maxWidth="Infinity"
+                        onAction="#onDoiMatKhau"
+                        style="-fx-background-color: transparent;
                                -fx-text-fill: white;
-                               -fx-alignment: CENTER_LEFT;
+                               -fx-font-size: 13px;
                                -fx-padding: 10 12;
                                -fx-background-radius: 10;
-                               -fx-font-size: 13px;"/>
+                               -fx-cursor: hand;"
+                        text="Đổi mật khẩu">
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
 
-         </VBox>
+            </VBox>
 
-         <Region VBox.vgrow="ALWAYS"/>
-
-         <!-- BOTTOM MENU -->
-         <VBox spacing="5">
-
-            <Button text="Đổi mật khẩu"
-                    maxWidth="Infinity"
-                    onAction="#onDoiMatKhau"
-                    style="-fx-background-color: transparent;
-                               -fx-text-fill: white;
-                               -fx-alignment: CENTER_LEFT;
-                               -fx-padding: 10 12;
-                               -fx-background-radius: 10;
-                               -fx-font-size: 13px;"/>
-
-            <Button text="Đăng xuất"
+            <Button alignment="CENTER_LEFT"
                     maxWidth="Infinity"
                     onAction="#onDangXuat"
                     style="-fx-background-color: transparent;
-                               -fx-text-fill: white;
-                               -fx-alignment: CENTER_LEFT;
-                               -fx-padding: 10 12;
-                               -fx-background-radius: 10;
-                               -fx-font-size: 13px;"/>
+                           -fx-background-radius: 10;
+                           -fx-text-fill: white;
+                           -fx-font-size: 13px;
+                           -fx-padding: 10 12;
+                           -fx-cursor: hand;"
+                    text="Đăng xuất">
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor>
+            </Button>
 
-         </VBox>
+        </VBox>
+    </left>
 
-      </VBox>
-   </left>
-
-   <!-- ==================== CONTENT ==================== -->
-   <center>
-
-      <VBox spacing="25"
-            style="-fx-background-color: #F7F8FC;">
-
-         <padding>
-            <Insets top="35" right="40" bottom="35" left="40"/>
-         </padding>
-
-         <!-- HEADER -->
-         <VBox spacing="6">
-
-            <Label text="Tổng quan"
-                   style="-fx-text-fill: #171A35;
-                              -fx-font-size: 28px;
-                              -fx-font-weight: bold;"/>
-
-            <Label text="Chào mừng bạn đến với hệ thống SMART BANK"
-                   style="-fx-text-fill: #777B91;
-                              -fx-font-size: 14px;"/>
-
-         </VBox>
-
-         <!-- ==================== WELCOME CARD ==================== -->
-         <VBox spacing="8"
-               style="-fx-background-color: #5148C9;
-                         -fx-background-radius: 20;">
+    <center>
+        <VBox spacing="25" style="-fx-background-color: #F7F8FC;">
 
             <padding>
-               <Insets top="25" right="30" bottom="25" left="30"/>
+                <Insets bottom="35" left="40" right="40" top="35" />
             </padding>
 
-            <Label text="SMART BANK"
-                   style="-fx-text-fill: white;
-                              -fx-font-size: 14px;
-                              -fx-font-weight: bold;"/>
+            <VBox spacing="6">
+                <Label style="-fx-text-fill: #171A35;                               -fx-font-size: 28px;                               -fx-font-weight: bold;" text="Tổng quan" />
 
-            <Label text="Xin chào, Người dùng!"
-                   style="-fx-text-fill: white;
-                              -fx-font-size: 24px;
-                              -fx-font-weight: bold;"/>
+                <Label style="-fx-text-fill: #777B91;                               -fx-font-size: 14px;" text="Chào mừng bạn đến với hệ thống SMART BANK" />
+            </VBox>
 
-            <Label text="Quản lý tài khoản và giao dịch ngân hàng của bạn một cách nhanh chóng."
-                   wrapText="true"
-                   style="-fx-text-fill: #E7E6FF;
-                              -fx-font-size: 13px;"/>
+            <VBox spacing="8" style="-fx-background-color: #5148C9;                          -fx-background-radius: 20;">
 
-         </VBox>
+                <padding>
+                    <Insets bottom="25" left="30" right="30" top="25" />
+                </padding>
 
-         <!-- ==================== QUICK ACTION ==================== -->
-         <VBox spacing="15">
+                <Label style="-fx-text-fill: white;                               -fx-font-size: 14px;                               -fx-font-weight: bold;" text="SMART BANK" />
 
-            <Label text="Truy cập nhanh"
-                   style="-fx-text-fill: #171A35;
-                              -fx-font-size: 18px;
-                              -fx-font-weight: bold;"/>
+                <Label style="-fx-text-fill: white;                               -fx-font-size: 24px;                               -fx-font-weight: bold;" text="Xin chào, Người dùng!" />
+
+                <Label style="-fx-text-fill: #E7E6FF;                               -fx-font-size: 13px;" text="Quản lý tài khoản và giao dịch ngân hàng của bạn một cách nhanh chóng." wrapText="true" />
+            </VBox>
+
+            <VBox spacing="15">
+                <Label style="-fx-text-fill: #171A35;                               -fx-font-size: 18px;                               -fx-font-weight: bold;" text="Truy cập nhanh" />
+
+                <HBox spacing="15">
+                    <Button onAction="#onChuyenTien" prefHeight="80" prefWidth="190" style="-fx-background-color: white;                                    -fx-background-radius: 18;                                    -fx-text-fill: #171A35;                                    -fx-font-size: 14px;                                    -fx-font-weight: bold;                                    -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);" text="Chuyển tiền">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Button>
+
+                    <Button onAction="#onLichSuGiaoDich" prefHeight="80" prefWidth="190" style="-fx-background-color: white;                                    -fx-background-radius: 18;                                    -fx-text-fill: #171A35;                                    -fx-font-size: 14px;                                    -fx-font-weight: bold;                                    -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);" text="Lịch sử giao dịch">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Button>
+
+                    <Button onAction="#onKhachHang" prefHeight="80" prefWidth="190" style="-fx-background-color: white;                                    -fx-background-radius: 18;                                    -fx-text-fill: #171A35;                                    -fx-font-size: 14px;                                    -fx-font-weight: bold;                                    -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);" text="Khách hàng">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Button>
+
+                    <Button onAction="#onBaoCao" prefHeight="80" prefWidth="190" style="-fx-background-color: white;                                    -fx-background-radius: 18;                                    -fx-text-fill: #171A35;                                    -fx-font-size: 14px;                                    -fx-font-weight: bold;                                    -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);" text="Báo cáo">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Button>
+                </HBox>
+            </VBox>
 
             <HBox spacing="15">
+                <VBox spacing="8" style="-fx-background-color: white;                              -fx-background-radius: 18;                              -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);" HBox.hgrow="ALWAYS">
 
-               <Button text="Chuyển tiền"
-                       prefWidth="190"
-                       prefHeight="80"
-                       onAction="#handleChuyenTien"
-                       style="-fx-background-color: white;
-                                   -fx-background-radius: 18;
-                                   -fx-text-fill: #171A35;
-                                   -fx-font-size: 14px;
-                                   -fx-font-weight: bold;
-                                   -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);"/>
+                    <padding>
+                        <Insets bottom="20" left="20" right="20" top="20" />
+                    </padding>
 
-               <Button text="Lịch sử giao dịch"
-                       prefWidth="190"
-                       prefHeight="80"
-                       onAction="#handleLichSu"
-                       style="-fx-background-color: white;
-                                   -fx-background-radius: 18;
-                                   -fx-text-fill: #171A35;
-                                   -fx-font-size: 14px;
-                                   -fx-font-weight: bold;
-                                   -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);"/>
+                    <Label fx:id="lblTitleCard1" style="-fx-text-fill: #777B91;                                   -fx-font-size: 12px;" text="Tổng khách hàng " />
 
-               <Button text="Khách hàng"
-                       prefWidth="190"
-                       prefHeight="80"
-                       onAction="#onKhachHang"
-                       style="-fx-background-color: white;
-                                   -fx-background-radius: 18;
-                                   -fx-text-fill: #171A35;
-                                   -fx-font-size: 14px;
-                                   -fx-font-weight: bold;
-                                   -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);"/>
+                    <Label fx:id="lblValueCard1" style="-fx-text-fill: #171A35;                                   -fx-font-size: 20px;                                   -fx-font-weight: bold;" text="1903 8888 9999" />
 
-               <Button text="Báo cáo"
-                       prefWidth="190"
-                       prefHeight="80"
-                       onAction="#onBaoCao"
-                       style="-fx-background-color: white;
-                                   -fx-background-radius: 18;
-                                   -fx-text-fill: #171A35;
-                                   -fx-font-size: 14px;
-                                   -fx-font-weight: bold;
-                                   -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);"/>
+                    <Label fx:id="lblSubCard1" style="-fx-text-fill: #2E8B57;                                   -fx-font-size: 12px;                                   -fx-font-weight: bold;" text="Đang hoạt động" />
+                </VBox>
 
+                <VBox spacing="8" style="-fx-background-color: white;                              -fx-background-radius: 18;                              -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);" HBox.hgrow="ALWAYS">
+
+                    <padding>
+                        <Insets bottom="20" left="20" right="20" top="20" />
+                    </padding>
+
+                    <Label fx:id="lblTitleCard2" style="-fx-text-fill: #777B91;                                   -fx-font-size: 12px;" text="Tổng số dư hệ thống" />
+
+                    <Label fx:id="lblValueCard2" style="-fx-text-fill: #171A35;                                   -fx-font-size: 20px;                                   -fx-font-weight: bold;" text="15,450,000 VNĐ" />
+
+                    <Label fx:id="lblSubCard2" style="-fx-text-fill: #777B91;                                   -fx-font-size: 12px;" text="Số dư khả dụng" />
+                </VBox>
+
+                <VBox spacing="8" style="-fx-background-color: white;                              -fx-background-radius: 18;                              -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);" HBox.hgrow="ALWAYS">
+
+                    <padding>
+                        <Insets bottom="20" left="20" right="20" top="20" />
+                    </padding>
+
+                    <Label fx:id="lblTitleCard3" style="-fx-text-fill: #777B91;                                   -fx-font-size: 12px;" text="Giao dịch hôm nay" />
+
+                    <Label fx:id="lblValueCard3" style="-fx-text-fill: #171A35;                                   -fx-font-size: 20px;                                   -fx-font-weight: bold;" text="3 giao dịch" />
+
+                    <Label fx:id="lblSubCard3" style="-fx-text-fill: #777B91;                                   -fx-font-size: 12px;" text="Giao dịch thành công" />
+                </VBox>
             </HBox>
 
-         </VBox>
-
-         <!-- ==================== INFORMATION ==================== -->
-         <HBox spacing="15">
-
-            <VBox spacing="8"
-                  HBox.hgrow="ALWAYS"
-                  style="-fx-background-color: white;
-                             -fx-background-radius: 18;
-                             -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);">
-
-               <padding>
-                  <Insets top="20" right="20" bottom="20" left="20"/>
-               </padding>
-
-               <Label text="Tài khoản"
-                      style="-fx-text-fill: #777B91;
-                                  -fx-font-size: 12px;"/>
-
-               <Label text="1903 8888 9999"
-                      style="-fx-text-fill: #171A35;
-                                  -fx-font-size: 20px;
-                                  -fx-font-weight: bold;"/>
-
-               <Label text="Đang hoạt động"
-                      style="-fx-text-fill: #2E8B57;
-                                  -fx-font-size: 12px;
-                                  -fx-font-weight: bold;"/>
-
-            </VBox>
-
-            <VBox spacing="8"
-                  HBox.hgrow="ALWAYS"
-                  style="-fx-background-color: white;
-                             -fx-background-radius: 18;
-                             -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);">
-
-               <padding>
-                  <Insets top="20" right="20" bottom="20" left="20"/>
-               </padding>
-
-               <Label text="Số dư hiện tại"
-                      style="-fx-text-fill: #777B91;
-                                  -fx-font-size: 12px;"/>
-
-               <Label text="15,450,000 VNĐ"
-                      style="-fx-text-fill: #171A35;
-                                  -fx-font-size: 20px;
-                                  -fx-font-weight: bold;"/>
-
-               <Label text="Số dư khả dụng"
-                      style="-fx-text-fill: #777B91;
-                                  -fx-font-size: 12px;"/>
-
-            </VBox>
-
-            <VBox spacing="8"
-                  HBox.hgrow="ALWAYS"
-                  style="-fx-background-color: white;
-                             -fx-background-radius: 18;
-                             -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 15, 0.15, 0, 4);">
-
-               <padding>
-                  <Insets top="20" right="20" bottom="20" left="20"/>
-               </padding>
-
-               <Label text="Giao dịch gần đây"
-                      style="-fx-text-fill: #777B91;
-                                  -fx-font-size: 12px;"/>
-
-               <Label text="3 giao dịch"
-                      style="-fx-text-fill: #171A35;
-                                  -fx-font-size: 20px;
-                                  -fx-font-weight: bold;"/>
-
-               <Label text="Trong ngày hôm nay"
-                      style="-fx-text-fill: #777B91;
-                                  -fx-font-size: 12px;"/>
-
-            </VBox>
-
-         </HBox>
-
-      </VBox>
-
-   </center>
+        </VBox>
+    </center>
 
 </BorderPane>

@@ -7,6 +7,15 @@ public class HanMucGiaoDich {
     private String tenHanMuc;
     private BigDecimal hanMucNgay;
 
+    public HanMucGiaoDich() {
+    }
+
+    public HanMucGiaoDich(String maHanMuc, String tenHanMuc, BigDecimal hanMucNgay) {
+        this.maHanMuc = maHanMuc;
+        this.tenHanMuc = tenHanMuc;
+        this.hanMucNgay = hanMucNgay;
+    }
+
     public String getMaHanMuc() {
         return maHanMuc;
     }

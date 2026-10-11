@@ -2,11 +2,11 @@ package org.example.appnganhang.controller.service.Iml;
 
 import org.example.appnganhang.model.dao.Impl.KhachHangDAOImpl;
 import org.example.appnganhang.model.dao.Impl.TaiKhoanDangNhapDAOImpl;
-import org.example.appnganhang.model.dao.KhachHangDAO;
-import org.example.appnganhang.model.dao.TaiKhoanDangNhapDAO;
+import org.example.appnganhang.model.dao.intf.KhachHangDAO;
+import org.example.appnganhang.model.dao.intf.TaiKhoanDangNhapDAO;
 import org.example.appnganhang.model.entity.KhachHang;
 import org.example.appnganhang.model.entity.TaiKhoanDangNhap_VaiTro;
-import org.example.appnganhang.controller.service.AuthService;
+import org.example.appnganhang.controller.service.intf.AuthService;
 
 import java.util.Optional;
 
@@ -44,10 +44,6 @@ public class AuthServiceImpl implements AuthService {
             return false;
         }
 
-        if (khachHang.getMaKhachHang() == null || khachHang.getMaKhachHang().trim().isEmpty()) {
-            return false;
-        }
-
         if (khachHang.getHoTen() == null || khachHang.getHoTen().trim().isEmpty()) {
             return false;
         }
@@ -81,6 +77,14 @@ public class AuthServiceImpl implements AuthService {
         if (khachHangDAO.findById(khachHang.getMaKhachHang()).isPresent()) {
             return false;
         }
+
+        String maKhachHang = khachHangDAO.taoMaKhachHang();
+
+        if (maKhachHang == null || maKhachHang.isBlank()) {
+            return false;
+        }
+
+        khachHang.setMaKhachHang(maKhachHang);
 
         TaiKhoanDangNhap_VaiTro taiKhoan = new TaiKhoanDangNhap_VaiTro();
 

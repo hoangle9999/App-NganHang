@@ -1,9 +1,9 @@
 package org.example.appnganhang.controller.service.Iml;
 
-import org.example.appnganhang.model.dao.LoaiGiaoDichDAO;
+import org.example.appnganhang.model.dao.intf.LoaiGiaoDichDAO;
 import org.example.appnganhang.model.dao.Impl.LoaiGiaoDichDAOImpl;
 import org.example.appnganhang.model.entity.LoaiGiaoDich;
-import org.example.appnganhang.controller.service.LoaiGiaoDichService;
+import org.example.appnganhang.controller.service.intf.LoaiGiaoDichService;
 
 import java.util.List;
 

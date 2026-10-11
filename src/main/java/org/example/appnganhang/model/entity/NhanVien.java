@@ -3,6 +3,7 @@ package org.example.appnganhang.model.entity;
 public class NhanVien {
     private String maNhanVien;
     private String hoTen;
+    private String soDienThoai;
     private String chucVu;
     private String maChiNhanh;
     private String tenDangNhap;
@@ -21,6 +22,14 @@ public class NhanVien {
 
     public void setHoTen(String hoTen) {
         this.hoTen = hoTen;
+    }
+
+    public String getSoDienThoai() {
+        return soDienThoai;
+    }
+
+    public void setSoDienThoai(String soDienThoai) {
+        this.soDienThoai = soDienThoai;
     }
 
     public String getChucVu() {

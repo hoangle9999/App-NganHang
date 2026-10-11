@@ -1,6 +1,6 @@
 package org.example.appnganhang.model.dao.Impl;
 
-import org.example.appnganhang.model.dao.LoaiGiaoDichDAO;
+import org.example.appnganhang.model.dao.intf.LoaiGiaoDichDAO;
 import org.example.appnganhang.model.entity.LoaiGiaoDich;
 import org.example.appnganhang.model.util.DBConnection;
 
@@ -31,9 +31,17 @@ public class LoaiGiaoDichDAOImpl implements LoaiGiaoDichDAO {
             """;
 
     private static final String SQL_GET_DANH_SACH_LOAI_GIAO_DICH = """
-            SELECT MaLoaiGD, TenLoaiGD
-            FROM LoaiGiaoDich
-            """;
+        SELECT
+            l.MaLoaiGD,
+            l.TenLoaiGD,
+            g.MaGiaoDich,
+            g.NoiDung,
+            g.TrangThai
+        FROM LoaiGiaoDich l
+        LEFT JOIN GiaoDichChuyenTien g
+            ON l.MaLoaiGD = g.MaLoaiGD
+        ORDER BY l.MaLoaiGD, g.MaGiaoDich
+        """;
 
     @Override
     public boolean themLoaiGiaoDich(LoaiGiaoDich loaiGiaoDich) {
@@ -95,6 +103,9 @@ public class LoaiGiaoDichDAOImpl implements LoaiGiaoDichDAO {
 
                 loaiGiaoDich.setMaLoaiGD(rs.getString("MaLoaiGD"));
                 loaiGiaoDich.setTenLoaiGD(rs.getString("TenLoaiGD"));
+                loaiGiaoDich.setMaGiaoDich(rs.getString("MaGiaoDich"));
+                loaiGiaoDich.setNoiDung(rs.getString("NoiDung"));
+                loaiGiaoDich.setTrangThai(rs.getString("TrangThai"));
 
                 danhSach.add(loaiGiaoDich);
             }

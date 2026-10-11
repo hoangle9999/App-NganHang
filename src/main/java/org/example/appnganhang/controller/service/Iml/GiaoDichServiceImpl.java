@@ -1,10 +1,10 @@
 package org.example.appnganhang.controller.service.Iml;
 
-import org.example.appnganhang.model.dao.GiaoDichDAO;
+import org.example.appnganhang.model.dao.intf.GiaoDichDAO;
 import org.example.appnganhang.model.dao.Impl.GiaoDichDAOImpl;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 import org.example.appnganhang.model.entity.LichSuGiaoDich;
-import org.example.appnganhang.controller.service.GiaoDichService;
+import org.example.appnganhang.controller.service.intf.GiaoDichService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,5 +44,15 @@ public class GiaoDichServiceImpl implements GiaoDichService {
     @Override
     public List<LichSuGiaoDich> xemLichSuGiaoDich(String maTaiKhoan) {
         return giaoDichDAO.xemLichSuGiaoDich(maTaiKhoan);
+    }
+
+    @Override
+    public List<GiaoDichChuyenTien> getTatCaGiaoDich() {
+        return giaoDichDAO.getTatCaGiaoDich();
+    }
+
+    @Override
+    public List<LichSuGiaoDich> xemTatCaLichSuGiaoDich() {
+        return giaoDichDAO.xemTatCaLichSuGiaoDich();
     }
 }

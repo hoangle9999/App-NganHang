@@ -1,10 +1,11 @@
 package org.example.appnganhang.controller.service.Iml;
 
-import org.example.appnganhang.model.dao.ChuyenTienDAO;
+import org.example.appnganhang.model.dao.intf.ChuyenTienDAO;
 import org.example.appnganhang.model.dao.Impl.ChuyenTienDAOImpl;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
-import org.example.appnganhang.controller.service.ChuyenTienService;
+import org.example.appnganhang.controller.service.intf.ChuyenTienService;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -17,94 +18,56 @@ public class ChuyenTienServiceImpl implements ChuyenTienService {
         this.chuyenTienDAO = new ChuyenTienDAOImpl();
     }
 
+
     @Override
-    public boolean chuyenTien(String maTaiKhoanGui, String maTaiKhoanNhan, BigDecimal soTien) {
-        if (maTaiKhoanGui == null
-                || maTaiKhoanNhan == null
+    public boolean chuyenTien(
+            String soTaiKhoanGui,
+            String soTaiKhoanNhan,
+            String maNganHangNhan,
+            BigDecimal soTien,
+            String noiDung) {
+
+        // 1. Kiểm tra dữ liệu đầu vào.
+        if (soTaiKhoanGui == null
+                || soTaiKhoanNhan == null
+                || maNganHangNhan == null
                 || soTien == null) {
             return false;
         }
 
-        if (maTaiKhoanGui.isBlank()
-                || maTaiKhoanNhan.isBlank()
+        if (soTaiKhoanGui.isBlank()
+                || soTaiKhoanNhan.isBlank()
+                || maNganHangNhan.isBlank()
                 || soTien.compareTo(BigDecimal.ZERO) <= 0) {
             return false;
         }
 
-        if (maTaiKhoanGui.equals(maTaiKhoanNhan)) {
+        // 2. Chỉ xử lý chuyển tiền nội bộ SMART BANK.
+        if (!"SMART".equalsIgnoreCase(maNganHangNhan)) {
             return false;
         }
 
-        if (!kiemTraTrangThaiTaiKhoan(maTaiKhoanGui)) {
+        // 3. Không cho phép chuyển tiền cho chính mình.
+        if (soTaiKhoanGui.equals(soTaiKhoanNhan)) {
             return false;
         }
 
-        if (!kiemTraTrangThaiTaiKhoan(maTaiKhoanNhan)) {
-            return false;
-        }
-
-        if (!kiemTraSoDu(maTaiKhoanGui, soTien)) {
-            return false;
-        }
-
-        if (!kiemTraHanMuc(maTaiKhoanGui, soTien)) {
-            return false;
-        }
-
-        BigDecimal soDuGui = chuyenTienDAO.laySoDu(maTaiKhoanGui);
-        BigDecimal soDuNhan = chuyenTienDAO.laySoDu(maTaiKhoanNhan);
-
-        if (soDuGui == null || soDuNhan == null) {
-            return false;
-        }
-
-        BigDecimal soDuGuiMoi = soDuGui.subtract(soTien);
-        BigDecimal soDuNhanMoi = soDuNhan.add(soTien);
-
-        if (!chuyenTienDAO.capNhatSoDu(maTaiKhoanGui, soDuGuiMoi)) {
-            return false;
-        }
-
-        if (!chuyenTienDAO.capNhatSoDu(maTaiKhoanNhan, soDuNhanMoi)) {
-            return false;
-        }
-
-        String maGiaoDich = "GD" + UUID.randomUUID()
-                .toString()
-                .replace("-", "")
-                .substring(0, 20);
-
+        // 4. Tạo thông tin giao dịch.
         GiaoDichChuyenTien giaoDich = new GiaoDichChuyenTien();
 
-        giaoDich.setMaGiaoDich(maGiaoDich);
-        giaoDich.setMaTaiKhoanNguon(maTaiKhoanGui);
-        giaoDich.setMaTaiKhoanDich(maTaiKhoanNhan);
+        giaoDich.setMaTaiKhoanNguon(soTaiKhoanGui);
+        giaoDich.setMaTaiKhoanDich(soTaiKhoanNhan);
         giaoDich.setSoTien(soTien);
+        giaoDich.setNoiDung(noiDung);
         giaoDich.setNgayGiaoDich(LocalDateTime.now());
-        giaoDich.setMaLoaiGD("CHUYEN");
-        giaoDich.setTrangThai("Thành công");
+        giaoDich.setMaLoaiGD("CK01");
+        giaoDich.setTrangThai("Chờ xử lý");
 
-        if (!chuyenTienDAO.themGiaoDich(giaoDich)) {
-            return false;
-        }
-
-        boolean lichSuGui = chuyenTienDAO.themLichSuGiaoDich(
-                maGiaoDich,
-                maTaiKhoanGui,
-                "Chuyển tiền",
-                soTien.negate(),
-                soDuGuiMoi
+        // 5. DAO thực hiện toàn bộ giao dịch trong transaction SQL.
+        return chuyenTienDAO.thucHienChuyenTien(
+                giaoDich,
+                maNganHangNhan
         );
-
-        boolean lichSuNhan = chuyenTienDAO.themLichSuGiaoDich(
-                maGiaoDich,
-                maTaiKhoanNhan,
-                "Nhận tiền",
-                soTien,
-                soDuNhanMoi
-        );
-
-        return lichSuGui && lichSuNhan;
     }
 
     @Override

@@ -1,10 +1,11 @@
 package org.example.appnganhang.controller.service.Iml;
 
-import org.example.appnganhang.model.dao.ChiNhanhDAO;
+import org.example.appnganhang.model.dao.intf.ChiNhanhDAO;
 import org.example.appnganhang.model.dao.Impl.ChiNhanhDAOImpl;
 import org.example.appnganhang.model.entity.ChiNhanh;
-import org.example.appnganhang.controller.service.ChiNhanhService;
+import org.example.appnganhang.controller.service.intf.ChiNhanhService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,12 +68,47 @@ public class ChiNhanhServiceImpl implements ChiNhanhService {
     }
 
     @Override
-    public Optional<ChiNhanh> timKiemChiNhanh(String maChiNhanh) {
+    public Optional<ChiNhanh> timKiemChiNhanhTheoMa(String maChiNhanh) {
         if (maChiNhanh == null || maChiNhanh.trim().isEmpty()) {
             return Optional.empty();
         }
 
-        return chiNhanhDAO.timKiemChiNhanh(maChiNhanh);
+        return chiNhanhDAO.timKiemChiNhanhTheoMa(maChiNhanh.trim());
+    }
+
+    @Override
+    public List<ChiNhanh> timKiemChiNhanhTheoTen(String tenChiNhanh) {
+        if (tenChiNhanh == null || tenChiNhanh.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return chiNhanhDAO.timKiemChiNhanhTheoTen(tenChiNhanh.trim());
+    }
+
+    @Override
+    public List<ChiNhanh> timKiemChiNhanhTheoDiaChi(String diaChi) {
+        if (diaChi == null || diaChi.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return chiNhanhDAO.timKiemChiNhanhTheoDiaChi(diaChi.trim());
+    }
+
+    @Override
+    public List<ChiNhanh> timKiemChiNhanh(
+            String maChiNhanh,
+            String tenChiNhanh,
+            String diaChi) {
+
+        maChiNhanh = maChiNhanh == null ? "" : maChiNhanh.trim();
+        tenChiNhanh = tenChiNhanh == null ? "" : tenChiNhanh.trim();
+        diaChi = diaChi == null ? "" : diaChi.trim();
+
+        return chiNhanhDAO.timKiemChiNhanh(
+                maChiNhanh,
+                tenChiNhanh,
+                diaChi
+        );
     }
 
     @Override

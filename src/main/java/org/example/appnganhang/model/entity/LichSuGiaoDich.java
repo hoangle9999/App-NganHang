@@ -10,7 +10,11 @@ public class LichSuGiaoDich {
     private String hanhDong;
     private BigDecimal soTienThayDoi;
     private BigDecimal soDuSauThayDoi;
+    private String trangThai;
     private LocalDateTime thoiGianGhiLog;
+
+    public LichSuGiaoDich() {
+    }
 
     public Integer getMaLog() {
         return maLog;
@@ -58,6 +62,14 @@ public class LichSuGiaoDich {
 
     public void setSoDuSauThayDoi(BigDecimal soDuSauThayDoi) {
         this.soDuSauThayDoi = soDuSauThayDoi;
+    }
+
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
     }
 
     public LocalDateTime getThoiGianGhiLog() {
