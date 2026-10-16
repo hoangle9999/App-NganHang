@@ -347,53 +347,6 @@
                                 </cursor>
                             </Button>
 
-                            <Button fx:id="btnThem"
-                                    layoutX="10.0"
-                                    layoutY="10.0"
-                                    onAction="#onThem"
-                                    prefHeight="40"
-                                    prefWidth="100"
-                                    style="-fx-background-color: #5148C9;
-                                           -fx-background-radius: 13;
-                                           -fx-text-fill: white;
-                                           -fx-font-weight: bold;
-                                           -fx-cursor: hand;"
-                                    text="Thêm">
-                                <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                </cursor>
-                            </Button>
-
-                            <Button fx:id="btnSua"
-                                    onAction="#onSua"
-                                    prefHeight="40"
-                                    prefWidth="90"
-                                    style="-fx-background-color: #ECEBFA;
-                                           -fx-background-radius: 13;
-                                           -fx-text-fill: #5148C9;
-                                           -fx-font-weight: bold;
-                                           -fx-cursor: hand;"
-                                    text="Sửa">
-                                <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                </cursor>
-                            </Button>
-
-                            <Button fx:id="btnXoa"
-                                    onAction="#onXoa"
-                                    prefHeight="40"
-                                    prefWidth="90"
-                                    style="-fx-background-color: #FDECEC;
-                                           -fx-background-radius: 13;
-                                           -fx-text-fill: #D9534F;
-                                           -fx-font-weight: bold;
-                                           -fx-cursor: hand;"
-                                    text="Xóa">
-                                <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                </cursor>
-                            </Button>
-
                             <Button fx:id="btnLamMoi"
                                     onAction="#onLamMoi"
                                     prefHeight="40"

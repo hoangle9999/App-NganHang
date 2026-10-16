@@ -5,6 +5,7 @@ import org.example.appnganhang.model.dao.Impl.GiaoDichDAOImpl;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 import org.example.appnganhang.model.entity.LichSuGiaoDich;
 import org.example.appnganhang.controller.service.intf.GiaoDichService;
+import org.example.appnganhang.model.entity.LoaiGiaoDich;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -55,4 +56,16 @@ public class GiaoDichServiceImpl implements GiaoDichService {
     public List<LichSuGiaoDich> xemTatCaLichSuGiaoDich() {
         return giaoDichDAO.xemTatCaLichSuGiaoDich();
     }
+
+
+    @Override
+    public List<LoaiGiaoDich> getTatCaLoaiGiaoDich() {
+        return giaoDichDAO.getTatCaLoaiGiaoDich();
+    }
+
+    @Override
+    public List<String> getTatCaTrangThai() {
+        return giaoDichDAO.getTatCaTrangThai();
+    }
+
 }

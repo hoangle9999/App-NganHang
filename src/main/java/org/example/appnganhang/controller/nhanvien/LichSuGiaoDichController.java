@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -16,6 +17,9 @@ import org.example.appnganhang.controller.service.intf.GiaoDichService;
 
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 import static org.example.appnganhang.controller.util.Navigation.moView;
 
@@ -26,9 +30,11 @@ public class LichSuGiaoDichController {
     @FXML private Button btnLamMoi;
 
     @FXML private TableView<LichSuGiaoDich> tblLichSu;
+    @FXML private TableColumn<LichSuGiaoDich, Number> colMaLog;
     @FXML private TableColumn<LichSuGiaoDich, String> colMaGD;
     @FXML private TableColumn<LichSuGiaoDich, String> colSoTaiKhoan;
     @FXML private TableColumn<LichSuGiaoDich, String> colHanhDong;
+    @FXML private TableColumn<LichSuGiaoDich, BigDecimal> colSoTienThayDoi;
     @FXML private TableColumn<LichSuGiaoDich, BigDecimal> colSoDuSauThayDoi;
     @FXML private TableColumn<LichSuGiaoDich, String> colTrangThai;
     @FXML private TableColumn<LichSuGiaoDich, LocalDateTime> colThoiGianGhiLog;
@@ -50,12 +56,29 @@ public class LichSuGiaoDichController {
     }
 
     private void cauHinhBang() {
+        colMaLog.setCellValueFactory(new PropertyValueFactory<>("maLog"));
         colMaGD.setCellValueFactory(new PropertyValueFactory<>("maGiaoDich"));
         colSoTaiKhoan.setCellValueFactory(new PropertyValueFactory<>("soTaiKhoanLienQuan"));
         colHanhDong.setCellValueFactory(new PropertyValueFactory<>("hanhDong"));
+        colSoTienThayDoi.setCellValueFactory(new PropertyValueFactory<>("soTienThayDoi"));
         colSoDuSauThayDoi.setCellValueFactory(new PropertyValueFactory<>("soDuSauThayDoi"));
         colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
         colThoiGianGhiLog.setCellValueFactory(new PropertyValueFactory<>("thoiGianGhiLog"));
+
+        DecimalFormat dinhDangTien = new DecimalFormat(
+                "#,##0", DecimalFormatSymbols.getInstance(Locale.GERMANY));
+        colSoTienThayDoi.setCellFactory(column -> taoOFormattedTien(dinhDangTien));
+        colSoDuSauThayDoi.setCellFactory(column -> taoOFormattedTien(dinhDangTien));
+    }
+
+    private TableCell<LichSuGiaoDich, BigDecimal> taoOFormattedTien(DecimalFormat dinhDangTien) {
+        return new TableCell<>() {
+            @Override
+            protected void updateItem(BigDecimal soTien, boolean empty) {
+                super.updateItem(soTien, empty);
+                setText(empty || soTien == null ? null : dinhDangTien.format(soTien));
+            }
+        };
     }
 
     private void taiDanhSachLichSuGiaoDich() {

@@ -2,6 +2,7 @@ package org.example.appnganhang.controller.service.intf;
 
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 import org.example.appnganhang.model.entity.LichSuGiaoDich;
+import org.example.appnganhang.model.entity.LoaiGiaoDich;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,4 +17,6 @@ public interface GiaoDichService {
     List<LichSuGiaoDich> xemLichSuGiaoDich(String maTaiKhoan);
     List<GiaoDichChuyenTien> getTatCaGiaoDich();
     List<LichSuGiaoDich> xemTatCaLichSuGiaoDich();
+    List<LoaiGiaoDich> getTatCaLoaiGiaoDich();
+    List<String> getTatCaTrangThai();
 }

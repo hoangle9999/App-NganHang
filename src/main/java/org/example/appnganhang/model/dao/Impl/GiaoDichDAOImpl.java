@@ -3,6 +3,7 @@ package org.example.appnganhang.model.dao.Impl;
 import org.example.appnganhang.model.dao.intf.GiaoDichDAO;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 import org.example.appnganhang.model.entity.LichSuGiaoDich;
+import org.example.appnganhang.model.entity.LoaiGiaoDich;
 import org.example.appnganhang.model.util.DBConnection;
 
 import java.sql.*;
@@ -53,12 +54,14 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
             """;
 
     private static final String SQL_XEM_LICH_SU_GIAO_DICH = """
-            SELECT MaLog, MaGiaoDich, SoTaiKhoanLienQuan,
-                   HanhDong, SoTienThayDoi, SoDuSauThayDoi,
-                   ThoiGianGhiLog
-            FROM LichSuGiaoDich
-            WHERE SoTaiKhoanLienQuan = ?
-            ORDER BY ThoiGianGhiLog DESC
+            SELECT ls.MaLog, ls.MaGiaoDich, ls.SoTaiKhoanLienQuan,
+                   ls.HanhDong, ls.SoTienThayDoi, ls.SoDuSauThayDoi,
+                   gd.TrangThai, ls.ThoiGianGhiLog
+            FROM dbo.LichSuGiaoDich ls
+            INNER JOIN dbo.GiaoDichChuyenTien gd
+                ON ls.MaGiaoDich = gd.MaGiaoDich
+            WHERE ls.SoTaiKhoanLienQuan = ?
+            ORDER BY ls.ThoiGianGhiLog DESC
             """;
 
     private static final String SQL_GET_TAT_CA_GIAO_DICH = """
@@ -76,9 +79,11 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
 
     private static final String SQL_XEM_TAT_CA_LICH_SU =
             """
-            SELECT ls.MaGiaoDich,
+            SELECT ls.MaLog,
+                   ls.MaGiaoDich,
                    ls.SoTaiKhoanLienQuan,
                    ls.HanhDong,
+                   ls.SoTienThayDoi,
                    ls.SoDuSauThayDoi,
                    gd.TrangThai,
                    ls.ThoiGianGhiLog
@@ -87,6 +92,19 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
                 ON ls.MaGiaoDich = gd.MaGiaoDich
             ORDER BY ls.ThoiGianGhiLog DESC
             """;
+
+    private static final String SQL_GET_TAT_CA_LOAI_GIAO_DICH = """
+        SELECT MaLoaiGD, TenLoaiGD
+        FROM dbo.LoaiGiaoDich
+        ORDER BY MaLoaiGD
+        """;
+
+    private static final String SQL_GET_TAT_CA_TRANG_THAI = """
+        SELECT DISTINCT TrangThai
+        FROM dbo.GiaoDichChuyenTien
+        ORDER BY TrangThai
+        """;
+
 
     @Override
     public Optional<GiaoDichChuyenTien> traCuuTheoMa(String maGiaoDich) {
@@ -242,11 +260,15 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
             while (rs.next()) {
                 LichSuGiaoDich lichSu = new LichSuGiaoDich();
 
+                lichSu.setMaLog(rs.getInt("MaLog"));
                 lichSu.setMaGiaoDich(rs.getString("MaGiaoDich"));
                 lichSu.setSoTaiKhoanLienQuan(
                         rs.getString("SoTaiKhoanLienQuan")
                 );
                 lichSu.setHanhDong(rs.getString("HanhDong"));
+                lichSu.setSoTienThayDoi(
+                        rs.getBigDecimal("SoTienThayDoi")
+                );
                 lichSu.setSoDuSauThayDoi(
                         rs.getBigDecimal("SoDuSauThayDoi")
                 );
@@ -287,6 +309,58 @@ public class GiaoDichDAOImpl implements GiaoDichDAO {
 
         return danhSach;
     }
+
+
+    @Override
+    public List<LoaiGiaoDich> getTatCaLoaiGiaoDich() {
+        List<LoaiGiaoDich> danhSach = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                     SQL_GET_TAT_CA_LOAI_GIAO_DICH
+             );
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                LoaiGiaoDich loai = new LoaiGiaoDich();
+                loai.setMaLoaiGD(rs.getString("MaLoaiGD"));
+                loai.setTenLoaiGD(rs.getString("TenLoaiGD"));
+
+                danhSach.add(loai);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Lỗi khi lấy danh sách loại giao dịch.", e
+            );
+        }
+
+        return danhSach;
+    }
+
+    @Override
+    public List<String> getTatCaTrangThai() {
+        List<String> danhSach = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                     SQL_GET_TAT_CA_TRANG_THAI
+             );
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                danhSach.add(rs.getString("TrangThai"));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Lỗi khi lấy danh sách trạng thái giao dịch.", e
+            );
+        }
+
+        return danhSach;
+    }
+
 
     private GiaoDichChuyenTien taoGiaoDich(ResultSet rs) throws SQLException{
         GiaoDichChuyenTien giaoDich = new GiaoDichChuyenTien();

@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -16,7 +17,10 @@ import org.example.appnganhang.controller.service.intf.HanMucService;
 import org.example.appnganhang.model.entity.HanMucGiaoDich;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -36,6 +40,7 @@ public class HanMucController {
     @FXML private Button btnXoa;
     @FXML private Button btnTimKiem;
     @FXML private Button btnLamMoi;
+    @FXML private Button btnClear;
 
     private final ObservableList<HanMucGiaoDich> danhSach = FXCollections.observableArrayList();
 
@@ -61,6 +66,23 @@ public class HanMucController {
         colMaHanMuc.setCellValueFactory(new PropertyValueFactory<>("maHanMuc"));
         colTenHanMuc.setCellValueFactory(new PropertyValueFactory<>("tenHanMuc"));
         colHanMucNgay.setCellValueFactory(new PropertyValueFactory<>("hanMucNgay"));
+        colHanMucNgay.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(BigDecimal hanMuc, boolean empty) {
+                super.updateItem(hanMuc, empty);
+                setText(empty || hanMuc == null ? null : dinhDangHanMuc(hanMuc));
+            }
+        });
+    }
+
+    private String dinhDangHanMuc(BigDecimal hanMuc) {
+        DecimalFormat dinhDang = new DecimalFormat(
+                "#,##0.##", DecimalFormatSymbols.getInstance(Locale.GERMANY));
+        return dinhDang.format(hanMuc);
+    }
+
+    private BigDecimal docHanMuc(String giaTri) {
+        return new BigDecimal(giaTri.trim().replace(".", "").replace(',', '.'));
     }
 
     private void taiDanhSachHanMuc() {
@@ -83,7 +105,7 @@ public class HanMucController {
         txtHanMucNgay.setText(
                 hanMuc.getHanMucNgay() == null
                         ? ""
-                        : hanMuc.getHanMucNgay().toPlainString()
+                        : dinhDangHanMuc(hanMuc.getHanMucNgay())
         );
     }
 
@@ -143,7 +165,7 @@ public class HanMucController {
         BigDecimal hanMucNgay;
 
         try {
-            hanMucNgay = new BigDecimal(hanMucNgayText);
+            hanMucNgay = docHanMuc(hanMucNgayText);
         } catch (NumberFormatException e) {
             hienThongBao(
                     Alert.AlertType.WARNING,
@@ -178,7 +200,7 @@ public class HanMucController {
 
         if (!hanMucNgayText.isEmpty()) {
             try {
-                hanMucNgay = new BigDecimal(hanMucNgayText);
+                hanMucNgay = docHanMuc(hanMucNgayText);
             } catch (NumberFormatException e) {
                 hienThongBao(
                         Alert.AlertType.WARNING,
@@ -237,6 +259,14 @@ public class HanMucController {
     }
 
     @FXML
+    private void onClear() {
+        txtMaHanMuc.clear();
+        txtTenHanMuc.clear();
+        txtHanMucNgay.clear();
+        tblHanMuc.getSelectionModel().clearSelection();
+    }
+
+    @FXML
     private void onSua() {
         HanMucGiaoDich selected =
                 tblHanMuc.getSelectionModel().getSelectedItem();
@@ -263,7 +293,7 @@ public class HanMucController {
         BigDecimal hanMucNgay;
 
         try {
-            hanMucNgay = new BigDecimal(hanMucNgayText);
+            hanMucNgay = docHanMuc(hanMucNgayText);
         } catch (NumberFormatException e) {
             hienThongBao(
                     Alert.AlertType.WARNING,

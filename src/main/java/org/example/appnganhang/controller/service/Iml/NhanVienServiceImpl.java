@@ -39,6 +39,11 @@ public class NhanVienServiceImpl implements NhanVienService {
             return false;
         }
 
+        if (nhanVien.getDiaChi() == null
+                || nhanVien.getDiaChi().trim().isEmpty()) {
+            return false;
+        }
+
         if (nhanVien.getChucVu() == null
                 || nhanVien.getChucVu().trim().isEmpty()) {
             return false;
@@ -77,6 +82,11 @@ public class NhanVienServiceImpl implements NhanVienService {
 
         if (nhanVien.getSoDienThoai() == null
                 || nhanVien.getSoDienThoai().trim().isEmpty()) {
+            return false;
+        }
+
+        if (nhanVien.getDiaChi() == null
+                || nhanVien.getDiaChi().trim().isEmpty()) {
             return false;
         }
 
@@ -206,7 +216,8 @@ public class NhanVienServiceImpl implements NhanVienService {
             String soDienThoai,
             String chucVu,
             String tenChiNhanh,
-            String tenDangNhap) {
+            String tenDangNhap,
+            String diaChi) {
 
         return nhanVienDAO.timKiemNhanVien(
                 maNhanVien,
@@ -214,7 +225,8 @@ public class NhanVienServiceImpl implements NhanVienService {
                 soDienThoai,
                 chucVu,
                 tenChiNhanh,
-                tenDangNhap
+                tenDangNhap,
+                diaChi
         );
     }
 }

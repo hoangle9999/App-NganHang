@@ -113,13 +113,6 @@ public class RegisterController {
             return;
         }
 
-        /*
-         * Hiện tại chưa kết nối Database.
-         * Khi làm phần Service/DAO sẽ xử lý đăng ký
-         * tài khoản thật tại đây.
-         */
-
-
         KhachHang khachHang = new KhachHang();
 
         khachHang.setHoTen(hoTen);

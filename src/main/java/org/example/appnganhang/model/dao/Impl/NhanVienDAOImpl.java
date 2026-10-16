@@ -15,13 +15,13 @@ import java.util.Optional;
 public class NhanVienDAOImpl implements NhanVienDAO {
 
     private static final String SQL_THEM_NHAN_VIEN = """
-            INSERT INTO NhanVien (MaNhanVien, HoTen, SoDienThoai, ChucVu, MaChiNhanh, TenDangNhap)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO dbo.NhanVien (MaNhanVien, HoTen, SoDienThoai, DiaChi, ChucVu, MaChiNhanh, TenDangNhap)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """;
 
     private static final String SQL_SUA_NHAN_VIEN = """
             UPDATE NhanVien
-            SET HoTen = ?, SoDienThoai = ?, ChucVu = ?, MaChiNhanh = ?, TenDangNhap = ?
+            SET HoTen = ?, SoDienThoai = ?, DiaChi = ?, ChucVu = ?, MaChiNhanh = ?, TenDangNhap = ?
             WHERE MaNhanVien = ?
             """;
 
@@ -31,20 +31,26 @@ public class NhanVienDAOImpl implements NhanVienDAO {
             """;
 
     private static final String SQL_TIM_NHAN_VIEN = """
-            SELECT MaNhanVien, HoTen, SoDienThoai, ChucVu, MaChiNhanh, TenDangNhap
-            FROM NhanVien
-            WHERE MaNhanVien = ?
+            SELECT nv.MaNhanVien, nv.HoTen, nv.SoDienThoai, nv.DiaChi,
+                   nv.ChucVu, nv.MaChiNhanh, cn.TenChiNhanh, nv.TenDangNhap
+            FROM dbo.NhanVien nv
+            LEFT JOIN dbo.ChiNhanh cn ON cn.MaChiNhanh = nv.MaChiNhanh
+            WHERE nv.MaNhanVien = ?
             """;
 
     private static final String SQL_GET_DANH_SACH_NHAN_VIEN = """
-            SELECT MaNhanVien, HoTen, SoDienThoai, ChucVu, MaChiNhanh, TenDangNhap
-            FROM NhanVien
+            SELECT nv.MaNhanVien, nv.HoTen, nv.SoDienThoai, nv.DiaChi,
+                   nv.ChucVu, nv.MaChiNhanh, cn.TenChiNhanh, nv.TenDangNhap
+            FROM dbo.NhanVien nv
+            LEFT JOIN dbo.ChiNhanh cn ON cn.MaChiNhanh = nv.MaChiNhanh
             """;
 
     private static final String SQL_GET_NHAN_VIEN_THEO_CHI_NHANH = """
-            SELECT MaNhanVien, HoTen, SoDienThoai, ChucVu, MaChiNhanh, TenDangNhap
-            FROM NhanVien
-            WHERE MaChiNhanh = ?
+            SELECT nv.MaNhanVien, nv.HoTen, nv.SoDienThoai, nv.DiaChi,
+                   nv.ChucVu, nv.MaChiNhanh, cn.TenChiNhanh, nv.TenDangNhap
+            FROM dbo.NhanVien nv
+            LEFT JOIN dbo.ChiNhanh cn ON cn.MaChiNhanh = nv.MaChiNhanh
+            WHERE nv.MaChiNhanh = ?
             """;
 
     private static final String SQL_TIM_MA_CHI_NHANH_THEO_TEN = """
@@ -53,53 +59,58 @@ public class NhanVienDAOImpl implements NhanVienDAO {
             WHERE TenChiNhanh = ?
             """;
 
-    private static final String SQL_TIM_THEO_MA_NHAN_VIEN = """
-            SELECT MaNhanVien, HoTen, SoDienThoai, ChucVu, MaChiNhanh, TenDangNhap
-            FROM NhanVien
-            WHERE MaNhanVien LIKE ?
-            """;
-
     private static final String SQL_TIM_THEO_HO_TEN = """
-            SELECT MaNhanVien, HoTen, SoDienThoai, ChucVu, MaChiNhanh, TenDangNhap
-            FROM NhanVien
-            WHERE HoTen LIKE ?
+            SELECT nv.MaNhanVien, nv.HoTen, nv.SoDienThoai, nv.DiaChi,
+                   nv.ChucVu, nv.MaChiNhanh, cn.TenChiNhanh, nv.TenDangNhap
+            FROM dbo.NhanVien nv
+            LEFT JOIN dbo.ChiNhanh cn ON cn.MaChiNhanh = nv.MaChiNhanh
+            WHERE nv.HoTen LIKE ?
             """;
 
     private static final String SQL_TIM_THEO_SO_DIEN_THOAI = """
-            SELECT MaNhanVien, HoTen, SoDienThoai, ChucVu, MaChiNhanh, TenDangNhap
-            FROM NhanVien
-            WHERE SoDienThoai LIKE ?
+            SELECT nv.MaNhanVien, nv.HoTen, nv.SoDienThoai, nv.DiaChi,
+                   nv.ChucVu, nv.MaChiNhanh, cn.TenChiNhanh, nv.TenDangNhap
+            FROM dbo.NhanVien nv
+            LEFT JOIN dbo.ChiNhanh cn ON cn.MaChiNhanh = nv.MaChiNhanh
+            WHERE nv.SoDienThoai LIKE ?
             """;
 
     private static final String SQL_TIM_THEO_CHUC_VU = """
-            SELECT MaNhanVien, HoTen, SoDienThoai, ChucVu, MaChiNhanh, TenDangNhap
-            FROM NhanVien
-            WHERE ChucVu LIKE ?
+            SELECT nv.MaNhanVien, nv.HoTen, nv.SoDienThoai, nv.DiaChi,
+                   nv.ChucVu, nv.MaChiNhanh, cn.TenChiNhanh, nv.TenDangNhap
+            FROM dbo.NhanVien nv
+            LEFT JOIN dbo.ChiNhanh cn ON cn.MaChiNhanh = nv.MaChiNhanh
+            WHERE nv.ChucVu LIKE ?
             """;
 
     private static final String SQL_TIM_THEO_TEN_CHI_NHANH = """
-            SELECT nv.MaNhanVien, nv.HoTen, nv.SoDienThoai, nv.ChucVu, nv.MaChiNhanh, nv.TenDangNhap
-            FROM NhanVien nv
-            INNER JOIN ChiNhanh cn ON nv.MaChiNhanh = cn.MaChiNhanh
+            SELECT nv.MaNhanVien, nv.HoTen, nv.SoDienThoai, nv.DiaChi,
+                   nv.ChucVu, nv.MaChiNhanh, cn.TenChiNhanh, nv.TenDangNhap
+            FROM dbo.NhanVien nv
+            INNER JOIN dbo.ChiNhanh cn ON nv.MaChiNhanh = cn.MaChiNhanh
             WHERE cn.TenChiNhanh LIKE ?
             """;
 
     private static final String SQL_TIM_THEO_TEN_DANG_NHAP = """
-            SELECT MaNhanVien, HoTen, SoDienThoai, ChucVu, MaChiNhanh, TenDangNhap
-            FROM NhanVien
-            WHERE TenDangNhap LIKE ?
+            SELECT nv.MaNhanVien, nv.HoTen, nv.SoDienThoai, nv.DiaChi,
+                   nv.ChucVu, nv.MaChiNhanh, cn.TenChiNhanh, nv.TenDangNhap
+            FROM dbo.NhanVien nv
+            LEFT JOIN dbo.ChiNhanh cn ON cn.MaChiNhanh = nv.MaChiNhanh
+            WHERE nv.TenDangNhap LIKE ?
             """;
 
     private static final String SQL_TIM_KIEM_NHAN_VIEN = """
-            SELECT nv.MaNhanVien, nv.HoTen, nv.SoDienThoai, nv.ChucVu, nv.MaChiNhanh, nv.TenDangNhap
-            FROM NhanVien nv
-            LEFT JOIN ChiNhanh cn ON nv.MaChiNhanh = cn.MaChiNhanh
+            SELECT nv.MaNhanVien, nv.HoTen, nv.SoDienThoai, nv.DiaChi,
+                   nv.ChucVu, nv.MaChiNhanh, cn.TenChiNhanh, nv.TenDangNhap
+            FROM dbo.NhanVien nv
+            LEFT JOIN dbo.ChiNhanh cn ON nv.MaChiNhanh = cn.MaChiNhanh
             WHERE (? = '' OR nv.MaNhanVien LIKE ?)
               AND (? = '' OR nv.HoTen LIKE ?)
               AND (? = '' OR nv.SoDienThoai LIKE ?)
               AND (? = '' OR nv.ChucVu LIKE ?)
               AND (? = '' OR cn.TenChiNhanh LIKE ?)
               AND (? = '' OR nv.TenDangNhap LIKE ?)
+              AND (? = '' OR nv.DiaChi LIKE ?)
             """;
 
     @Override
@@ -108,9 +119,10 @@ public class NhanVienDAOImpl implements NhanVienDAO {
             ps.setString(1, nhanVien.getMaNhanVien());
             ps.setString(2, nhanVien.getHoTen());
             ps.setString(3, nhanVien.getSoDienThoai());
-            ps.setString(4, nhanVien.getChucVu());
-            ps.setString(5, nhanVien.getMaChiNhanh());
-            ps.setString(6, nhanVien.getTenDangNhap());
+            ps.setString(4, nhanVien.getDiaChi());
+            ps.setString(5, nhanVien.getChucVu());
+            ps.setString(6, nhanVien.getMaChiNhanh());
+            ps.setString(7, nhanVien.getTenDangNhap());
 
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
@@ -123,10 +135,11 @@ public class NhanVienDAOImpl implements NhanVienDAO {
         try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(SQL_SUA_NHAN_VIEN)) {
             ps.setString(1, nhanVien.getHoTen());
             ps.setString(2, nhanVien.getSoDienThoai());
-            ps.setString(3, nhanVien.getChucVu());
-            ps.setString(4, nhanVien.getMaChiNhanh());
-            ps.setString(5, nhanVien.getTenDangNhap());
-            ps.setString(6, nhanVien.getMaNhanVien());
+            ps.setString(3, nhanVien.getDiaChi());
+            ps.setString(4, nhanVien.getChucVu());
+            ps.setString(5, nhanVien.getMaChiNhanh());
+            ps.setString(6, nhanVien.getTenDangNhap());
+            ps.setString(7, nhanVien.getMaNhanVien());
 
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
@@ -245,7 +258,8 @@ public class NhanVienDAOImpl implements NhanVienDAO {
             String soDienThoai,
             String chucVu,
             String tenChiNhanh,
-            String tenDangNhap
+            String tenDangNhap,
+            String diaChi
     ) {
         List<NhanVien> danhSach = new ArrayList<>();
 
@@ -262,6 +276,8 @@ public class NhanVienDAOImpl implements NhanVienDAO {
             ps.setString(10, "%" + tenChiNhanh + "%");
             ps.setString(11, tenDangNhap);
             ps.setString(12, "%" + tenDangNhap + "%");
+            ps.setString(13, diaChi);
+            ps.setString(14, "%" + diaChi + "%");
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -298,8 +314,10 @@ public class NhanVienDAOImpl implements NhanVienDAO {
         nhanVien.setMaNhanVien(rs.getString("MaNhanVien"));
         nhanVien.setHoTen(rs.getString("HoTen"));
         nhanVien.setSoDienThoai(rs.getString("SoDienThoai"));
+        nhanVien.setDiaChi(rs.getString("DiaChi"));
         nhanVien.setChucVu(rs.getString("ChucVu"));
         nhanVien.setMaChiNhanh(rs.getString("MaChiNhanh"));
+        nhanVien.setTenChiNhanh(rs.getString("TenChiNhanh"));
         nhanVien.setTenDangNhap(rs.getString("TenDangNhap"));
         return nhanVien;
     }

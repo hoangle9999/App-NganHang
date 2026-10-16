@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class TaiKhoanDAOImpl implements TaiKhoanDAO {
-
     private static final String SQL_THEM_TAI_KHOAN =
             "INSERT INTO TaiKhoanNganHang " +
-                    "(MaTaiKhoan, MaKhachHang, SoTaiKhoan, SoDu, TrangThai, MaChiNhanh, MaHanMuc) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    "(MaTaiKhoan, MaKhachHang, SoTaiKhoan, SoDu, TrangThai, " +
+                    "MaChiNhanh, MaHanMuc, MaNganHang) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String SQL_CAP_NHAT_TAI_KHOAN =
             "UPDATE TaiKhoanNganHang " +
@@ -77,6 +77,7 @@ public class TaiKhoanDAOImpl implements TaiKhoanDAO {
             ps.setString(5, taiKhoan.getTrangThai());
             ps.setString(6, taiKhoan.getMaChiNhanh());
             ps.setString(7, taiKhoan.getMaHanMuc());
+            ps.setString(8, taiKhoan.getMaNganHang());
 
             return ps.executeUpdate() > 0;
 
@@ -291,5 +292,41 @@ public class TaiKhoanDAOImpl implements TaiKhoanDAO {
         taiKhoan.setMaHanMuc(rs.getString("MaHanMuc"));
 
         return taiKhoan;
+    }
+
+    public String taoMaTaiKhoan() {
+        String sql = "{CALL dbo.sp_TaoMaTaiKhoan(?)}";
+
+        try (Connection conn = DBConnection.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            stmt.registerOutParameter(1, Types.VARCHAR);
+            stmt.execute();
+
+            return stmt.getString(1);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Lỗi tạo mã tài khoản: " + e.getMessage(), e
+            );
+        }
+    }
+
+    public String taoSoTaiKhoan() {
+        String sql = "{CALL dbo.sp_TaoSoTaiKhoan(?)}";
+
+        try (Connection conn = DBConnection.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            stmt.registerOutParameter(1, Types.VARCHAR);
+            stmt.execute();
+
+            return stmt.getString(1);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Lỗi tạo số tài khoản ngân hàng: " + e.getMessage(), e
+            );
+        }
     }
 }

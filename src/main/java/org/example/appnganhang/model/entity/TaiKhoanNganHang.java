@@ -8,6 +8,7 @@ public class TaiKhoanNganHang {
     private String soTaiKhoan;
     private BigDecimal soDu;
     private String trangThai;
+    private String maNganHang;
     private String maChiNhanh;
     private String maHanMuc;
 
@@ -49,6 +50,14 @@ public class TaiKhoanNganHang {
 
     public void setTrangThai(String trangThai) {
         this.trangThai = trangThai;
+    }
+
+    public String getMaNganHang() {
+        return maNganHang;
+    }
+
+    public void setMaNganHang(String maNganHang) {
+        this.maNganHang = maNganHang;
     }
 
     public String getMaChiNhanh() {

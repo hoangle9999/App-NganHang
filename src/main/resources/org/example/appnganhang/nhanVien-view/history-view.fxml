@@ -341,6 +341,10 @@
                         <TableView fx:id="tblLichSu" VBox.vgrow="ALWAYS">
 
                             <columns>
+                                <TableColumn fx:id="colMaLog"
+                                             prefWidth="80"
+                                             text="Mã log" />
+
                                 <TableColumn fx:id="colMaGD"
                                              prefWidth="111.20005226135254"
                                              text="Mã giao dịch" />
@@ -352,6 +356,10 @@
                                 <TableColumn fx:id="colHanhDong"
                                              prefWidth="180"
                                              text="Hành động" />
+
+                                <TableColumn fx:id="colSoTienThayDoi"
+                                             prefWidth="160"
+                                             text="Số tiền thay đổi" />
 
                                 <TableColumn fx:id="colSoDuSauThayDoi"
                                              prefWidth="160"

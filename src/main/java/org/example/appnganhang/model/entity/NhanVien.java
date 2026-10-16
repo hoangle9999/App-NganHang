@@ -4,8 +4,10 @@ public class NhanVien {
     private String maNhanVien;
     private String hoTen;
     private String soDienThoai;
+    private String diaChi;
     private String chucVu;
     private String maChiNhanh;
+    private String tenChiNhanh;
     private String tenDangNhap;
 
     public String getMaNhanVien() {
@@ -32,6 +34,14 @@ public class NhanVien {
         this.soDienThoai = soDienThoai;
     }
 
+    public String getDiaChi() {
+        return diaChi;
+    }
+
+    public void setDiaChi(String diaChi) {
+        this.diaChi = diaChi;
+    }
+
     public String getChucVu() {
         return chucVu;
     }
@@ -46,6 +56,14 @@ public class NhanVien {
 
     public void setMaChiNhanh(String maChiNhanh) {
         this.maChiNhanh = maChiNhanh;
+    }
+
+    public String getTenChiNhanh() {
+        return tenChiNhanh;
+    }
+
+    public void setTenChiNhanh(String tenChiNhanh) {
+        this.tenChiNhanh = tenChiNhanh;
     }
 
     public String getTenDangNhap() {

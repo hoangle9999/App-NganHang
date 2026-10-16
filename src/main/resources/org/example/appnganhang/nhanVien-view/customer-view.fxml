@@ -148,7 +148,7 @@
                <VBox spacing="6">
                   <children>
                      <Label style="-fx-text-fill: #4D5063;                                       -fx-font-size: 12px;                                       -fx-font-weight: bold;" text="Tên đăng nhập" />
-                     <TextField fx:id="txtTenDangNhap" prefHeight="25.0" prefWidth="600.0" promptText="Nhập tên đăng nhập" style="-fx-background-color: white;                                           -fx-background-radius: 13;                                           -fx-border-color: #E0E1E8;                                           -fx-border-radius: 13;                                           -fx-padding: 0 15;" />
+                     <TextField fx:id="txtTenDangNhap" disable="true" prefHeight="25.0" prefWidth="600.0" promptText="Nhập tên đăng nhập" style="-fx-background-color: white;                                           -fx-background-radius: 13;                                           -fx-border-color: #E0E1E8;                                           -fx-border-radius: 13;                                           -fx-padding: 0 15;" />
                   </children>
                </VBox>
                 </HBox>

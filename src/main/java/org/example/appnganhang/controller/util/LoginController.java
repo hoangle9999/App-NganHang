@@ -43,10 +43,9 @@ public class LoginController {
             return;
         }
 
-        // áp dụng service vừa tạo
         if (authService.login(tenDangNhap, matKhau)){
 
-            // Lấy thông tin tài khoản vừa đăng nhập
+
             TaiKhoanDangNhap_VaiTro currentUser = authService.getCurrentUser();
 
             if (currentUser == null) {
@@ -82,7 +81,6 @@ public class LoginController {
         }
     }
 
-    // Sự kiện khi bấm vào nút chuyển sang trang Đăng ký
     @FXML
     protected void onRegisterLinkClick() {
         try {
@@ -113,7 +111,6 @@ public class LoginController {
         }
     }
 
-    // Sự kiện nút THOÁT
     @FXML
     protected void onExitButtonClick() {
         Stage stage = (Stage) txtTenDangNhap.getScene().getWindow();

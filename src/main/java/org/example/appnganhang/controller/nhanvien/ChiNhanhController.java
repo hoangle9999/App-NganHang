@@ -30,6 +30,7 @@ public class ChiNhanhController {
     @FXML private Button btnXoa;
     @FXML private Button btnLamMoi;
     @FXML private Button btnTimKiem;
+    @FXML private Button btnClear;
 
     @FXML private TableView<ChiNhanh> tblChiNhanh;
     @FXML private TableColumn<ChiNhanh, String> colMaChiNhanh;
@@ -82,6 +83,7 @@ public class ChiNhanhController {
         txtMaChiNhanh.setText(chiNhanh.getMaChiNhanh());
         txtTenChiNhanh.setText(chiNhanh.getTenChiNhanh());
         txtDiaChi.setText(chiNhanh.getDiaChi());
+        txtMaChiNhanh.setDisable(true);
     }
 
     @FXML
@@ -207,6 +209,12 @@ public class ChiNhanhController {
     }
 
     @FXML
+    private void onClear() {
+        lamSachForm();
+        tblChiNhanh.getSelectionModel().clearSelection();
+    }
+
+    @FXML
      private void onTimKiemTheoMa(){
         String maChiNhanh = txtMaChiNhanh.getText();
 
@@ -250,6 +258,7 @@ public class ChiNhanhController {
     private void lamSachForm() {
 
         txtMaChiNhanh.clear();
+        txtMaChiNhanh.setDisable(false);
         txtTenChiNhanh.clear();
         txtDiaChi.clear();
     }

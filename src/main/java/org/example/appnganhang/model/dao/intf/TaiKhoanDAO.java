@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TaiKhoanDAO {
+    String taoMaTaiKhoan();
+    String taoSoTaiKhoan();
     boolean themTaiKhoan(TaiKhoanNganHang taiKhoan);
     boolean capNhatTaiKhoan(TaiKhoanNganHang taiKhoan);
     boolean xoaTaiKhoan(String maTaiKhoan);

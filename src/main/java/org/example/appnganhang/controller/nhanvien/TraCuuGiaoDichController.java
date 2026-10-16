@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -13,15 +14,20 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 import org.example.appnganhang.controller.service.Iml.GiaoDichServiceImpl;
 import org.example.appnganhang.controller.service.intf.GiaoDichService;
+import org.example.appnganhang.model.entity.LoaiGiaoDich;
 
 import java.util.List;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+import java.math.BigDecimal;
 
 import static org.example.appnganhang.controller.util.Navigation.moView;
 
 public class TraCuuGiaoDichController {
 
     @FXML private TextField txtMaGiaoDich;
-    @FXML private TextField txtMaTaiKhoan;
+    @FXML private TextField txtSoTaiKhoan;
 
     @FXML private ComboBox<String> cboLoaiGiaoDich;
     @FXML private ComboBox<String> cboTrangThai;
@@ -30,35 +36,28 @@ public class TraCuuGiaoDichController {
     @FXML private TableColumn<GiaoDichChuyenTien, String> colMaGiaoDich;
     @FXML private TableColumn<GiaoDichChuyenTien, String> colTaiKhoanNguon;
     @FXML private TableColumn<GiaoDichChuyenTien, String> colTaiKhoanDich;
-    @FXML private TableColumn<GiaoDichChuyenTien, String> colSoTien;
+    @FXML private TableColumn<GiaoDichChuyenTien, BigDecimal> colSoTien;
     @FXML private TableColumn<GiaoDichChuyenTien, String> colNgayGiaoDich;
     @FXML private TableColumn<GiaoDichChuyenTien, String> colNoiDung;
     @FXML private TableColumn<GiaoDichChuyenTien, String> colMaLoaiGD;
     @FXML private TableColumn<GiaoDichChuyenTien, String> colTrangThai;
 
     private final ObservableList<GiaoDichChuyenTien> danhSachGiaoDich = FXCollections.observableArrayList();
+    private List<LoaiGiaoDich> danhSachLoaiGiaoDich = List.of();
     private final GiaoDichService giaoDichService = new GiaoDichServiceImpl();
+
 
     @FXML
     private void initialize() {
-
-        cboLoaiGiaoDich.getItems().addAll(
-                "Chuyển tiền",
-                "Nạp tiền",
-                "Rút tiền",
-                "Thanh toán"
-        );
-
-        cboTrangThai.getItems().addAll(
-                "Thành công",
-                "Đang xử lý",
-                "Thất bại"
-        );
-
         cauHinhBang();
-        taiTatCaGiaoDich();
-    }
 
+        taiDanhSachLoaiGiaoDich();
+        taiDanhSachTrangThai();
+
+        taiTatCaGiaoDich();
+
+        selectRow();
+    }
 
     private void cauHinhBang() {
 
@@ -66,6 +65,17 @@ public class TraCuuGiaoDichController {
         colTaiKhoanNguon.setCellValueFactory(new PropertyValueFactory<>("maTaiKhoanNguon"));
         colTaiKhoanDich.setCellValueFactory(new PropertyValueFactory<>("maTaiKhoanDich"));
         colSoTien.setCellValueFactory(new PropertyValueFactory<>("soTien"));
+
+        DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(Locale.GERMANY);
+        DecimalFormat dinhDangTien = new DecimalFormat("#,##0", symbols);
+        colSoTien.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(BigDecimal soTien, boolean empty) {
+                super.updateItem(soTien, empty);
+                setText(empty || soTien == null ? null : dinhDangTien.format(soTien));
+            }
+        });
+        
         colNgayGiaoDich.setCellValueFactory(new PropertyValueFactory<>("ngayGiaoDich"));
         colNoiDung.setCellValueFactory(new PropertyValueFactory<>("noiDung"));
         colMaLoaiGD.setCellValueFactory(new PropertyValueFactory<>("maLoaiGD"));
@@ -77,11 +87,58 @@ public class TraCuuGiaoDichController {
         tblGiaoDich.setItems(danhSachGiaoDich);
     }
 
+    private void taiDanhSachLoaiGiaoDich() {
+        danhSachLoaiGiaoDich = giaoDichService.getTatCaLoaiGiaoDich();
+
+        cboLoaiGiaoDich.getItems().setAll(
+                danhSachLoaiGiaoDich.stream()
+                        .map(LoaiGiaoDich::getTenLoaiGD)
+                        .toList()
+        );
+    }
+
+    private void taiDanhSachTrangThai() {
+        cboTrangThai.getItems().setAll(
+                giaoDichService.getTatCaTrangThai()
+        );
+    }
+
+    private void selectRow() {
+        tblGiaoDich.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> {
+
+                    if (newValue == null) {
+                        return;
+                    }
+
+                    txtMaGiaoDich.setText(newValue.getMaGiaoDich());
+                    txtSoTaiKhoan.setText(newValue.getMaTaiKhoanNguon());
+
+                    danhSachLoaiGiaoDich.stream()
+                            .filter(loai ->
+                                    loai.getMaLoaiGD().equals(
+                                            newValue.getMaLoaiGD()
+                                    )
+                            )
+                            .map(LoaiGiaoDich::getTenLoaiGD)
+                            .findFirst()
+                            .ifPresentOrElse(
+                                    cboLoaiGiaoDich::setValue,
+                                    () -> cboLoaiGiaoDich.setValue(null)
+                            );
+
+                    cboTrangThai.setValue(
+                            newValue.getTrangThai()
+                    );
+                });
+    }
+
     @FXML
     private void onTimKiem() {
 
         String maGiaoDich = txtMaGiaoDich.getText().trim();
-        String maTaiKhoan = txtMaTaiKhoan.getText().trim(); // tài khoản nguồn
+        String SoTaiKhoan = txtSoTaiKhoan.getText().trim(); // tài khoản nguồn
         String loai = cboLoaiGiaoDich.getValue();
         String trangThai = cboTrangThai.getValue();
 
@@ -90,8 +147,8 @@ public class TraCuuGiaoDichController {
             return;
         }
 
-        if (!maTaiKhoan.isEmpty()) {
-            onTimTheoTaiKhoan(maTaiKhoan);
+        if (!SoTaiKhoan.isEmpty()) {
+            onTimTheoTaiKhoan(SoTaiKhoan);
             return;
         }
 
@@ -108,7 +165,6 @@ public class TraCuuGiaoDichController {
         tblGiaoDich.setItems(danhSachGiaoDich);
     }
 
-
     @FXML
     private void onTheoMa() {
 
@@ -120,6 +176,19 @@ public class TraCuuGiaoDichController {
         }
 
         onTimTheoMa(ma);
+    }
+
+    @FXML
+    private void onTheoTaiKhoan() {
+
+        String SoTaiKhoan = txtSoTaiKhoan.getText().trim();
+
+        if (SoTaiKhoan.isEmpty()) {
+            tblGiaoDich.setItems(danhSachGiaoDich);
+            return;
+        }
+
+        onTimTheoTaiKhoan(SoTaiKhoan);
     }
 
     private void onTimTheoMa(String maGiaoDich) {
@@ -142,36 +211,10 @@ public class TraCuuGiaoDichController {
                 );
     }
 
-    @FXML
-    private void onTheoTaiKhoan() {
-
-        String maTaiKhoan = txtMaTaiKhoan.getText().trim();
-
-        if (maTaiKhoan.isEmpty()) {
-            tblGiaoDich.setItems(danhSachGiaoDich);
-            return;
-        }
-
-        onTimTheoTaiKhoan(maTaiKhoan);
-    }
-
     private void onTimTheoTaiKhoan(String maTaiKhoan) {
 
         List<GiaoDichChuyenTien> ketQua = giaoDichService.traCuuTheoTaiKhoan(maTaiKhoan);
         tblGiaoDich.setItems(FXCollections.observableArrayList(ketQua));
-    }
-
-    @FXML
-    private void onTheoLoai() {
-
-        String loai = cboLoaiGiaoDich.getValue();
-
-        if (loai == null) {
-            tblGiaoDich.setItems(danhSachGiaoDich);
-            return;
-        }
-
-        onTimTheoLoai(loai);
     }
 
     private void onTimTheoLoai(String tenLoai) {
@@ -187,19 +230,6 @@ public class TraCuuGiaoDichController {
         tblGiaoDich.setItems(FXCollections.observableArrayList(ketQua));
     }
 
-    @FXML
-    private void onTheoTrangThai() {
-
-        String trangThai = cboTrangThai.getValue();
-
-        if (trangThai == null) {
-            tblGiaoDich.setItems(danhSachGiaoDich);
-            return;
-        }
-
-        onTimTheoTrangThai(trangThai);
-    }
-
     private void onTimTheoTrangThai(String trangThai) {
 
         List<GiaoDichChuyenTien> ketQua = giaoDichService.traCuuTheoTrangThai(trangThai);
@@ -207,26 +237,40 @@ public class TraCuuGiaoDichController {
     }
 
     private String chuyenTenLoaiSangMa(String tenLoai) {
+        if (tenLoai == null) {
+            return "";
+        }
 
-        return switch (tenLoai) {
-            case "Chuyển tiền" -> "CK";
-            case "Nạp tiền" -> "NT";
-            case "Rút tiền" -> "RT";
-            case "Thanh toán" -> "TT";
-            default -> "";
-        };
+        return danhSachLoaiGiaoDich.stream()
+                .filter(loai ->
+                        loai.getTenLoaiGD().equals(tenLoai)
+                )
+                .map(LoaiGiaoDich::getMaLoaiGD)
+                .findFirst()
+                .orElse("");
     }
 
     @FXML
     private void onLamMoi() {
 
         txtMaGiaoDich.clear();
-        txtMaTaiKhoan.clear();
+        txtSoTaiKhoan.clear();
 
         cboLoaiGiaoDich.setValue(null);
         cboTrangThai.setValue(null);
 
         taiTatCaGiaoDich();
+    }
+
+    @FXML
+    private void onClear() {
+        txtMaGiaoDich.clear();
+        txtSoTaiKhoan.clear();
+
+        cboLoaiGiaoDich.setValue(null);
+        cboTrangThai.setValue(null);
+
+        tblGiaoDich.getSelectionModel().clearSelection();
     }
 
     // =========================================================

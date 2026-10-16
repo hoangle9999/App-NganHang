@@ -259,6 +259,7 @@ public class ChuyenTienDAOImpl implements ChuyenTienDAO {
         return false;
     }
 
+
     @Override
     public boolean thucHienChuyenTien(
             GiaoDichChuyenTien giaoDich,
@@ -268,196 +269,41 @@ public class ChuyenTienDAOImpl implements ChuyenTienDAO {
                 || giaoDich.getMaTaiKhoanNguon() == null
                 || giaoDich.getMaTaiKhoanDich() == null
                 || giaoDich.getSoTien() == null
-                || giaoDich.getSoTien().compareTo(BigDecimal.ZERO) <= 0
-                || giaoDich.getMaTaiKhoanNguon().equals(
-                giaoDich.getMaTaiKhoanDich())) {
+                || giaoDich.getSoTien().compareTo(BigDecimal.ZERO) <= 0) {
             return false;
         }
 
-        try (Connection conn = DBConnection.getConnection()) {
+        String sql = "{CALL dbo.sp_ChuyenTienNoiBo(?, ?, ?, ?, ?, ?, ?)}";
 
-            conn.setAutoCommit(false);
+        try (Connection conn = DBConnection.getConnection();
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            try {
-                String maTaiKhoanGui = giaoDich.getMaTaiKhoanNguon();
-                String maTaiKhoanNhan = giaoDich.getMaTaiKhoanDich();
-                BigDecimal soTien = giaoDich.getSoTien();
+            // Các giá trị này phải là SoTaiKhoan thực tế,
+            // không phải MaTaiKhoan nội bộ.
+            cs.setString(1, giaoDich.getMaTaiKhoanNguon());
+            cs.setString(2, giaoDich.getMaTaiKhoanDich());
+            cs.setString(3, maNganHangNhan);
+            cs.setBigDecimal(4, giaoDich.getSoTien());
+            cs.setNString(5, giaoDich.getNoiDung());
 
-                // Khóa tài khoản theo thứ tự cố định để giảm nguy cơ deadlock.
-                String taiKhoanDau = maTaiKhoanGui.compareTo(maTaiKhoanNhan) < 0 ? maTaiKhoanGui : maTaiKhoanNhan;
-                String taiKhoanSau = maTaiKhoanGui.compareTo(maTaiKhoanNhan) < 0 ? maTaiKhoanNhan : maTaiKhoanGui;
+            cs.registerOutParameter(6, java.sql.Types.BIT);
+            cs.registerOutParameter(7, java.sql.Types.NVARCHAR);
 
-                BigDecimal soDuGui = null;
-                BigDecimal soDuNhan = null;
-                String maHanMucGui = null;
+            cs.execute();
 
-                for (String maTaiKhoan : new String[]{taiKhoanDau, taiKhoanSau}) {
-                    try (PreparedStatement ps = conn.prepareStatement(SQL_LAY_TAI_KHOAN_KHOA)) {
+            boolean ketQua = cs.getBoolean(6);
+            String thongBao = cs.getNString(7);
 
-                        ps.setString(1, maTaiKhoan);
-
-                        try (ResultSet rs = ps.executeQuery()) {
-                            if (!rs.next()
-                                    || !"Hoạt động".equals(
-                                    rs.getString("TrangThai"))) {
-                                throw new SQLException("Tài khoản không tồn tại hoặc không hoạt động: " + maTaiKhoan);
-                            }
-
-                            BigDecimal soDu = rs.getBigDecimal("SoDu");
-
-                            if (maTaiKhoan.equals(maTaiKhoanGui)) {
-                                soDuGui = soDu;
-                                maHanMucGui = rs.getString("MaHanMuc");
-                            } else {
-                                soDuNhan = soDu;
-                            }
-                        }
-                    }
-                }
-
-                if (soDuGui == null || soDuNhan == null
-                        || soDuGui.compareTo(soTien) < 0) {
-                    throw new SQLException("Số dư không đủ.");
-                }
-
-                // kiểm tra hạn mức
-                BigDecimal hanMucNgay;
-
-                try (PreparedStatement ps = conn.prepareStatement(SQL_LAY_HAN_MUC_NGAY)) {
-
-                    ps.setString(1, maTaiKhoanGui);
-
-                    try (ResultSet rs = ps.executeQuery()) {
-                        if (!rs.next()) {
-                            throw new SQLException("Không tìm thấy hạn mức.");
-                        }
-
-                        hanMucNgay = rs.getBigDecimal("HanMucNgay");
-                    }
-                }
-
-                BigDecimal tongTienTrongNgay;
-
-                try (PreparedStatement ps = conn.prepareStatement(SQL_LAY_TONG_TIEN_GIAO_DICH_TRONG_NGAY)) {
-
-                    ps.setString(1, maTaiKhoanGui);
-
-                    try (ResultSet rs = ps.executeQuery()) {
-                        rs.next();
-                        tongTienTrongNgay = rs.getBigDecimal(1);
-                    }
-                }
-
-                if (hanMucNgay == null
-                        || tongTienTrongNgay == null
-                        || tongTienTrongNgay.add(soTien)
-                        .compareTo(hanMucNgay) > 0) {
-                    throw new SQLException(
-                            "Vượt hạn mức giao dịch trong ngày.");
-                }
-
-                // cập nhật số dư
-                BigDecimal soDuGuiMoi = soDuGui.subtract(soTien);
-                BigDecimal soDuNhanMoi = soDuNhan.add(soTien);
-
-                capNhatSoDuTrongTransaction(conn, maTaiKhoanGui, soDuGuiMoi);
-                capNhatSoDuTrongTransaction(conn, maTaiKhoanNhan, soDuNhanMoi);
-
-                // thêm lịch
-                String maGiaoDich = "GD" + UUID.randomUUID()
-                        .toString()
-                        .replace("-", "")
-                        .substring(0, 20);
-
-                giaoDich.setMaGiaoDich(maGiaoDich);
-                giaoDich.setNgayGiaoDich(LocalDateTime.now());
-                giaoDich.setTrangThai("Chờ xử lý");
-
-                try (PreparedStatement ps = conn.prepareStatement(SQL_THEM_GIAO_DICH)) {
-
-                    ganThongTinGiaoDich(ps, giaoDich);
-
-                    if (ps.executeUpdate() != 1) {
-                        throw new SQLException("Không lưu được giao dịch.");
-                    }
-                }
-
-                // Lưu giao dịch
-                try (PreparedStatement ps = conn.prepareStatement(SQL_THEM_LICH_SU_GIAO_DICH)) {
-
-                    ganThongTinLichSu(
-                            ps, maGiaoDich, maTaiKhoanGui,
-                            "Chuyển tiền", soTien.negate(), soDuGuiMoi);
-
-                    if (ps.executeUpdate() != 1) {
-                        throw new SQLException("Không ghi được lịch sử gửi.");
-                    }
-
-                    ganThongTinLichSu(
-                            ps, maGiaoDich, maTaiKhoanNhan,
-                            "Nhận tiền", soTien, soDuNhanMoi);
-
-                    if (ps.executeUpdate() != 1) {
-                        throw new SQLException("Không ghi được lịch sử nhận.");
-                    }
-                }
-
-                // Chỉ chuyển trạng thái khi toàn bộ bước xử lý đã thành công
-                try (PreparedStatement ps =
-                             conn.prepareStatement(SQL_CAP_NHAT_TRANG_THAI)) {
-
-                    ps.setString(1, "Thành công");
-                    ps.setString(2, maGiaoDich);
-
-                    if (ps.executeUpdate() != 1) {
-                        throw new SQLException(
-                                "Không cập nhật được trạng thái giao dịch.");
-                    }
-                }
-
-                conn.commit();
-                return true;
-
-            } catch (Exception e) {
-                try {
-                    conn.rollback();
-                } catch (SQLException rollbackError) {
-                    e.addSuppressed(rollbackError);
-                }
-
-                e.printStackTrace();
+            if (!ketQua) {
+                System.err.println("Chuyển tiền thất bại: " + thongBao);
                 return false;
-
-            } finally {
-                try {
-                    conn.setAutoCommit(true);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
             }
+
+            return true;
 
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
-        }
-    }
-
-    private void capNhatSoDuTrongTransaction(
-            Connection conn,
-            String maTaiKhoan,
-            BigDecimal soDuMoi
-    ) throws SQLException {
-
-        try (PreparedStatement ps =
-                     conn.prepareStatement(SQL_CAP_NHAT_SO_DU_TAI_KHOAN)) {
-
-            ps.setBigDecimal(1, soDuMoi);
-            ps.setString(2, maTaiKhoan);
-
-            if (ps.executeUpdate() != 1) {
-                throw new SQLException(
-                        "Không cập nhật được số dư tài khoản: " + maTaiKhoan);
-            }
         }
     }
 

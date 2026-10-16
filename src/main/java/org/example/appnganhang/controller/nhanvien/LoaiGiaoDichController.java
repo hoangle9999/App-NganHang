@@ -4,7 +4,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -23,10 +22,6 @@ public class LoaiGiaoDichController {
     @FXML private TextField txtMaLoai;
     @FXML private TextField txtTenLoai;
 
-    @FXML private Button btnThem;
-    @FXML private Button btnSua;
-    @FXML private Button btnXoa;
-    @FXML private Button btnLamMoi;
 
     @FXML private TableView<LoaiGiaoDich> tblLoaiGiaoDich;
     @FXML private TableColumn<LoaiGiaoDich, String> colMaLoai;
@@ -46,14 +41,6 @@ public class LoaiGiaoDichController {
 
         taiDanhSach();
 
-        tblLoaiGiaoDich.getSelectionModel()
-                .selectedItemProperty()
-                .addListener((obs, oldValue, newValue) -> {
-
-                    if (newValue != null) {
-                        hienThiDuLieu(newValue);
-                    }
-                });
     }
 
     private void cauHinhBang() {
@@ -71,147 +58,6 @@ public class LoaiGiaoDichController {
         danhSach.addAll(loaiGiaoDichService.getDanhSachLoaiGiaoDich());
 
         tblLoaiGiaoDich.setItems(danhSach);
-    }
-
-
-    private void hienThiDuLieu(LoaiGiaoDich loaiGiaoDich) {
-        txtMaLoai.setText(loaiGiaoDich.getMaLoaiGD() == null ? "" : loaiGiaoDich.getMaLoaiGD());
-        txtTenLoai.setText(loaiGiaoDich.getTenLoaiGD() == null ? "" : loaiGiaoDich.getTenLoaiGD());
-    }
-
-
-    @FXML
-    private void onThem() {
-
-        String maLoai = txtMaLoai.getText().trim();
-        String tenLoai = txtTenLoai.getText().trim();
-
-        if (maLoai.isEmpty()
-                || tenLoai.isEmpty()) {
-
-            System.out.println("Vui lòng nhập đầy đủ thông tin.");
-
-            return;
-        }
-
-        LoaiGiaoDich loaiGiaoDich = new LoaiGiaoDich();
-
-        loaiGiaoDich.setMaLoaiGD(maLoai);
-        loaiGiaoDich.setTenLoaiGD(tenLoai);
-
-        boolean thanhCong = loaiGiaoDichService.themLoaiGiaoDich(loaiGiaoDich);
-
-        if (thanhCong) {
-
-            danhSach.add(loaiGiaoDich);
-
-            txtMaLoai.clear();
-            txtTenLoai.clear();
-
-            tblLoaiGiaoDich.getSelectionModel()
-                    .clearSelection();
-
-            System.out.println("Đã thêm loại giao dịch: " + maLoai);
-
-        } else {
-
-            System.out.println("Thêm loại giao dịch thất bại: " + maLoai);
-        }
-    }
-
-    @FXML
-    private void onSua() {
-
-        LoaiGiaoDich selected =
-                tblLoaiGiaoDich.getSelectionModel()
-                        .getSelectedItem();
-
-        if (selected == null) {
-
-            System.out.println("Vui lòng chọn loại giao dịch cần sửa.");
-
-            return;
-        }
-
-        String maLoai = txtMaLoai.getText().trim();
-        String tenLoai = txtTenLoai.getText().trim();
-
-        if (maLoai.isEmpty()
-                || tenLoai.isEmpty()) {
-
-            System.out.println("Vui lòng nhập đầy đủ thông tin.");
-
-            return;
-        }
-
-        LoaiGiaoDich loaiGiaoDich = new LoaiGiaoDich();
-
-        loaiGiaoDich.setMaLoaiGD(maLoai);
-        loaiGiaoDich.setTenLoaiGD(tenLoai);
-
-        boolean thanhCong = loaiGiaoDichService.suaLoaiGiaoDich(loaiGiaoDich);
-
-        if (thanhCong) {
-
-            int index = danhSach.indexOf(selected);
-
-            if (index >= 0) {
-                danhSach.set(
-                        index,
-                        loaiGiaoDich
-                );
-            }
-
-            txtMaLoai.clear();
-            txtTenLoai.clear();
-
-            tblLoaiGiaoDich.getSelectionModel()
-                    .clearSelection();
-
-            tblLoaiGiaoDich.refresh();
-
-            System.out.println("Đã cập nhật loại giao dịch: " + maLoai);
-
-        } else {
-
-            System.out.println("Cập nhật loại giao dịch thất bại: " + maLoai);
-        }
-    }
-
-    @FXML
-    private void onXoa() {
-
-        LoaiGiaoDich selected =
-                tblLoaiGiaoDich.getSelectionModel()
-                        .getSelectedItem();
-
-        if (selected == null) {
-
-            System.out.println("Vui lòng chọn loại giao dịch cần xóa.");
-
-            return;
-        }
-
-        String maLoai = selected.getMaLoaiGD();
-
-        boolean thanhCong = loaiGiaoDichService.xoaLoaiGiaoDich(maLoai);
-
-        if (thanhCong) {
-
-            danhSach.remove(selected);
-
-            txtMaLoai.clear();
-            txtTenLoai.clear();
-
-            tblLoaiGiaoDich.getSelectionModel()
-                    .clearSelection();
-
-            System.out.println("Đã xóa loại giao dịch: " + maLoai);
-
-        } else {
-
-            System.out.println("Xóa loại giao dịch thất bại: " + maLoai);
-        }
     }
 
     @FXML

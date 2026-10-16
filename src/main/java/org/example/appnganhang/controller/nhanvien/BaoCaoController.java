@@ -4,12 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import org.example.appnganhang.model.entity.BaoCao;
@@ -17,11 +12,14 @@ import org.example.appnganhang.controller.service.Iml.BaoCaoServiceImpl;
 import org.example.appnganhang.controller.service.intf.BaoCaoService;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.example.appnganhang.controller.util.Navigation.moView;
@@ -49,6 +47,8 @@ public class BaoCaoController {
     @FXML private TableColumn<BaoCao, LocalDateTime> colNgayGiaoDich;
     @FXML private TableColumn<BaoCao, String> colTrangThai;
 
+    DecimalFormat DINH_DANG_TIEN = new DecimalFormat("#,##0",DecimalFormatSymbols.getInstance(Locale.GERMANY));
+
     private final ObservableList<BaoCao> danhSach = FXCollections.observableArrayList();
     private final BaoCaoService baoCaoService = new BaoCaoServiceImpl();
 
@@ -65,7 +65,16 @@ public class BaoCaoController {
         colMaGiaoDich.setCellValueFactory(new PropertyValueFactory<>("maGiaoDich"));
         colTaiKhoanNguon.setCellValueFactory(new PropertyValueFactory<>("taiKhoanNguon"));
         colTaiKhoanDich.setCellValueFactory(new PropertyValueFactory<>("taiKhoanDich"));
+
         colSoTien.setCellValueFactory(new PropertyValueFactory<>("soTien"));
+        colSoTien.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(BigDecimal soTien, boolean empty) {
+                super.updateItem(soTien, empty);
+                setText(empty || soTien == null ? null : DINH_DANG_TIEN.format(soTien));
+            }
+        });
+
         colNgayGiaoDich.setCellValueFactory(new PropertyValueFactory<>("ngayGiaoDich"));
         colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
     }
@@ -377,12 +386,7 @@ public class BaoCaoController {
 
         lblTongSoGiaoDich.setText(String.valueOf(tongSoGiaoDich));
 
-        lblTongTien.setText(
-                String.format(
-                        "%,.0f VNĐ",
-                        tongTien
-                )
-        );
+        lblTongTien.setText(tongTien != null ? DINH_DANG_TIEN.format(tongTien) : "0");
 
         lblGiaoDichThanhCong.setText(String.valueOf(giaoDichThanhCong));
         lblGiaoDichThatBai.setText(String.valueOf(giaoDichThatBai));
@@ -397,12 +401,7 @@ public class BaoCaoController {
 
         lblTongSoGiaoDich.setText(String.valueOf(tongSoGiaoDich));
 
-        lblTongTien.setText(
-                String.format(
-                        "%,.0f VNĐ",
-                        tongTien
-                )
-        );
+        lblTongTien.setText(tongTien != null ? DINH_DANG_TIEN.format(tongTien)  : "0");
 
         lblGiaoDichThanhCong.setText(String.valueOf(giaoDichThanhCong));
         lblGiaoDichThatBai.setText(String.valueOf(giaoDichThatBai));

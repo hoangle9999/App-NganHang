@@ -24,6 +24,7 @@ public interface NhanVienDAO {
             String soDienThoai,
             String chucVu,
             String tenChiNhanh,
-            String tenDangNhap
+            String tenDangNhap,
+            String diaChi
     );
 }

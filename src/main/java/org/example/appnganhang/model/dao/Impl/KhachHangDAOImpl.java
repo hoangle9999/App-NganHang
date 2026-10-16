@@ -21,18 +21,6 @@ public class KhachHangDAOImpl implements KhachHangDAO {
             FROM KhachHang
             """;
 
-    private static final String SQL_FIND_BY_ID = """
-            SELECT MaKhachHang,
-                   HoTen,
-                   SoCCCD,
-                   SoDienThoai,
-                   Email,
-                   DiaChi,
-                   TenDangNhap
-            FROM KhachHang
-            WHERE MaKhachHang = ?
-            """;
-
     private static final String SQL_FIND_BY_CCCD = """
             SELECT MaKhachHang,
                    HoTen,
@@ -55,54 +43,6 @@ public class KhachHangDAOImpl implements KhachHangDAO {
                    TenDangNhap
             FROM KhachHang
             WHERE SoDienThoai = ?
-            """;
-
-    private static final String SQL_FIND_BY_USERNAME = """
-            SELECT MaKhachHang,
-                   HoTen,
-                   SoCCCD,
-                   SoDienThoai,
-                   Email,
-                   DiaChi,
-                   TenDangNhap
-            FROM KhachHang
-            WHERE TenDangNhap = ?
-            """;
-
-    private static final String SQL_FIND_BY_HO_TEN = """
-            SELECT MaKhachHang,
-                   HoTen,
-                   SoCCCD,
-                   SoDienThoai,
-                   Email,
-                   DiaChi,
-                   TenDangNhap
-            FROM KhachHang
-            WHERE HoTen LIKE ?
-            """;
-
-    private static final String SQL_FIND_BY_EMAIL = """
-            SELECT MaKhachHang,
-                   HoTen,
-                   SoCCCD,
-                   SoDienThoai,
-                   Email,
-                   DiaChi,
-                   TenDangNhap
-            FROM KhachHang
-            WHERE Email LIKE ?
-            """;
-
-    private static final String SQL_FIND_BY_DIA_CHI = """
-            SELECT MaKhachHang,
-                   HoTen,
-                   SoCCCD,
-                   SoDienThoai,
-                   Email,
-                   DiaChi,
-                   TenDangNhap
-            FROM KhachHang
-            WHERE DiaChi LIKE ?
             """;
 
     private static final String SQL_TIM_KIEM_KHACH_HANG = """
@@ -218,40 +158,25 @@ public class KhachHangDAOImpl implements KhachHangDAO {
     }
 
     @Override
-    public boolean delete(String MaKh) {
+    public boolean delete(String maKhachHang) {
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(SQL_DELETE)) {
 
-            ps.setString(1, MaKh);
+            ps.setString(1, maKhachHang);
 
             return ps.executeUpdate() == 1;
 
         } catch (SQLException e) {
-            throw new RuntimeException(
-                    "Lỗi delete KhachHang: " + e.getMessage(), e
-            );
-        }
-    }
-
-    @Override
-    public Optional<KhachHang> findById(String MaKh) {
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(SQL_FIND_BY_ID)) {
-
-            ps.setString(1, MaKh);
-
-            try (ResultSet rs = ps.executeQuery()) {
-
-                if (rs.next()) {
-                    return Optional.of(taoKhachHang(rs));
-                }
-
-                return Optional.empty();
+            if (e.getErrorCode() == 547) {
+                throw new RuntimeException(
+                        "Không thể xóa khách hàng vì khách hàng đang có "
+                                + "tài khoản ngân hàng hoặc dữ liệu liên quan.",
+                        e
+                );
             }
 
-        } catch (SQLException e) {
             throw new RuntimeException(
-                    "Lỗi findById KhachHang: " + e.getMessage(), e
+                    "Lỗi khi xóa khách hàng: " + e.getMessage(), e
             );
         }
     }
@@ -300,105 +225,6 @@ public class KhachHangDAOImpl implements KhachHangDAO {
                     "Lỗi findByPhone KhachHang: " + e.getMessage(), e
             );
         }
-    }
-
-    @Override
-    public Optional<KhachHang> findByUsername(String tenDangNhap) {
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(SQL_FIND_BY_USERNAME)) {
-
-            ps.setString(1, tenDangNhap);
-
-            try (ResultSet rs = ps.executeQuery()) {
-
-                if (rs.next()) {
-
-                    return Optional.of(taoKhachHang(rs));
-                }
-
-                return Optional.empty();
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(
-                    "Lỗi findByUsername KhachHang: " + e.getMessage(), e
-            );
-        }
-    }
-
-    @Override
-    public List<KhachHang> findByHoTen(String hoTen) {
-
-        List<KhachHang> danhSach = new ArrayList<>();
-
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(SQL_FIND_BY_HO_TEN)) {
-
-            ps.setString(1, "%" + hoTen + "%");
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    danhSach.add(taoKhachHang(rs));
-                }
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(
-                    "Lỗi tìm khách hàng theo họ tên: " + e.getMessage(), e
-            );
-        }
-
-        return danhSach;
-    }
-
-    @Override
-    public List<KhachHang> findByEmail(String email) {
-
-        List<KhachHang> danhSach = new ArrayList<>();
-
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(SQL_FIND_BY_EMAIL)) {
-
-            ps.setString(1, "%" + email + "%");
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    danhSach.add(taoKhachHang(rs));
-                }
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(
-                    "Lỗi tìm khách hàng theo email: " + e.getMessage(), e
-            );
-        }
-
-        return danhSach;
-    }
-
-    @Override
-    public List<KhachHang> findByDiaChi(String diaChi) {
-
-        List<KhachHang> danhSach = new ArrayList<>();
-
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(SQL_FIND_BY_DIA_CHI)) {
-
-            ps.setString(1, "%" + diaChi + "%");
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    danhSach.add(taoKhachHang(rs));
-                }
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(
-                    "Lỗi tìm khách hàng theo địa chỉ: " + e.getMessage(), e
-            );
-        }
-
-        return danhSach;
     }
 
     @Override

@@ -26,12 +26,13 @@ public class NhanVienController {
     @FXML private TextField txtMaNhanVien;
     @FXML private TextField txtHoTen;
     @FXML private TextField txtSoDienThoai;
+    @FXML private TextField txtDiaChi;
     @FXML private TextField txtChucVu;
     @FXML private TextField txtTenChiNhanh;
     @FXML private TextField txtTenDangNhap;
 
     @FXML private Button btnThem;
-    @FXML private Button btnSua;
+    @FXML private Button btnLuu;
     @FXML private Button btnXoa;
     @FXML private Button btnLamMoi;
 
@@ -39,6 +40,10 @@ public class NhanVienController {
     @FXML private TableColumn<NhanVien, String> colMaNhanVien;
     @FXML private TableColumn<NhanVien, String> colHoTen;
     @FXML private TableColumn<NhanVien, String> colSoDienThoai;
+    @FXML private TableColumn<NhanVien, String> colDiaChi;
+    @FXML private TableColumn<NhanVien, String> colTenChiNhanh;
+    @FXML private TableColumn<NhanVien, String> colTenDangNhap;
+    @FXML private TableColumn<NhanVien, String> colChucVu;
 
     private final ObservableList<NhanVien> danhSach = FXCollections.observableArrayList();
 
@@ -74,6 +79,10 @@ public class NhanVienController {
         colMaNhanVien.setCellValueFactory(new PropertyValueFactory<>("maNhanVien"));
         colHoTen.setCellValueFactory(new PropertyValueFactory<>("hoTen"));
         colSoDienThoai.setCellValueFactory(new PropertyValueFactory<>("soDienThoai"));
+        colDiaChi.setCellValueFactory(new PropertyValueFactory<>("diaChi"));
+        colTenChiNhanh.setCellValueFactory(new PropertyValueFactory<>("tenChiNhanh"));
+        colTenDangNhap.setCellValueFactory(new PropertyValueFactory<>("tenDangNhap"));
+        colChucVu.setCellValueFactory(new PropertyValueFactory<>("chucVu"));
     }
 
     private void taiDanhSachNhanVien() {
@@ -92,19 +101,11 @@ public class NhanVienController {
         txtMaNhanVien.setText(nhanVien.getMaNhanVien());
         txtHoTen.setText(nhanVien.getHoTen());
         txtSoDienThoai.setText(nhanVien.getSoDienThoai());
+        txtDiaChi.setText(nhanVien.getDiaChi());
         txtChucVu.setText(nhanVien.getChucVu());
         txtTenDangNhap.setText(nhanVien.getTenDangNhap());
-
-        if (nhanVien.getMaChiNhanh() != null
-                && !nhanVien.getMaChiNhanh().isBlank()) {
-
-            Optional<ChiNhanh> chiNhanh =
-                    chiNhanhService.timKiemChiNhanhTheoMa(nhanVien.getMaChiNhanh());
-
-            chiNhanh.ifPresent(
-                    cn -> txtTenChiNhanh.setText(cn.getTenChiNhanh())
-            );
-        }
+        txtTenChiNhanh.setText(nhanVien.getTenChiNhanh());
+        txtMaNhanVien.setDisable(true);
     }
 
     private NhanVien layNhanVienTuForm(String maChiNhanh) {
@@ -114,8 +115,10 @@ public class NhanVienController {
         nhanVien.setMaNhanVien(txtMaNhanVien.getText().trim());
         nhanVien.setHoTen(txtHoTen.getText().trim());
         nhanVien.setSoDienThoai(txtSoDienThoai.getText().trim());
+        nhanVien.setDiaChi(txtDiaChi.getText().trim());
         nhanVien.setChucVu(txtChucVu.getText().trim());
         nhanVien.setMaChiNhanh(maChiNhanh);
+        nhanVien.setTenChiNhanh(txtTenChiNhanh.getText().trim());
         nhanVien.setTenDangNhap(txtTenDangNhap.getText().trim());
 
         return nhanVien;
@@ -149,6 +152,7 @@ public class NhanVienController {
         if (nhanVienMoi.getMaNhanVien().isEmpty()
                 || nhanVienMoi.getHoTen().isEmpty()
                 || nhanVienMoi.getSoDienThoai().isEmpty()
+                || nhanVienMoi.getDiaChi().isEmpty()
                 || nhanVienMoi.getChucVu().isEmpty()) {
             System.out.println("Vui lòng nhập đầy đủ thông tin nhân viên.");
             return;
@@ -167,7 +171,7 @@ public class NhanVienController {
     }
 
     @FXML
-    private void onSua() {
+    private void onLuu() {
         NhanVien selected = tblNhanVien.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
@@ -201,6 +205,7 @@ public class NhanVienController {
         if (nhanVienCapNhat.getMaNhanVien().isEmpty()
                 || nhanVienCapNhat.getHoTen().isEmpty()
                 || nhanVienCapNhat.getSoDienThoai().isEmpty()
+                || nhanVienCapNhat.getDiaChi().isEmpty()
                 || nhanVienCapNhat.getChucVu().isEmpty()) {
             System.out.println("Vui lòng nhập đầy đủ thông tin.");
             return;
@@ -336,6 +341,19 @@ public class NhanVienController {
     }
 
     @FXML
+    private void onTimKiemTheoDiaChi() {
+        String diaChi = txtDiaChi.getText().trim();
+
+        if (diaChi.isEmpty()) {
+            taiDanhSachNhanVien();
+            return;
+        }
+
+        danhSach.setAll(nhanVienService.timKiemNhanVien(
+                "", "", "", "", "", "", diaChi));
+    }
+
+    @FXML
     private void onTimKiem() {
         String maNhanVien = txtMaNhanVien.getText().trim();
         String hoTen = txtHoTen.getText().trim();
@@ -343,6 +361,7 @@ public class NhanVienController {
         String chucVu = txtChucVu.getText().trim();
         String tenChiNhanh = txtTenChiNhanh.getText().trim();
         String tenDangNhap = txtTenDangNhap.getText().trim();
+        String diaChi = txtDiaChi.getText().trim();
 
         List<NhanVien> ketQua = nhanVienService.timKiemNhanVien(
                 maNhanVien,
@@ -350,7 +369,8 @@ public class NhanVienController {
                 soDienThoai,
                 chucVu,
                 tenChiNhanh,
-                tenDangNhap
+                tenDangNhap,
+                diaChi
         );
 
         danhSach.setAll(ketQua);
@@ -372,8 +392,10 @@ public class NhanVienController {
     private void lamSachForm() {
 
         txtMaNhanVien.clear();
+        txtMaNhanVien.setDisable(false);
         txtHoTen.clear();
         txtSoDienThoai.clear();
+        txtDiaChi.clear();
         txtChucVu.clear();
         txtTenChiNhanh.clear();
         txtTenDangNhap.clear();

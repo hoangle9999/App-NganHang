@@ -10,13 +10,8 @@ public interface KhachHangDAO {
     boolean insert(KhachHang kh);
     boolean update(KhachHang kh);
     boolean delete(String MaKh);
-    Optional <KhachHang> findById(String MaKh);
     Optional <KhachHang> findByCCCD(String soCCCD);
     Optional <KhachHang> findByPhone(String soDienThoai);
-    Optional <KhachHang> findByUsername(String tenDangNhap);
-    List<KhachHang> findByHoTen(String hoTen);
-    List<KhachHang> findByEmail(String email);
-    List<KhachHang> findByDiaChi(String diaChi);
     List<KhachHang> timKiemKhachHang(
             String maKhachHang,
             String hoTen,

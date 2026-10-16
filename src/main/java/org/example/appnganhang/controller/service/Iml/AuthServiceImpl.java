@@ -1,7 +1,9 @@
 package org.example.appnganhang.controller.service.Iml;
 
+import org.example.appnganhang.model.dao.Impl.DangKyDAOImpl;
 import org.example.appnganhang.model.dao.Impl.KhachHangDAOImpl;
 import org.example.appnganhang.model.dao.Impl.TaiKhoanDangNhapDAOImpl;
+import org.example.appnganhang.model.dao.intf.DangKyDAO;
 import org.example.appnganhang.model.dao.intf.KhachHangDAO;
 import org.example.appnganhang.model.dao.intf.TaiKhoanDangNhapDAO;
 import org.example.appnganhang.model.entity.KhachHang;
@@ -13,12 +15,14 @@ import java.util.Optional;
 public class AuthServiceImpl implements AuthService {
     private final TaiKhoanDangNhapDAO taiKhoanDangNhapDAO;
     private final KhachHangDAO khachHangDAO;
+    private final DangKyDAO dangKyDAO;
 
     private TaiKhoanDangNhap_VaiTro currentUser;
 
     public AuthServiceImpl() {
         this.taiKhoanDangNhapDAO = new TaiKhoanDangNhapDAOImpl();
         this.khachHangDAO = new KhachHangDAOImpl();
+        this.dangKyDAO = new DangKyDAOImpl();
     }
 
     @Override
@@ -74,35 +78,13 @@ public class AuthServiceImpl implements AuthService {
             return false;
         }
 
-        if (khachHangDAO.findById(khachHang.getMaKhachHang()).isPresent()) {
-            return false;
-        }
-
-        String maKhachHang = khachHangDAO.taoMaKhachHang();
-
-        if (maKhachHang == null || maKhachHang.isBlank()) {
-            return false;
-        }
-
-        khachHang.setMaKhachHang(maKhachHang);
-
-        TaiKhoanDangNhap_VaiTro taiKhoan = new TaiKhoanDangNhap_VaiTro();
-
-        taiKhoan.setTenDangNhap(tenDangNhap);
-        taiKhoan.setMatKhau(matKhau);
-        taiKhoan.setMaNguoiDung(khachHang.getMaKhachHang());
-
-        if (!taiKhoanDangNhapDAO.insert(taiKhoan)) {
-            return false;
-        }
 
         khachHang.setTenDangNhap(tenDangNhap);
 
-        if (!khachHangDAO.insert(khachHang)) {
-            return false;
-        }
-
-        return true;
+        return dangKyDAO.dangKyKhachHang(
+                khachHang,
+                matKhau
+        );
     }
 
     @Override
