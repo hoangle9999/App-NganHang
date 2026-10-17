@@ -14,9 +14,12 @@ public class Navigation {
     private static final String BASE_PATH = "/org/example/appnganhang/";
 
     private static final String[] VIEW_FOLDERS = {
-            "nhanVien-view/",
-            "util-view/",
-            "khachHang-view/"
+            "admin-view/",
+            "CSKH-view/",
+            "giaoDichVien-view/",
+            "giaDichVien/",
+            "khachHang-view/",
+            "util-view/"
     };
 
     private static final String TITLE = "Hệ Thống Chuyển Tiền Ngân Hàng - SMART BANK";

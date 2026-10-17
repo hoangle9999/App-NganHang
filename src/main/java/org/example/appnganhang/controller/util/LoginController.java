@@ -9,7 +9,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.appnganhang.MainApp;
-import org.example.appnganhang.controller.nhanvien.DashboardController;
+//import org.example.appnganhang.controller.nhanvien.DashboardController;
 import org.example.appnganhang.controller.service.intf.AuthService;
 import org.example.appnganhang.controller.service.Iml.AuthServiceImpl;
 import org.example.appnganhang.model.entity.TaiKhoanDangNhap_VaiTro;
@@ -43,10 +43,10 @@ public class LoginController {
             return;
         }
 
-        if (authService.login(tenDangNhap, matKhau)){
+        if (authService.login(tenDangNhap, matKhau)) {
 
-
-            TaiKhoanDangNhap_VaiTro currentUser = authService.getCurrentUser();
+            TaiKhoanDangNhap_VaiTro currentUser =
+                    authService.getCurrentUser();
 
             if (currentUser == null) {
                 lblThongBao.setStyle("-fx-text-fill: red;");
@@ -54,28 +54,65 @@ public class LoginController {
                 return;
             }
 
-            // Lấy RoleName và MaNguoiDung
             String roleName = currentUser.getRoleName();
-            String maNguoiDung = currentUser.getMaNguoiDung();
+
+            String fxmlPath;
+
+            switch (roleName) {
+                case "Admin":
+                    fxmlPath =
+                            "/org/example/appnganhang/admin-view/admin-dashboard-view.fxml";
+                    break;
+
+                case "Nhân viên CSKH":
+                    fxmlPath =
+                            "/org/example/appnganhang/CSKH-view/cskh-dashboard-view.fxml";
+                    break;
+
+                case "Giao dịch viên":
+                    fxmlPath =
+                            "/org/example/appnganhang/giaoDichVien-view/teller-dashboard-view.fxml";
+                    break;
+
+                case "Khách hàng":
+                    fxmlPath =
+                            "/org/example/appnganhang/khachHang-view/customer-home-view.fxml";
+                    break;
+
+                default:
+                    lblThongBao.setStyle("-fx-text-fill: red;");
+                    lblThongBao.setText("Vai trò tài khoản không hợp lệ!");
+                    return;
+            }
+
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/appnganhang/nhanVien-view/dashboard-view.fxml"));
+                FXMLLoader loader = new FXMLLoader(
+                        MainApp.class.getResource(fxmlPath)
+                );
+
+                if (loader.getLocation() == null) {
+                    throw new IOException(
+                            "Không tìm thấy file FXML: " + fxmlPath
+                    );
+                }
+
                 Parent root = loader.load();
 
-                // Truyền tên đăng nhập sang DashboardController
-                DashboardController dashboardController = loader.getController();
-                dashboardController.initData(tenDangNhap, roleName, maNguoiDung);
-
-                // Lấy stage hiện tại và chuyển scene
                 Stage stage = (Stage) txtTenDangNhap.getScene().getWindow();
+
                 stage.setScene(new Scene(root));
-                stage.setTitle("Hệ Thống Chuyển Tiền Ngân Hàng - Trang Chủ");
+                stage.setTitle("SMART BANK - Trang Chủ");
                 stage.centerOnScreen();
                 stage.show();
 
             } catch (IOException e) {
                 e.printStackTrace();
+
+                lblThongBao.setStyle("-fx-text-fill: red;");
+                lblThongBao.setText("Không thể mở giao diện sau đăng nhập!");
             }
-        }else {
+
+        } else {
             lblThongBao.setStyle("-fx-text-fill: red;");
             lblThongBao.setText("Sai tên đăng nhập hoặc mật khẩu!");
         }

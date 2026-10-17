@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane prefHeight="760.0" prefWidth="1280.0" style="-fx-background-color: #F7F8FC;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.appnganhang.controller.giaodichvien.TellerTransferController">
+    <children>
+        <!-- LỚP NỀN GIAO DIỆN CHÍNH -->
+        <BorderPane>
+            <!-- SIDEBAR TRÁI -->
+            <left>
+                <VBox prefWidth="235.0" style="-fx-background-color: linear-gradient(to bottom, #171A35, #5148C9); -fx-padding: 25 15 20 20;">
+                    <children>
+                        <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;" text="SMART BANK" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #C9C9DD;" text="YOUR SMART BANKING" />
+
+                        <Region prefHeight="15.0" />
+
+                        <VBox spacing="4.0" style="-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 12; -fx-padding: 12 15;">
+                            <children>
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: #BDBDD2;" text="Giao dịch viên" />
+                                <Label fx:id="lblTellerName" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;" text="Nguyễn Văn A" />
+                                <Label fx:id="lblTellerBranch" style="-fx-font-size: 11px; -fx-text-fill: #93C5FD;" text="Quầy số 01 - Trụ sở chính" />
+                            </children>
+                        </VBox>
+
+                        <Region prefHeight="15.0" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #BDBDD2; -fx-padding: 0 0 5 5;" text="NGHIỆP VỤ QUẦY" />
+
+                        <VBox spacing="5.0" VBox.vgrow="ALWAYS">
+                            <children>
+                                <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTrangChu" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="🏠  Trang chủ">
+                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                </Button>
+
+                                <Button alignment="CENTER_LEFT" maxWidth="Infinity" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10; -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 10 12; -fx-cursor: hand;" text="💸  Chuyển tiền tại quầy">
+                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                </Button>
+
+                                <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onNapRutThanhToan" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="💳  Nạp / Rút / TT quầy">
+                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                </Button>
+
+                                <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyTaiKhoan" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="👥  Quản lý tài khoản KH">
+                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                </Button>
+
+                                <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTraCuuSaoKe" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="📄  Tra cứu &amp; In sao kê">
+                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                </Button>
+
+                                <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTheoDoiTrangThai" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="⏳  Giám sát &amp; Phê duyệt">
+                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                </Button>
+                            </children>
+                        </VBox>
+
+                        <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onDangXuat" style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-text-fill: #FCA5A5; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;" text="🚪  Đăng xuất">
+                            <cursor><Cursor fx:constant="HAND" /></cursor>
+                        </Button>
+                    </children>
+                </VBox>
+            </left>
+
+            <!-- NỘI DUNG CHÍNH -->
+            <center>
+                <ScrollPane fitToWidth="true" style="-fx-background: #F7F8FC; -fx-background-color: #F7F8FC; -fx-border-color: transparent;">
+                    <content>
+                        <VBox spacing="20.0" style="-fx-padding: 25 30 30 30;">
+                            <children>
+                                <!-- HEADER TIÊU ĐỀ -->
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <VBox spacing="4.0">
+                                            <children>
+                                                <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="GIAO DỊCH CHUYỂN TIỀN TẠI QUẦY" />
+                                                <Label style="-fx-font-size: 13px; -fx-text-fill: #6B7280;" text="Chuyển khoản nội bộ &amp; liên ngân hàng - Kiểm soát 6 điều kiện an toàn giao dịch" />
+                                            </children>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button onAction="#onLamMoi" prefHeight="40.0" prefWidth="120.0" style="-fx-background-color: #F1F2F6; -fx-background-radius: 13; -fx-text-fill: #555A70; -fx-font-weight: bold; -fx-cursor: hand;" text="🔄 Làm mới">
+                                            <cursor><Cursor fx:constant="HAND" /></cursor>
+                                        </Button>
+                                    </children>
+                                </HBox>
+
+                                <!-- VÙNG CHỨA 2 CỘT: CỘT 1 (TÀI KHOẢN NGUỒN & ĐÍCH), CỘT 2 (GIAO DỊCH & KIỂM TRA ĐIỀU KIỆN) -->
+                                <GridPane hgap="20.0" vgap="20.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="50.0" />
+                                        <ColumnConstraints percentWidth="50.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints vgrow="ALWAYS" />
+                                    </rowConstraints>
+                                    <children>
+                                        <!-- CỘT TRÁI: KHUNG TÀI KHOẢN NGUỒN & ĐÍCH -->
+                                        <VBox spacing="18.0" GridPane.columnIndex="0">
+                                            <children>
+                                                <!-- 1. KHUNG TÀI KHOẢN NGUỒN -->
+                                                <VBox spacing="12.0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 18, 0.15, 0, 5);">
+                                                    <children>
+                                                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                                            <children>
+                                                                <Label style="-fx-font-size: 16px;" text="📤" />
+                                                                <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="THÔNG TIN TÀI KHOẢN NGUỒN (TRÍCH TIỀN)" />
+                                                            </children>
+                                                        </HBox>
+
+                                                        <VBox spacing="6.0">
+                                                            <children>
+                                                                <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Ngân hàng nguồn" />
+                                                                <ComboBox fx:id="cboNganHangNguon" maxWidth="Infinity" prefHeight="42.0" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13;" />
+                                                            </children>
+                                                        </VBox>
+
+                                                        <VBox spacing="6.0">
+                                                            <children>
+                                                                <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Số tài khoản trích tiền *" />
+                                                                <HBox spacing="10.0">
+                                                                    <children>
+                                                                        <TextField fx:id="txtSoTaiKhoanNguon" onAction="#onTraCuuNguon" promptText="Nhập STK nguồn (VD: 1000000001)" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13; -fx-padding: 10 15;" HBox.hgrow="ALWAYS" />
+                                                                        <Button fx:id="btnTraCuuNguon" onAction="#onTraCuuNguon" prefHeight="42.0" prefWidth="130.0" style="-fx-background-color: #5148C9; -fx-background-radius: 13; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Tra cứu nguồn">
+                                                                            <cursor><Cursor fx:constant="HAND" /></cursor>
+                                                                        </Button>
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </VBox>
+
+                                                        <!-- KHUNG THÔNG TIN TĨNH NGUỒN -->
+                                                        <VBox spacing="10.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14; -fx-padding: 14;">
+                                                            <children>
+                                                                <GridPane hgap="12.0" vgap="10.0">
+                                                                    <columnConstraints>
+                                                                        <ColumnConstraints percentWidth="40.0" />
+                                                                        <ColumnConstraints percentWidth="60.0" />
+                                                                    </columnConstraints>
+                                                                    <rowConstraints>
+                                                                        <RowConstraints />
+                                                                        <RowConstraints />
+                                                                        <RowConstraints />
+                                                                        <RowConstraints />
+                                                                    </rowConstraints>
+                                                                    <children>
+                                                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Tên chủ tài khoản:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                                        <Label fx:id="lblTenChuNguon" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="Chưa xác định" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Số dư khả dụng:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                                        <Label fx:id="lblSoDuNguon" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #10B981;" text="0 VNĐ" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Trạng thái tài khoản:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                                                        <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                                                            <children>
+                                                                                <Label fx:id="lblTrangThaiNguon" style="-fx-background-color: #F1F2F6; -fx-background-radius: 8; -fx-padding: 3 8; -fx-text-fill: #555A70; -fx-font-weight: bold; -fx-font-size: 11px;" text="Chưa kiểm tra" />
+                                                                            </children>
+                                                                        </HBox>
+
+                                                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Hạn mức ngày còn lại:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                                                        <Label fx:id="lblHanMucNguon" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2563EB;" text="0 VNĐ" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                                    </children>
+                                                                </GridPane>
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </VBox>
+
+                                                <!-- 2. KHUNG TÀI KHOẢN ĐÍCH -->
+                                                <VBox spacing="12.0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 18, 0.15, 0, 5);">
+                                                    <children>
+                                                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                                            <children>
+                                                                <Label style="-fx-font-size: 16px;" text="📥" />
+                                                                <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="THÔNG TIN TÀI KHOẢN ĐÍCH (THỤ HƯỞNG)" />
+                                                            </children>
+                                                        </HBox>
+
+                                                        <VBox spacing="6.0">
+                                                            <children>
+                                                                <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Ngân hàng thụ hưởng *" />
+                                                                <ComboBox fx:id="cboNganHangDich" maxWidth="Infinity" onAction="#onChonNganHangDich" prefHeight="42.0" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13;" />
+                                                            </children>
+                                                        </VBox>
+
+                                                        <VBox spacing="6.0">
+                                                            <children>
+                                                                <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Số tài khoản thụ hưởng *" />
+                                                                <HBox spacing="10.0">
+                                                                    <children>
+                                                                        <TextField fx:id="txtSoTaiKhoanDich" onAction="#onTraCuuDich" promptText="Nhập STK thụ hưởng" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13; -fx-padding: 10 15;" HBox.hgrow="ALWAYS" />
+                                                                        <Button fx:id="btnTraCuuDich" onAction="#onTraCuuDich" prefHeight="42.0" prefWidth="130.0" style="-fx-background-color: #5148C9; -fx-background-radius: 13; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Tra cứu đích">
+                                                                            <cursor><Cursor fx:constant="HAND" /></cursor>
+                                                                        </Button>
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </VBox>
+
+                                                        <!-- CẢNH BÁO TRẠNG THÁI NGÂN HÀNG ĐÍCH -->
+                                                        <Label fx:id="lblThongBaoNganHangDich" style="-fx-background-color: #FDECEC; -fx-background-radius: 10; -fx-padding: 8 12; -fx-text-fill: #D9534F; -fx-font-size: 12px; -fx-font-weight: bold;" text="⚠ Ngân hàng đối tác tạm dừng kết nối" visible="false" managed="false" />
+
+                                                        <!-- KHUNG THÔNG TIN TĨNH ĐÍCH -->
+                                                        <VBox spacing="10.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14; -fx-padding: 14;">
+                                                            <children>
+                                                                <GridPane hgap="12.0" vgap="10.0">
+                                                                    <columnConstraints>
+                                                                        <ColumnConstraints percentWidth="40.0" />
+                                                                        <ColumnConstraints percentWidth="60.0" />
+                                                                    </columnConstraints>
+                                                                    <rowConstraints>
+                                                                        <RowConstraints />
+                                                                        <RowConstraints />
+                                                                    </rowConstraints>
+                                                                    <children>
+                                                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Tên chủ tài khoản đích:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                                        <Label fx:id="lblTenChuDich" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="Chưa xác định" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Trạng thái tài khoản:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                                        <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                                            <children>
+                                                                                <Label fx:id="lblTrangThaiDich" style="-fx-background-color: #F1F2F6; -fx-background-radius: 8; -fx-padding: 3 8; -fx-text-fill: #555A70; -fx-font-weight: bold; -fx-font-size: 11px;" text="Chưa kiểm tra" />
+                                                                            </children>
+                                                                        </HBox>
+                                                                    </children>
+                                                                </GridPane>
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- CỘT PHẢI: CHI TIẾT GIAO DỊCH & KIỂM TRA 6 ĐIỀU KIỆN AN TOÀN -->
+                                        <VBox spacing="18.0" GridPane.columnIndex="1">
+                                            <children>
+                                                <!-- KHUNG THÔNG TIN GIAO DỊCH -->
+                                                <VBox spacing="14.0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 18, 0.15, 0, 5);">
+                                                    <children>
+                                                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                                            <children>
+                                                                <Label style="-fx-font-size: 16px;" text="📝" />
+                                                                <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="THÔNG TIN TIỀN &amp; NỘI DUNG CHUYỂN" />
+                                                            </children>
+                                                        </HBox>
+
+                                                        <VBox spacing="6.0">
+                                                            <children>
+                                                                <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Loại giao dịch" />
+                                                                <ComboBox fx:id="cboLoaiGiaoDich" maxWidth="Infinity" prefHeight="42.0" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13;" />
+                                                            </children>
+                                                        </VBox>
+
+                                                        <VBox spacing="6.0">
+                                                            <children>
+                                                                <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Số tiền chuyển (VNĐ) *" />
+                                                                <TextField fx:id="txtSoTien" promptText="Nhập số tiền chuyển (VD: 5,000,000)" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13; -fx-padding: 10 15; -fx-font-size: 14px; -fx-font-weight: bold;" />
+                                                                <Label fx:id="lblTienBangChu" style="-fx-font-size: 11px; -fx-text-fill: #6366F1; -fx-font-style: italic;" text="Bằng chữ: Không đồng" />
+                                                            </children>
+                                                        </VBox>
+
+                                                        <VBox spacing="6.0">
+                                                            <children>
+                                                                <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Nội dung chuyển tiền" />
+                                                                <TextField fx:id="txtNoiDung" promptText="Ví dụ: Nguyen Van A chuyen tien hoc phi..." style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13; -fx-padding: 10 15;" />
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </VBox>
+
+                                                <!-- KHUNG 6 TIÊU CHÍ AN TOÀN HỆ THỐNG -->
+                                                <VBox spacing="12.0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.08), 18, 0.15, 0, 5);">
+                                                    <children>
+                                                        <HBox alignment="CENTER_LEFT">
+                                                            <children>
+                                                                <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="KIỂM TRA ĐIỀU KIỆN AN TOÀN (6 TIÊU CHÍ)" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Label fx:id="lblScoreCriteria" style="-fx-background-color: #FEF3C7; -fx-background-radius: 8; -fx-padding: 3 8; -fx-text-fill: #D97706; -fx-font-weight: bold; -fx-font-size: 11px;" text="0 / 6 ĐẠT" />
+                                                            </children>
+                                                        </HBox>
+
+                                                        <VBox spacing="9.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-padding: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14;">
+                                                            <children>
+                                                                <!-- Điều kiện 1 -->
+                                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                                    <children>
+                                                                        <Label fx:id="iconChk1" style="-fx-font-size: 14px; -fx-text-fill: #9CA3AF;" text="○" />
+                                                                        <Label fx:id="lblChk1" style="-fx-font-size: 12px; -fx-text-fill: #4B5563;" text="1. Số tiền lớn hơn 0 VNĐ" />
+                                                                    </children>
+                                                                </HBox>
+
+                                                                <!-- Điều kiện 2 -->
+                                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                                    <children>
+                                                                        <Label fx:id="iconChk2" style="-fx-font-size: 14px; -fx-text-fill: #9CA3AF;" text="○" />
+                                                                        <Label fx:id="lblChk2" style="-fx-font-size: 12px; -fx-text-fill: #4B5563;" text="2. Số dư tài khoản nguồn đủ thanh toán" />
+                                                                    </children>
+                                                                </HBox>
+
+                                                                <!-- Điều kiện 3 -->
+                                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                                    <children>
+                                                                        <Label fx:id="iconChk3" style="-fx-font-size: 14px; -fx-text-fill: #9CA3AF;" text="○" />
+                                                                        <Label fx:id="lblChk3" style="-fx-font-size: 12px; -fx-text-fill: #4B5563;" text="3. Không vượt quá hạn mức giao dịch theo ngày" />
+                                                                    </children>
+                                                                </HBox>
+
+                                                                <!-- Điều kiện 4 -->
+                                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                                    <children>
+                                                                        <Label fx:id="iconChk4" style="-fx-font-size: 14px; -fx-text-fill: #9CA3AF;" text="○" />
+                                                                        <Label fx:id="lblChk4" style="-fx-font-size: 12px; -fx-text-fill: #4B5563;" text="4. Hai tài khoản khác nhau (Nguồn ≠ Đích)" />
+                                                                    </children>
+                                                                </HBox>
+
+                                                                <!-- Điều kiện 5 -->
+                                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                                    <children>
+                                                                        <Label fx:id="iconChk5" style="-fx-font-size: 14px; -fx-text-fill: #9CA3AF;" text="○" />
+                                                                        <Label fx:id="lblChk5" style="-fx-font-size: 12px; -fx-text-fill: #4B5563;" text="5. Cả hai tài khoản đều ở trạng thái 'Hoạt động'" />
+                                                                    </children>
+                                                                </HBox>
+
+                                                                <!-- Điều kiện 6 -->
+                                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                                    <children>
+                                                                        <Label fx:id="iconChk6" style="-fx-font-size: 14px; -fx-text-fill: #9CA3AF;" text="○" />
+                                                                        <Label fx:id="lblChk6" style="-fx-font-size: 12px; -fx-text-fill: #4B5563;" text="6. Ngân hàng thụ hưởng đang 'Hoạt động'" />
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </VBox>
+
+                                                        <!-- BẢNG THÔNG BÁO TỔNG QUAN ĐIỀU KIỆN -->
+                                                        <Label fx:id="lblTrangThaiKiemTra" alignment="CENTER" maxWidth="Infinity" style="-fx-background-color: #F1F2F6; -fx-background-radius: 10; -fx-padding: 10; -fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-font-weight: bold;" text="Vui lòng bấm 'Kiểm tra điều kiện' trước khi xác nhận" />
+
+                                                        <!-- THANH NÚT TÁC VỤ CHÍNH -->
+                                                        <HBox spacing="10.0">
+                                                            <children>
+                                                                <Button fx:id="btnKiemTraDieuKien" onAction="#onKiemTraDieuKien" prefHeight="42.0" style="-fx-background-color: #ECEBFA; -fx-background-radius: 13; -fx-text-fill: #5148C9; -fx-font-weight: bold; -fx-cursor: hand;" text="🛡 Kiểm tra điều kiện" HBox.hgrow="ALWAYS">
+                                                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                                                </Button>
+
+                                                                <Button fx:id="btnXacNhanChuyenTien" disable="true" onAction="#onMoModalXacNhan" prefHeight="42.0" style="-fx-background-color: #5148C9; -fx-background-radius: 13; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="✔ Xác nhận chuyển tiền" HBox.hgrow="ALWAYS">
+                                                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                                                </Button>
+
+                                                                <Button fx:id="btnInBienNhan" disable="true" onAction="#onMoModalInBienNhan" prefHeight="42.0" prefWidth="120.0" style="-fx-background-color: #10B981; -fx-background-radius: 13; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="🖨 In biên nhận">
+                                                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                                                </Button>
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </center>
+        </BorderPane>
+
+        <!-- ============================================================== -->
+        <!-- POPUP MODAL 1: XÁC NHẬN GIAO DỊCH CHUYỂN TIỀN                  -->
+        <!-- ============================================================== -->
+        <VBox fx:id="modalXacNhanGD" alignment="CENTER" managed="false" style="-fx-background-color: rgba(15, 23, 42, 0.65);" visible="false">
+            <children>
+                <VBox maxWidth="520.0" spacing="18.0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 25, 0.2, 0, 8);">
+                    <children>
+                        <HBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="XÁC NHẬN GIAO DỊCH CHUYỂN TIỀN" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button onAction="#onDongModalXacNhan" style="-fx-background-color: transparent; -fx-font-size: 16px; -fx-text-fill: #94A3B8; -fx-cursor: hand;" text="✕" />
+                            </children>
+                        </HBox>
+                        <Separator />
+
+                        <VBox spacing="10.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-padding: 16; -fx-border-color: #E2E8F0; -fx-border-radius: 14;">
+                            <children>
+                                <GridPane hgap="12.0" vgap="10.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="42.0" />
+                                        <ColumnConstraints percentWidth="58.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                    <children>
+                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Tài khoản nguồn:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <Label fx:id="lblModalTKNguon" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Chủ tài khoản nguồn:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Label fx:id="lblModalTenNguon" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Tài khoản thụ hưởng:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <Label fx:id="lblModalTKDich" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Người thụ hưởng:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <Label fx:id="lblModalTenDich" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="..." GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Ngân hàng nhận:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <Label fx:id="lblModalNganHangDich" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2563EB;" text="..." GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Số tiền chuyển:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <Label fx:id="lblModalSoTien" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #10B981;" text="..." GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Nội dung:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                        <Label fx:id="lblModalNoiDung" style="-fx-font-size: 12px; -fx-text-fill: #1E293B;" text="..." wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                            <children>
+                                <Button onAction="#onDongModalXacNhan" prefHeight="40.0" prefWidth="100.0" style="-fx-background-color: #F1F2F6; -fx-background-radius: 13; -fx-text-fill: #555A70; -fx-font-weight: bold; -fx-cursor: hand;" text="Hủy bỏ">
+                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                </Button>
+                                <Button onAction="#onThucHienChuyenTien" prefHeight="40.0" prefWidth="170.0" style="-fx-background-color: #5148C9; -fx-background-radius: 13; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Đồng ý thực hiện">
+                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                </Button>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+
+        <!-- ============================================================== -->
+        <!-- POPUP MODAL 2: BIÊN NHẬN GIAO DỊCH CHUYỂN TIỀN (ỦY NHIỆM CHI)   -->
+        <!-- ============================================================== -->
+        <VBox fx:id="modalInBienNhan" alignment="CENTER" managed="false" style="-fx-background-color: rgba(15, 23, 42, 0.65);" visible="false">
+            <children>
+                <VBox maxWidth="600.0" spacing="16.0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 25, 0.2, 0, 8);">
+                    <children>
+                        <!-- HEADER BIÊN LAI -->
+                        <HBox alignment="CENTER_LEFT">
+                            <children>
+                                <VBox spacing="2.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #5148C9;" text="SMART BANK VIỆT NAM" />
+                                        <Label style="-fx-font-size: 11px; -fx-text-fill: #6B7280;" text="CHI NHÁNH: TRỤ SỞ CHÍNH - QUẦY GIAO DỊCH SỐ 01" />
+                                    </children>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <VBox alignment="TOP_RIGHT" spacing="2.0">
+                                    <children>
+                                        <Label style="-fx-background-color: #E8F8F0; -fx-background-radius: 6; -fx-padding: 3 8; -fx-text-fill: #10B981; -fx-font-size: 11px; -fx-font-weight: bold;" text="THÀNH CÔNG" />
+                                        <Label fx:id="lblReceiptMaGD" style="-fx-font-size: 11px; -fx-text-fill: #4B5563; -fx-font-family: monospace;" text="GD20261017-001" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <Separator />
+
+                        <VBox alignment="CENTER" spacing="2.0">
+                            <children>
+                                <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="GIẤY ỦY NHIỆM CHI / BIÊN NHẬN CHUYỂN TIỀN" />
+                                <Label fx:id="lblReceiptThoiGian" style="-fx-font-size: 11px; -fx-text-fill: #64748B;" text="Thời gian thực hiện: 17/10/2026 14:00:00" />
+                            </children>
+                        </VBox>
+
+                        <!-- CHI TIẾT BIÊN NHẬN -->
+                        <VBox spacing="8.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 12;">
+                            <children>
+                                <GridPane hgap="10.0" vgap="8.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="38.0" />
+                                        <ColumnConstraints percentWidth="62.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                    <children>
+                                        <Label style="-fx-font-size: 11px; -fx-text-fill: #64748B;" text="Người trích tiền:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <Label fx:id="lblReceiptNguon" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                        <Label style="-fx-font-size: 11px; -fx-text-fill: #64748B;" text="Người thụ hưởng:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Label fx:id="lblReceiptDich" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                        <Label style="-fx-font-size: 11px; -fx-text-fill: #64748B;" text="Ngân hàng nhận:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <Label fx:id="lblReceiptNganHang" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #2563EB;" text="..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                        <Label style="-fx-font-size: 11px; -fx-text-fill: #64748B;" text="Số tiền bằng số:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <Label fx:id="lblReceiptSoTien" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #10B981;" text="..." GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                        <Label style="-fx-font-size: 11px; -fx-text-fill: #64748B;" text="Số tiền bằng chữ:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <Label fx:id="lblReceiptBangChu" style="-fx-font-size: 11px; -fx-font-style: italic; -fx-text-fill: #4B5563;" text="..." wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                                        <Label style="-fx-font-size: 11px; -fx-text-fill: #64748B;" text="Nội dung chuyển:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <Label fx:id="lblReceiptNoiDung" style="-fx-font-size: 11px; -fx-text-fill: #1E293B;" text="..." wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <!-- CHỮ KÝ VÀ DẤU MỘC -->
+                        <HBox alignment="CENTER" spacing="20.0" style="-fx-padding: 10 0 10 0;">
+                            <children>
+                                <VBox alignment="CENTER" spacing="25.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="KHÁCH HÀNG KÝ" />
+                                        <Label style="-fx-font-size: 11px; -fx-font-style: italic; -fx-text-fill: #94A3B8;" text="(Ký và ghi rõ họ tên)" />
+                                    </children>
+                                </VBox>
+
+                                <VBox alignment="CENTER" spacing="10.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="GIAO DỊCH VIÊN" />
+                                        <Label fx:id="lblReceiptTeller" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #5148C9;" text="Nguyễn Văn A" />
+                                        <Label style="-fx-font-size: 10px; -fx-text-fill: #10B981; -fx-border-color: #10B981; -fx-border-radius: 6; -fx-padding: 2 6;" text="✔ ĐÃ XÁC THỰC QUẦY" />
+                                    </children>
+                                </VBox>
+
+                                <VBox alignment="CENTER" spacing="8.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #DC2626;" text="DẤU MỘC NGÂN HÀNG" />
+                                        <Label style="-fx-border-color: #DC2626; -fx-border-width: 2; -fx-border-radius: 30; -fx-padding: 6 12; -fx-text-fill: #DC2626; -fx-font-weight: bold; -fx-font-size: 10px;" text="SMART BANK ★ ĐÃ THU TIỀN" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                            <children>
+                                <Button onAction="#onDongModalInBienNhan" prefHeight="38.0" prefWidth="100.0" style="-fx-background-color: #F1F2F6; -fx-background-radius: 13; -fx-text-fill: #555A70; -fx-font-weight: bold; -fx-cursor: hand;" text="Đóng">
+                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                </Button>
+                                <Button onAction="#onInBienNhanThucTe" prefHeight="38.0" prefWidth="130.0" style="-fx-background-color: #10B981; -fx-background-radius: 13; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="🖨 In biên nhận">
+                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                </Button>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</StackPane>

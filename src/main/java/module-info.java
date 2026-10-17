@@ -13,11 +13,21 @@ module org.example.appnganhang {
     exports org.example.appnganhang.model.dao.Impl;
     opens org.example.appnganhang.model.dao.Impl to javafx.fxml;
 
-    exports org.example.appnganhang.controller.nhanvien;
-    opens org.example.appnganhang.controller.nhanvien to javafx.fxml;
 
     exports org.example.appnganhang.controller.util;
     opens org.example.appnganhang.controller.util to javafx.fxml;
+
+    exports org.example.appnganhang.controller.admin;
+    opens org.example.appnganhang.controller.admin to javafx.fxml;
+
+    exports org.example.appnganhang.controller.giaodichvien;
+    opens org.example.appnganhang.controller.giaodichvien to javafx.fxml;
+
+    exports org.example.appnganhang.controller.khachhang;
+    opens org.example.appnganhang.controller.khachhang to javafx.fxml;
+
+    exports org.example.appnganhang.controller.cskh;
+    opens org.example.appnganhang.controller.cskh to javafx.fxml;
 
     // Cho phép JavaFX đọc thuộc tính entity qua reflection
     opens org.example.appnganhang.model.entity to javafx.base;

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane prefHeight="760.0" prefWidth="1280.0" style="-fx-background-color: #F7F8FC;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.appnganhang.controller.util.LoginController">
+    <children>
+        <!-- KHUNG CHÍNH CĂN GIỮA -->
+        <VBox alignment="CENTER" spacing="20.0">
+            <children>
+                <!-- THẺ ĐĂNG NHẬP KHÁCH HÀNG -->
+                <VBox maxWidth="450.0" prefWidth="450.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 24; -fx-padding: 35 40 40 40; -fx-effect: dropshadow(gaussian, rgba(17,20,38,0.12), 24, 0.15, 0, 8);">
+                    <children>
+                        <!-- LOGO & TIÊU ĐỀ -->
+                        <VBox alignment="CENTER" spacing="6.0">
+                            <children>
+                                <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #5148C9;" text="SMART BANK" />
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: #6B7280; -fx-font-weight: bold;" text="DIGITAL BANKING FOR CUSTOMERS" />
+                                <Region prefHeight="8.0" />
+                                <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="ĐĂNG NHẬP KHÁCH HÀNG" />
+                                <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Truy cập và quản lý tài khoản ngân hàng của bạn" />
+                            </children>
+                        </VBox>
+
+                        <Separator />
+
+                        <!-- THÔNG BÁO LỖI -->
+                        <Label fx:id="lblThongBaoLoi" alignment="CENTER" managed="false" maxWidth="Infinity" style="-fx-background-color: #FDECEC; -fx-background-radius: 10; -fx-padding: 8 12; -fx-text-fill: #D9534F; -fx-font-size: 12px; -fx-font-weight: bold;" text="Tên đăng nhập hoặc mật khẩu không chính xác." visible="false" />
+
+                        <!-- KHUNG NHẬP LIỆU -->
+                        <VBox spacing="14.0">
+                            <children>
+                                <!-- Tên đăng nhập -->
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Tên đăng nhập (Username) *" />
+                                        <TextField fx:id="txtTenDangNhap" onAction="#onFocusMatKhau" promptText="Nhập tên đăng nhập khách hàng" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13; -fx-padding: 12 15; -fx-font-size: 13px;" />
+                                    </children>
+                                </VBox>
+
+                                <!-- Mật khẩu kèm biểu tượng Ẩn / Hiện -->
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Mật khẩu (Password) *" />
+                                        <HBox alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13;">
+                                            <children>
+                                                <!-- Field mật khẩu ẩn -->
+                                                <PasswordField fx:id="txtMatKhau" onAction="#onDangNhap" promptText="Nhập mật khẩu" style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-font-size: 13px;" HBox.hgrow="ALWAYS" />
+                                                <!-- Field mật khẩu hiện text -->
+                                                <TextField fx:id="txtMatKhauHien" managed="false" onAction="#onDangNhap" promptText="Nhập mật khẩu" style="-fx-background-color: transparent; -fx-padding: 12 15; -fx-font-size: 13px;" visible="false" HBox.hgrow="ALWAYS" />
+                                                <!-- Nút Icon mắt ẩn/hiện -->
+                                                <Button fx:id="btnToggleMatKhau" onAction="#onToggleMatKhau" style="-fx-background-color: transparent; -fx-text-fill: #64748B; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 8 12;" text="👁">
+                                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                                </Button>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+
+                        <Region prefHeight="4.0" />
+
+                        <!-- NÚT ĐĂNG NHẬP -->
+                        <Button fx:id="btnDangNhap" maxWidth="Infinity" onAction="#onDangNhap" prefHeight="44.0" style="-fx-background-color: #5148C9; -fx-background-radius: 13; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;" text="Đăng nhập">
+                            <cursor><Cursor fx:constant="HAND" /></cursor>
+                        </Button>
+
+                        <!-- NÚT HƯỚNG DẪN / QUÊN MẬT KHẨU -->
+                        <Button maxWidth="Infinity" onAction="#onMoModalQuenMatKhau" prefHeight="40.0" style="-fx-background-color: #ECEBFA; -fx-background-radius: 13; -fx-text-fill: #5148C9; -fx-font-size: 13px; -fx-font-weight: bold; -fx-cursor: hand;" text="❓ Hướng dẫn hoặc Quên mật khẩu">
+                            <cursor><Cursor fx:constant="HAND" /></cursor>
+                        </Button>
+                  <HBox alignment="CENTER" spacing="5">
+                     <children>
+                        <Label style="-fx-font-size: 12px;                           -fx-text-fill: #777B8A;" text="Chưa có tài khoản?" />
+                        <Button mnemonicParsing="false" onAction="#onRegisterLinkClick" style="-fx-background-color: transparent;                            -fx-text-fill: #635BDB;                            -fx-font-size: 12px;                            -fx-font-weight: bold;                            -fx-padding: 0;                            -fx-cursor: hand;" text="Đăng ký">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <Button mnemonicParsing="false" onAction="#onExitButtonClick" style="-fx-background-color: transparent;                        -fx-text-fill: #999AAA;                        -fx-font-size: 11px;                        -fx-cursor: hand;" text="Thoát">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <VBox.margin>
+                        <Insets left="160.0" />
+                     </VBox.margin>
+                  </Button>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+
+        <!-- ============================================================== -->
+        <!-- POPUP MODAL: THÔNG BÁO QUÊN MẬT KHẨU                           -->
+        <!-- ============================================================== -->
+        <VBox fx:id="modalQuenMatKhau" alignment="CENTER" managed="false" style="-fx-background-color: rgba(15, 23, 42, 0.65);" visible="false">
+            <children>
+                <VBox maxWidth="460.0" spacing="16.0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 25, 0.2, 0, 8);">
+                    <children>
+                        <HBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="HỖ TRỢ CẤP LẠI MẬT KHẨU" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button onAction="#onDongModalQuenMatKhau" style="-fx-background-color: transparent; -fx-font-size: 16px; -fx-text-fill: #94A3B8; -fx-cursor: hand;" text="✕" />
+                            </children>
+                        </HBox>
+                        <Separator />
+
+                        <VBox spacing="10.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 16; -fx-border-color: #E2E8F0; -fx-border-radius: 12;">
+                            <children>
+                                <Label style="-fx-font-size: 26px;" text="🏦" />
+                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="Để cấp lại mật khẩu, quý khách vui lòng mang theo CCCD đến Chi nhánh ngân hàng SMART BANK gần nhất để được Giao dịch viên hỗ trợ." wrapText="true" />
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: #64748B;" text="Hoặc liên hệ Hotline CSKH 24/7: 1900 6868 để được hướng dẫn chi tiết." wrapText="true" />
+                            </children>
+                        </VBox>
+
+                        <HBox alignment="CENTER_RIGHT">
+                            <children>
+                                <Button onAction="#onDongModalQuenMatKhau" prefHeight="38.0" prefWidth="120.0" style="-fx-background-color: #5148C9; -fx-background-radius: 10; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Đã hiểu">
+                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                </Button>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</StackPane>
