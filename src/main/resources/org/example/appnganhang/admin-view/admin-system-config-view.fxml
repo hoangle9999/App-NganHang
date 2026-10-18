@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane prefHeight="760" prefWidth="1280" style="-fx-background-color: #F7F8FC;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.appnganhang.controller.admin.AdminSystemConfigController">
+<StackPane prefHeight="760" prefWidth="1280" style="-fx-background-color: #F7F8FC;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.appnganhang.controller.admin.AdminSystemConfigController">
 
     <!-- MAIN PANE -->
     <BorderPane prefHeight="760" prefWidth="1280" style="-fx-background-color: #F7F8FC;">
@@ -49,6 +49,11 @@
 
                 <!-- Sidebar Nav Buttons -->
                 <VBox spacing="6" VBox.vgrow="ALWAYS">
+               <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTrangChu" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="Tổng quan Admin">
+                  <cursor>
+                     <Cursor fx:constant="HAND" />
+                  </cursor>
+               </Button>
                     <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTaiKhoan" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="Tài khoản &amp; Phân quyền">
                         <cursor>
                             <Cursor fx:constant="HAND" />

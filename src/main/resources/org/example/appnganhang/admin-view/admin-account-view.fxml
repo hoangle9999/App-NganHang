@@ -48,6 +48,11 @@
 
                 <!-- Sidebar Nav Buttons -->
                 <VBox spacing="6" VBox.vgrow="ALWAYS">
+               <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTrangChu" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="Tổng quan Admin">
+                  <cursor>
+                     <Cursor fx:constant="HAND" />
+                  </cursor>
+               </Button>
                     <!-- Button 1: Active -->
                     <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTaiKhoan" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10; -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 10 12; -fx-cursor: hand;" text="Tài khoản &amp; Phân quyền">
                         <cursor>

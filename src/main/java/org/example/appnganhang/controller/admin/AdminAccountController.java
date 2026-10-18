@@ -472,6 +472,11 @@ public class AdminAccountController {
     // ĐIỀU HƯỚNG SIDEBAR
     // =========================================================
     @FXML
+    private void onTrangChu(ActionEvent event) {
+        moView("admin-dashboard-view.fxml", event);
+    }
+
+    @FXML
     private void onTaiKhoan(ActionEvent event) {
         // Đang ở màn hình này
     }

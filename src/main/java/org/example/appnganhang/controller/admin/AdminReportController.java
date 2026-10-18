@@ -525,6 +525,11 @@ public class AdminReportController {
     // SIDEBAR NAVIGATION
     // =========================================================
     @FXML
+    private void onTrangChu(ActionEvent event) {
+        moView("admin-dashboard-view.fxml", event);
+    }
+
+    @FXML
     private void onTaiKhoan(ActionEvent event) {
         moView("admin-account-view.fxml", event);
     }
