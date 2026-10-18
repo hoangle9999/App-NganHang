@@ -1,12 +1,11 @@
 package org.example.appnganhang.controller.khachhang;
 
-import org.example.appnganhang.model.util.DBConnection;
+import org.example.appnganhang.controller.service.Iml.KhachHangPortalServiceImpl;
+import org.example.appnganhang.controller.service.intf.KhachHangPortalService;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 public class CustomerSession {
+    private static final KhachHangPortalService portalService = new KhachHangPortalServiceImpl();
 
     private static String currentMaKhachHang = "";
     private static String currentTenDangNhap = "";
@@ -30,67 +29,29 @@ public class CustomerSession {
     public static void loadSessionFromDB(String maNguoiDung, String tenDangNhap) {
         currentTenDangNhap = tenDangNhap != null ? tenDangNhap : "";
         currentMaKhachHang = maNguoiDung != null ? maNguoiDung : "";
-
-        String sql = "SELECT MaKhachHang, HoTen, SoCCCD, SoDienThoai, Email, DiaChi, TenDangNhap FROM KhachHang " +
-                     "WHERE MaKhachHang = ? OR TenDangNhap = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, currentMaKhachHang);
-            ps.setString(2, currentTenDangNhap);
-
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                currentMaKhachHang = rs.getString("MaKhachHang");
-                currentHoTen = rs.getString("HoTen");
-                currentSoCCCD = rs.getString("SoCCCD");
-                currentSoDienThoai = rs.getString("SoDienThoai");
-                currentEmail = rs.getString("Email");
-                currentDiaChi = rs.getString("DiaChi");
-                if (rs.getString("TenDangNhap") != null) {
-                    currentTenDangNhap = rs.getString("TenDangNhap");
-                }
-            } else {
-                // Nếu chưa có hồ sơ KhachHang, tìm theo tài khoản đầu tiên hoặc gán mặc định
-                timTheoTaiKhoanDauTien();
+        try {
+            java.util.Optional<java.util.Map<String, Object>> profile =
+                    portalService.timHoSo(currentMaKhachHang, currentTenDangNhap);
+            if (profile.isEmpty()) profile = portalService.timHoSoCoTaiKhoanDauTien();
+            if (profile.isPresent()) {
+                java.util.Map<String, Object> row = profile.get();
+                currentMaKhachHang = text(row, "MaKhachHang", currentMaKhachHang);
+                currentHoTen = text(row, "HoTen", "Khách Hàng");
+                currentSoCCCD = text(row, "SoCCCD", "");
+                currentSoDienThoai = text(row, "SoDienThoai", "");
+                currentEmail = text(row, "Email", "");
+                currentDiaChi = text(row, "DiaChi", "");
+                currentTenDangNhap = text(row, "TenDangNhap", currentTenDangNhap);
             }
-
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             System.err.println("Lỗi nạp session khách hàng: " + e.getMessage());
-            timTheoTaiKhoanDauTien();
+            // Không tự gán hồ sơ giả; giữ thông tin nhận được từ đăng nhập.
         }
     }
 
-    private static void timTheoTaiKhoanDauTien() {
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(
-                     "SELECT TOP 1 kh.MaKhachHang, kh.HoTen, kh.SoCCCD, kh.SoDienThoai, kh.Email, kh.DiaChi, kh.TenDangNhap " +
-                     "FROM KhachHang kh JOIN TaiKhoanNganHang tk ON kh.MaKhachHang = tk.MaKhachHang")) {
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                currentMaKhachHang = rs.getString("MaKhachHang");
-                currentHoTen = rs.getString("HoTen");
-                currentSoCCCD = rs.getString("SoCCCD");
-                currentSoDienThoai = rs.getString("SoDienThoai");
-                currentEmail = rs.getString("Email");
-                currentDiaChi = rs.getString("DiaChi");
-            } else {
-                currentMaKhachHang = "KH0001";
-                currentHoTen = "Nguyễn Văn Khách Hàng";
-                currentSoCCCD = "001200001234";
-                currentSoDienThoai = "0987654321";
-                currentEmail = "khachhang@gmail.com";
-                currentDiaChi = "Hà Nội, Việt Nam";
-            }
-        } catch (Exception ex) {
-            currentMaKhachHang = "KH0001";
-            currentHoTen = "Nguyễn Văn Khách Hàng";
-            currentSoCCCD = "001200001234";
-            currentSoDienThoai = "0987654321";
-            currentEmail = "khachhang@gmail.com";
-            currentDiaChi = "Hà Nội, Việt Nam";
-        }
+    private static String text(java.util.Map<String, Object> row, String key, String fallback) {
+        Object value = row.get(key);
+        return value == null || value.toString().isBlank() ? fallback : value.toString();
     }
 
     public static void clear() {

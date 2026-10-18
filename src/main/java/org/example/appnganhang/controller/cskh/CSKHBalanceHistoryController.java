@@ -9,18 +9,16 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import org.example.appnganhang.model.entity.LichSuGiaoDich;
-import org.example.appnganhang.model.util.DBConnection;
+import org.example.appnganhang.controller.service.Iml.CSKHBalanceHistoryServiceImpl;
+import org.example.appnganhang.controller.service.intf.CSKHBalanceHistoryService;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
+import java.sql.SQLException;
 
 import static org.example.appnganhang.controller.util.Navigation.moView;
 
@@ -110,6 +108,7 @@ public class CSKHBalanceHistoryController {
 
     // ========== DATA ==========
     private ObservableList<LichSuGiaoDich> danhSachLog;
+    private final CSKHBalanceHistoryService balanceHistoryService = new CSKHBalanceHistoryServiceImpl();
     private final DecimalFormat dfTien = new DecimalFormat("#,### VNĐ");
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
@@ -218,99 +217,39 @@ public class CSKHBalanceHistoryController {
     }
 
     private void taiDanhSachLog() {
-        danhSachLog = FXCollections.observableArrayList();
-        String sql = "SELECT MaLog, MaGiaoDich, SoTaiKhoanLienQuan, HanhDong, SoTienThayDoi, SoDuSauThayDoi, TrangThai, ThoiGianGhiLog " +
-                "FROM LichSuGiaoDich ORDER BY ThoiGianGhiLog DESC";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                LichSuGiaoDich log = new LichSuGiaoDich();
-                log.setMaLog(rs.getInt("MaLog"));
-                log.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                log.setSoTaiKhoanLienQuan(rs.getString("SoTaiKhoanLienQuan"));
-                log.setHanhDong(rs.getString("HanhDong"));
-                log.setSoTienThayDoi(rs.getBigDecimal("SoTienThayDoi"));
-                log.setSoDuSauThayDoi(rs.getBigDecimal("SoDuSauThayDoi"));
-                log.setTrangThai(rs.getString("TrangThai"));
-                log.setThoiGianGhiLog(rs.getTimestamp("ThoiGianGhiLog") != null
-                        ? rs.getTimestamp("ThoiGianGhiLog").toLocalDateTime() : null);
-                danhSachLog.add(log);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        try {
+            danhSachLog = FXCollections.observableArrayList(
+                    balanceHistoryService.layDanhSachLog(null, null, null));
+        } catch (SQLException e) {
+            danhSachLog = FXCollections.observableArrayList();
+            hienThongBaoLoi("Không thể tải lịch sử biến động số dư.", e);
         }
-
         tblBienDong.setItems(danhSachLog);
         lblTongLog.setText(String.valueOf(danhSachLog.size()));
     }
 
     @FXML
     public void onTraCuuLog(ActionEvent event) {
-        danhSachLog = FXCollections.observableArrayList();
-        StringBuilder sqlBuilder = new StringBuilder(
-                "SELECT MaLog, MaGiaoDich, SoTaiKhoanLienQuan, HanhDong, SoTienThayDoi, SoDuSauThayDoi, TrangThai, ThoiGianGhiLog FROM LichSuGiaoDich");
-
-        List<Object> params = new ArrayList<>();
-        boolean hasWhere = false;
-
-        String keyword = txtTimKiemLog.getText() != null ? txtTimKiemLog.getText().trim() : "";
-        if (!keyword.isEmpty()) {
-            sqlBuilder.append(" WHERE (SoTaiKhoanLienQuan LIKE ? OR MaGiaoDich LIKE ?)");
-            params.add("%" + keyword + "%");
-            params.add("%" + keyword + "%");
-            hasWhere = true;
+        String keyword = txtTimKiemLog.getText() == null ? "" : txtTimKiemLog.getText().trim();
+        try {
+            danhSachLog = FXCollections.observableArrayList(
+                    balanceHistoryService.layDanhSachLog(
+                            keyword, dpLogTuNgay.getValue(), dpLogDenNgay.getValue()));
+        } catch (SQLException e) {
+            danhSachLog = FXCollections.observableArrayList();
+            hienThongBaoLoi("Không thể tra cứu lịch sử biến động số dư.", e);
         }
-
-        LocalDate tuNgay = dpLogTuNgay.getValue();
-        if (tuNgay != null) {
-            sqlBuilder.append(hasWhere ? " AND" : " WHERE");
-            sqlBuilder.append(" ThoiGianGhiLog >= ?");
-            params.add(java.sql.Timestamp.valueOf(tuNgay.atStartOfDay()));
-            hasWhere = true;
-        }
-
-        LocalDate denNgay = dpLogDenNgay.getValue();
-        if (denNgay != null) {
-            sqlBuilder.append(hasWhere ? " AND" : " WHERE");
-            sqlBuilder.append(" ThoiGianGhiLog <= ?");
-            params.add(java.sql.Timestamp.valueOf(denNgay.atTime(23, 59, 59)));
-        }
-
-        sqlBuilder.append(" ORDER BY ThoiGianGhiLog DESC");
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sqlBuilder.toString())) {
-
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    LichSuGiaoDich log = new LichSuGiaoDich();
-                    log.setMaLog(rs.getInt("MaLog"));
-                    log.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                    log.setSoTaiKhoanLienQuan(rs.getString("SoTaiKhoanLienQuan"));
-                    log.setHanhDong(rs.getString("HanhDong"));
-                    log.setSoTienThayDoi(rs.getBigDecimal("SoTienThayDoi"));
-                    log.setSoDuSauThayDoi(rs.getBigDecimal("SoDuSauThayDoi"));
-                    log.setTrangThai(rs.getString("TrangThai"));
-                    log.setThoiGianGhiLog(rs.getTimestamp("ThoiGianGhiLog") != null
-                            ? rs.getTimestamp("ThoiGianGhiLog").toLocalDateTime() : null);
-                    danhSachLog.add(log);
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         tblBienDong.setItems(danhSachLog);
         lblTongLog.setText(String.valueOf(danhSachLog.size()));
+    }
+
+    private void hienThongBaoLoi(String noiDung, Exception exception) {
+        exception.printStackTrace();
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Lỗi dữ liệu");
+        alert.setHeaderText(null);
+        alert.setContentText(noiDung + " Chi tiết: " + exception.getMessage());
+        alert.showAndWait();
     }
 
     @FXML
@@ -329,25 +268,12 @@ public class CSKHBalanceHistoryController {
         if (!keyword.isEmpty()) {
             lblPrintSoTK.setText(keyword);
 
-            String sqlLookup = "SELECT TOP 1 kh.HoTen FROM TaiKhoanNganHang tk " +
-                    "JOIN KhachHang kh ON tk.MaKhachHang = kh.MaKhachHang " +
-                    "WHERE tk.SoTaiKhoan = ?";
-
-            try (Connection conn = DBConnection.getConnection();
-                 PreparedStatement ps = conn.prepareStatement(sqlLookup)) {
-
-                ps.setString(1, keyword);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        lblPrintTenChuTK.setText(rs.getString("HoTen"));
-                    } else {
-                        lblPrintTenChuTK.setText("");
-                    }
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
+            try {
+                lblPrintTenChuTK.setText(
+                        balanceHistoryService.layTenChuTaiKhoan(keyword));
+            } catch (SQLException e) {
                 lblPrintTenChuTK.setText("");
+                hienThongBaoLoi("Không thể tra cứu chủ tài khoản.", e);
             }
         } else {
             lblPrintSoTK.setText("");

@@ -11,17 +11,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
-import org.example.appnganhang.model.util.DBConnection;
+import org.example.appnganhang.controller.service.Iml.CSKHTransactionLookupServiceImpl;
+import org.example.appnganhang.controller.service.intf.CSKHTransactionLookupService;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
 import static org.example.appnganhang.controller.util.Navigation.moView;
 
@@ -145,6 +142,8 @@ public class CSKHTransactionLookupController {
     private GiaoDichChuyenTien giaoDichDangChon;
     private final DecimalFormat dfTien = new DecimalFormat("#,### VNĐ");
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    private final CSKHTransactionLookupService transactionLookupService =
+            new CSKHTransactionLookupServiceImpl();
 
     @FXML
     public void initialize() {
@@ -228,127 +227,46 @@ public class CSKHTransactionLookupController {
         taiDanhSachGiaoDich();
     }
 
-    /**
-     * Load toàn bộ giao dịch từ database
-     */
+    /** Tải toàn bộ giao dịch thông qua Service. */
     private void taiDanhSachGiaoDich() {
-        danhSachGD = FXCollections.observableArrayList();
-        String sql = "SELECT gd.MaGiaoDich, gd.MaTaiKhoanNguon, gd.MaTaiKhoanDich, gd.SoTien, " +
-                "gd.NgayGiaoDich, gd.NoiDung, gd.MaLoaiGD, gd.TrangThai " +
-                "FROM GiaoDichChuyenTien gd ORDER BY gd.NgayGiaoDich DESC";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                GiaoDichChuyenTien gd = new GiaoDichChuyenTien();
-                gd.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                gd.setMaTaiKhoanNguon(rs.getString("MaTaiKhoanNguon"));
-                gd.setMaTaiKhoanDich(rs.getString("MaTaiKhoanDich"));
-                gd.setSoTien(rs.getBigDecimal("SoTien"));
-                gd.setNgayGiaoDich(rs.getTimestamp("NgayGiaoDich") != null
-                        ? rs.getTimestamp("NgayGiaoDich").toLocalDateTime() : null);
-                gd.setNoiDung(rs.getString("NoiDung"));
-                gd.setMaLoaiGD(rs.getString("MaLoaiGD"));
-                gd.setTrangThai(rs.getString("TrangThai"));
-                danhSachGD.add(gd);
-            }
-
+        try {
+            danhSachGD = FXCollections.observableArrayList(
+                    transactionLookupService.layDanhSachGiaoDich());
+            tblGiaoDich.setItems(danhSachGD);
+            lblTongGiaoDich.setText(String.valueOf(danhSachGD.size()));
         } catch (Exception e) {
             e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR,
+                    "Không thể tải danh sách giao dịch. Vui lòng kiểm tra kết nối cơ sở dữ liệu.");
         }
-
-        tblGiaoDich.setItems(danhSachGD);
-        lblTongGiaoDich.setText(String.valueOf(danhSachGD.size()));
     }
 
-    /**
-     * Tìm kiếm giao dịch theo bộ lọc
-     */
+    /** Tìm kiếm giao dịch theo từ khóa và các bộ lọc thông qua Service. */
     @FXML
     private void onTimKiemGiaoDich(ActionEvent event) {
-        danhSachGD = FXCollections.observableArrayList();
-
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("SELECT gd.MaGiaoDich, gd.MaTaiKhoanNguon, gd.MaTaiKhoanDich, gd.SoTien, ");
-        sqlBuilder.append("gd.NgayGiaoDich, gd.NoiDung, gd.MaLoaiGD, gd.TrangThai ");
-        sqlBuilder.append("FROM GiaoDichChuyenTien gd WHERE 1=1 ");
-
-        ArrayList<Object> params = new ArrayList<>();
-
-        // Filter by keyword
         String keyword = txtTimKiemGD.getText();
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            sqlBuilder.append("AND (gd.MaGiaoDich LIKE ? OR gd.MaTaiKhoanNguon LIKE ? OR gd.MaTaiKhoanDich LIKE ?) ");
-            String likeParam = "%" + keyword.trim() + "%";
-            params.add(likeParam);
-            params.add(likeParam);
-            params.add(likeParam);
-        }
-
-        // Filter by start date
         LocalDate tuNgay = dpTuNgay.getValue();
-        if (tuNgay != null) {
-            sqlBuilder.append("AND gd.NgayGiaoDich >= ? ");
-            params.add(java.sql.Timestamp.valueOf(tuNgay.atStartOfDay()));
-        }
-
-        // Filter by end date (inclusive, add 1 day)
         LocalDate denNgay = dpDenNgay.getValue();
-        if (denNgay != null) {
-            sqlBuilder.append("AND gd.NgayGiaoDich <= ? ");
-            params.add(java.sql.Timestamp.valueOf(denNgay.plusDays(1).atStartOfDay()));
-        }
-
-        // Filter by loại giao dịch
         String loaiGD = cboLoaiGiaoDich.getValue();
-        if (loaiGD != null && !loaiGD.equals("Tất cả loại GD")) {
-            String maLoaiGD = lookupMaLoaiGD(loaiGD);
-            if (maLoaiGD != null) {
-                sqlBuilder.append("AND gd.MaLoaiGD = ? ");
-                params.add(maLoaiGD);
-            }
-        }
-
-        // Filter by trạng thái
         String trangThai = cboTrangThai.getValue();
-        if (trangThai != null && !trangThai.equals("Tất cả trạng thái")) {
-            sqlBuilder.append("AND gd.TrangThai = ? ");
-            params.add(trangThai);
+
+        if (tuNgay != null && denNgay != null && tuNgay.isAfter(denNgay)) {
+            showAlert(Alert.AlertType.WARNING,
+                    "Ngày bắt đầu không được lớn hơn ngày kết thúc.");
+            return;
         }
 
-        sqlBuilder.append("ORDER BY gd.NgayGiaoDich DESC");
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sqlBuilder.toString())) {
-
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    GiaoDichChuyenTien gd = new GiaoDichChuyenTien();
-                    gd.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                    gd.setMaTaiKhoanNguon(rs.getString("MaTaiKhoanNguon"));
-                    gd.setMaTaiKhoanDich(rs.getString("MaTaiKhoanDich"));
-                    gd.setSoTien(rs.getBigDecimal("SoTien"));
-                    gd.setNgayGiaoDich(rs.getTimestamp("NgayGiaoDich") != null
-                            ? rs.getTimestamp("NgayGiaoDich").toLocalDateTime() : null);
-                    gd.setNoiDung(rs.getString("NoiDung"));
-                    gd.setMaLoaiGD(rs.getString("MaLoaiGD"));
-                    gd.setTrangThai(rs.getString("TrangThai"));
-                    danhSachGD.add(gd);
-                }
-            }
-
+        try {
+            danhSachGD = FXCollections.observableArrayList(
+                    transactionLookupService.timKiemGiaoDich(
+                            keyword, tuNgay, denNgay, loaiGD, trangThai));
+            tblGiaoDich.setItems(danhSachGD);
+            lblTongGiaoDich.setText(String.valueOf(danhSachGD.size()));
         } catch (Exception e) {
             e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR,
+                    "Không thể tra cứu giao dịch. Vui lòng kiểm tra kết nối cơ sở dữ liệu.");
         }
-
-        tblGiaoDich.setItems(danhSachGD);
-        lblTongGiaoDich.setText(String.valueOf(danhSachGD.size()));
     }
 
     /**
@@ -481,49 +399,17 @@ public class CSKHTransactionLookupController {
 
     // ===== Helper Methods =====
 
-    /**
-     * Lookup tên loại giao dịch từ mã
-     */
+    /** Lấy tên loại giao dịch thông qua Service. */
     private String lookupTenLoaiGD(String maLoaiGD) {
-        if (maLoaiGD == null || maLoaiGD.isEmpty()) {
+        if (maLoaiGD == null || maLoaiGD.isBlank()) {
             return "";
         }
-        String tenLoai = maLoaiGD;
-        String sql = "SELECT TenLoaiGD FROM LoaiGiaoDich WHERE MaLoaiGD = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maLoaiGD);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    tenLoai = rs.getString("TenLoaiGD");
-                }
-            }
+        try {
+            return transactionLookupService.layTenLoaiGiaoDich(maLoaiGD);
         } catch (Exception e) {
             e.printStackTrace();
+            return maLoaiGD;
         }
-        return tenLoai;
-    }
-
-    /**
-     * Lookup mã loại giao dịch từ tên
-     */
-    private String lookupMaLoaiGD(String tenLoaiGD) {
-        if (tenLoaiGD == null || tenLoaiGD.isEmpty()) {
-            return null;
-        }
-        String sql = "SELECT MaLoaiGD FROM LoaiGiaoDich WHERE TenLoaiGD = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, tenLoaiGD);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("MaLoaiGD");
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     /**

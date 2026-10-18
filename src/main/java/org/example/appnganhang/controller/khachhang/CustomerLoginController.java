@@ -12,12 +12,8 @@ import javafx.stage.Stage;
 import org.example.appnganhang.controller.service.Iml.AuthServiceImpl;
 import org.example.appnganhang.controller.service.intf.AuthService;
 import org.example.appnganhang.model.entity.TaiKhoanDangNhap_VaiTro;
-import org.example.appnganhang.model.util.DBConnection;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 import static org.example.appnganhang.controller.util.Navigation.moView;
 
@@ -98,41 +94,17 @@ public class CustomerLoginController {
             return;
         }
 
-        // Kiểm tra đăng nhập và vai trò
+        // Xác thực qua Service; Controller không truy vấn database trực tiếp.
         boolean hopLe = false;
         String maNguoiDung = "";
-        String roleName = "";
-
-        // Cách 1: Qua authService
         if (authService.login(tenDN, matKhau)) {
             TaiKhoanDangNhap_VaiTro user = authService.getCurrentUser();
             if (user != null) {
-                roleName = user.getRoleName();
+                String roleName = user.getRoleName();
                 maNguoiDung = user.getMaNguoiDung();
-                // Phải đúng vai trò Khách hàng
-                if ("Khách hàng".equalsIgnoreCase(roleName) || "KhachHang".equalsIgnoreCase(roleName) || "Customer".equalsIgnoreCase(roleName)) {
-                    hopLe = true;
-                }
-            }
-        }
-
-        // Cách 2: Truy vấn trực tiếp nếu authService chưa hỗ trợ hoặc fallback
-        if (!hopLe) {
-            String sql = "SELECT TenDangNhap, MatKhau, RoleName, MaNguoiDung FROM TaiKhoanDangNhap_VaiTro WHERE TenDangNhap = ? AND MatKhau = ?";
-            try (Connection conn = DBConnection.getConnection();
-                 PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, tenDN);
-                ps.setString(2, matKhau);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    roleName = rs.getString("RoleName");
-                    maNguoiDung = rs.getString("MaNguoiDung");
-                    if ("Khách hàng".equalsIgnoreCase(roleName) || "KhachHang".equalsIgnoreCase(roleName) || "Customer".equalsIgnoreCase(roleName)) {
-                        hopLe = true;
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Lỗi xác thực khách hàng: " + e.getMessage());
+                hopLe = "Khách hàng".equalsIgnoreCase(roleName)
+                        || "KhachHang".equalsIgnoreCase(roleName)
+                        || "Customer".equalsIgnoreCase(roleName);
             }
         }
 

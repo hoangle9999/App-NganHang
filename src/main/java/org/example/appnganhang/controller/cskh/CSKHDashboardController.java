@@ -3,11 +3,9 @@ package org.example.appnganhang.controller.cskh;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import org.example.appnganhang.model.util.DBConnection;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import org.example.appnganhang.controller.service.Iml.CSKHDashboardServiceImpl;
+import org.example.appnganhang.controller.service.intf.CSKHDashboardService;
+import org.example.appnganhang.model.entity.CSKHDashboardStats;
 
 import static org.example.appnganhang.controller.util.Navigation.moView;
 
@@ -33,35 +31,16 @@ public class CSKHDashboardController {
         loadStats();
     }
 
+    private final CSKHDashboardService dashboardService = new CSKHDashboardServiceImpl();
+
     private void loadStats() {
-        try (Connection conn = DBConnection.getConnection()) {
-            // Tổng khách hàng
-            try (PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM KhachHang");
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    lblTongKH.setText(String.valueOf(rs.getInt(1)));
-                }
-            }
-
-            // Tổng tài khoản hoạt động
-            try (PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM TaiKhoanNganHang WHERE TrangThai = N'Hoạt động'");
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    lblTongTKHoatDong.setText(String.valueOf(rs.getInt(1)));
-                }
-            }
-
-            // Giao dịch hôm nay
-            try (PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM GiaoDichChuyenTien WHERE CAST(NgayGiaoDich AS DATE) = CAST(GETDATE() AS DATE)");
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    lblGDHomNay.setText(String.valueOf(rs.getInt(1)));
-                }
-            }
-
-            // Khiếu nại chờ (placeholder)
+        try {
+            CSKHDashboardStats stats = dashboardService.layThongKe();
+            lblTongKH.setText(String.valueOf(stats.getTongKhachHang()));
+            lblTongTKHoatDong.setText(String.valueOf(stats.getTongTaiKhoanHoatDong()));
+            lblGDHomNay.setText(String.valueOf(stats.getGiaoDichHomNay()));
+            // Chưa có bảng nghiệp vụ khiếu nại trong phạm vi hiện tại.
             lblKhieuNaiCho.setText("0");
-
         } catch (Exception e) {
             System.err.println("Lỗi khi tải thống kê dashboard CSKH: " + e.getMessage());
             e.printStackTrace();
