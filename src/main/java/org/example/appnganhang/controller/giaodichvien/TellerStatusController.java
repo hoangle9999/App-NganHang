@@ -10,16 +10,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import org.example.appnganhang.model.dao.Impl.ChuyenTienDAOImpl;
-import org.example.appnganhang.model.dao.intf.ChuyenTienDAO;
+import org.example.appnganhang.controller.service.Iml.TellerStatusServiceImpl;
+import org.example.appnganhang.controller.service.intf.TellerStatusService;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
-import org.example.appnganhang.model.util.DBConnection;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -72,7 +67,7 @@ public class TellerStatusController {
 
     private final DecimalFormat dfTien = new DecimalFormat("#,### VNĐ");
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-    private final ChuyenTienDAO chuyenTienDAO = new ChuyenTienDAOImpl();
+    private final TellerStatusService tellerStatusService = new TellerStatusServiceImpl();
 
     private String tabDangChon = "TAT_CA";
     private GiaoDichChuyenTien gdDangChon = null;
@@ -178,100 +173,13 @@ public class TellerStatusController {
 
     private void taiDuLieuGiaoDich() {
         danhSachTatCaGD.clear();
-
-        String sql = "SELECT MaGiaoDich, MaTaiKhoanNguon, MaTaiKhoanDich, SoTien, NgayGiaoDich, NoiDung, MaLoaiGD, TrangThai " +
-                     "FROM GiaoDichChuyenTien ORDER BY NgayGiaoDich DESC";
-
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                GiaoDichChuyenTien gd = new GiaoDichChuyenTien();
-                gd.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                gd.setMaTaiKhoanNguon(rs.getString("MaTaiKhoanNguon"));
-                gd.setMaTaiKhoanDich(rs.getString("MaTaiKhoanDich"));
-                gd.setSoTien(rs.getBigDecimal("SoTien"));
-
-                java.sql.Timestamp ts = rs.getTimestamp("NgayGiaoDich");
-                if (ts != null) {
-                    gd.setNgayGiaoDich(ts.toLocalDateTime());
-                } else {
-                    gd.setNgayGiaoDich(LocalDateTime.now());
-                }
-
-                gd.setNoiDung(rs.getString("NoiDung"));
-                gd.setMaLoaiGD(rs.getString("MaLoaiGD"));
-                gd.setTrangThai(rs.getString("TrangThai"));
-
-                danhSachTatCaGD.add(gd);
-            }
-
-        } catch (Exception e) {
-            System.err.println("Lỗi nạp danh sách giao dịch: " + e.getMessage());
-            themDuLieuMauNeuTrong();
+        try {
+            danhSachTatCaGD.setAll(tellerStatusService.layDanhSachGiaoDich());
+        } catch (RuntimeException e) {
+            hienCanhBao("Không thể tải danh sách giao dịch: " + e.getMessage());
         }
-
-        if (danhSachTatCaGD.isEmpty()) {
-            themDuLieuMauNeuTrong();
-        }
-
         capNhatBadgeTabs();
         onTimKiem();
-    }
-
-    private void themDuLieuMauNeuTrong() {
-        GiaoDichChuyenTien g1 = new GiaoDichChuyenTien();
-        g1.setMaGiaoDich("GD20261017-001");
-        g1.setMaTaiKhoanNguon("1000000001");
-        g1.setMaTaiKhoanDich("1000000002");
-        g1.setSoTien(new BigDecimal("15000000"));
-        g1.setNgayGiaoDich(LocalDateTime.now().minusMinutes(10));
-        g1.setMaLoaiGD("CK01");
-        g1.setNoiDung("Chuyen tien hop dong kinh te");
-        g1.setTrangThai("Chờ xử lý");
-
-        GiaoDichChuyenTien g2 = new GiaoDichChuyenTien();
-        g2.setMaGiaoDich("GD20261017-002");
-        g2.setMaTaiKhoanNguon("1000000003");
-        g2.setMaTaiKhoanDich("1000000004");
-        g2.setSoTien(new BigDecimal("50000000"));
-        g2.setNgayGiaoDich(LocalDateTime.now().minusHours(1));
-        g2.setMaLoaiGD("CK01");
-        g2.setNoiDung("Chuyen tien mua xe o to");
-        g2.setTrangThai("Chờ xử lý");
-
-        GiaoDichChuyenTien g3 = new GiaoDichChuyenTien();
-        g3.setMaGiaoDich("GD20261017-003");
-        g3.setMaTaiKhoanNguon("1000000001");
-        g3.setMaTaiKhoanDich("1000000005");
-        g3.setSoTien(new BigDecimal("3500000"));
-        g3.setNgayGiaoDich(LocalDateTime.now().minusHours(2));
-        g3.setMaLoaiGD("CK01");
-        g3.setNoiDung("Thanh toan tien nha");
-        g3.setTrangThai("Thành công");
-
-        GiaoDichChuyenTien g4 = new GiaoDichChuyenTien();
-        g4.setMaGiaoDich("GD20261017-004");
-        g4.setMaTaiKhoanNguon("1000000002");
-        g4.setMaTaiKhoanDich("1000000009");
-        g4.setSoTien(new BigDecimal("100000000"));
-        g4.setNgayGiaoDich(LocalDateTime.now().minusDays(1));
-        g4.setMaLoaiGD("CK01");
-        g4.setNoiDung("Chuyen khoan vuot han muc");
-        g4.setTrangThai("Thất bại");
-
-        GiaoDichChuyenTien g5 = new GiaoDichChuyenTien();
-        g5.setMaGiaoDich("GD20261017-005");
-        g5.setMaTaiKhoanNguon("1000000003");
-        g5.setMaTaiKhoanDich("1000000001");
-        g5.setSoTien(new BigDecimal("2000000"));
-        g5.setNgayGiaoDich(LocalDateTime.now().minusDays(1));
-        g5.setMaLoaiGD("CK01");
-        g5.setNoiDung("Khach hang yeu cau huy tai quay");
-        g5.setTrangThai("Đã hủy");
-
-        danhSachTatCaGD.addAll(g1, g2, g3, g4, g5);
     }
 
     private void capNhatBadgeTabs() {
@@ -409,30 +317,18 @@ public class TellerStatusController {
     @FXML
     public void onXacNhanDuyetGiaoDich() {
         if (gdDangChon == null) return;
-
-        // Cập nhật Database
-        String sql = "UPDATE GiaoDichChuyenTien SET TrangThai = N'Thành công' WHERE MaGiaoDich = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, gdDangChon.getMaGiaoDich());
-            ps.executeUpdate();
-        } catch (Exception e) {
-            System.err.println("Lỗi duyệt GD: " + e.getMessage());
+        String maGiaoDich = gdDangChon.getMaGiaoDich();
+        try {
+            tellerStatusService.duyetGiaoDich(maGiaoDich);
+            gdDangChon.setTrangThai("Thành công");
+            anModal(modalDuyetGD);
+            capNhatBadgeTabs();
+            onTimKiem();
+            tblGiaoDich.refresh();
+            hienThongBao("Duyệt thành công", "Giao dịch [" + maGiaoDich + "] đã chuyển sang trạng thái 'Thành công'.");
+        } catch (RuntimeException e) {
+            hienCanhBao("Không thể duyệt giao dịch: " + e.getMessage());
         }
-
-        // Cập nhật trạng thái và màu sắc
-        gdDangChon.setTrangThai("Thành công");
-        anModal(modalDuyetGD);
-
-        capNhatBadgeTabs();
-        onTimKiem();
-        tblGiaoDich.refresh();
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Duyệt thành công");
-        alert.setHeaderText("Phê duyệt giao dịch thành công!");
-        alert.setContentText("Giao dịch [" + gdDangChon.getMaGiaoDich() + "] đã chuyển sang trạng thái 'Thành công'!");
-        alert.showAndWait();
     }
 
     // =========================================================
@@ -455,38 +351,21 @@ public class TellerStatusController {
         if (gdDangChon == null) return;
         String lyDo = txtLyDoHuy.getText().trim();
         if (lyDo.isEmpty()) {
-            Alert a = new Alert(Alert.AlertType.WARNING);
-            a.setTitle("Thông báo");
-            a.setHeaderText(null);
-            a.setContentText("Vui lòng nhập lý do từ chối/hủy giao dịch!");
-            a.showAndWait();
+            hienCanhBao("Vui lòng nhập lý do từ chối/hủy giao dịch!");
             return;
         }
-
-        // Cập nhật Database
-        String sql = "UPDATE GiaoDichChuyenTien SET TrangThai = N'Đã hủy', NoiDung = NoiDung + N' [Lý do hủy: ' + ? + ']' WHERE MaGiaoDich = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, lyDo);
-            ps.setString(2, gdDangChon.getMaGiaoDich());
-            ps.executeUpdate();
-        } catch (Exception e) {
-            System.err.println("Lỗi hủy GD: " + e.getMessage());
+        String maGiaoDich = gdDangChon.getMaGiaoDich();
+        try {
+            tellerStatusService.huyGiaoDich(maGiaoDich, lyDo);
+            gdDangChon.setTrangThai("Đã hủy");
+            anModal(modalHuyGD);
+            capNhatBadgeTabs();
+            onTimKiem();
+            tblGiaoDich.refresh();
+            hienThongBao("Đã hủy giao dịch", "Giao dịch [" + maGiaoDich + "] đã chuyển sang trạng thái 'Đã hủy'.");
+        } catch (RuntimeException e) {
+            hienCanhBao("Không thể hủy giao dịch: " + e.getMessage());
         }
-
-        // Cập nhật trạng thái và màu sắc
-        gdDangChon.setTrangThai("Đã hủy");
-        anModal(modalHuyGD);
-
-        capNhatBadgeTabs();
-        onTimKiem();
-        tblGiaoDich.refresh();
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Đã hủy giao dịch");
-        alert.setHeaderText("Giao dịch đã được hủy bỏ!");
-        alert.setContentText("Giao dịch [" + gdDangChon.getMaGiaoDich() + "] đã chuyển sang trạng thái 'Đã hủy'!");
-        alert.showAndWait();
     }
 
     private void hienModal(VBox modal) {
@@ -501,6 +380,22 @@ public class TellerStatusController {
             modal.setVisible(false);
             modal.setManaged(false);
         }
+    }
+
+    private void hienCanhBao(String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Thông báo");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void hienThongBao(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(title);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     // =========================================================

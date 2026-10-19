@@ -7,6 +7,11 @@ public class ChiNhanh {
 
     public ChiNhanh() {}
 
+    public ChiNhanh(String maChiNhanh, String tenChiNhanh) {
+        this.maChiNhanh = maChiNhanh;
+        this.tenChiNhanh = tenChiNhanh;
+    }
+
     public ChiNhanh(String maChiNhanh, String tenChiNhanh, String diaChi) {
         this.maChiNhanh = maChiNhanh;
         this.tenChiNhanh = tenChiNhanh;

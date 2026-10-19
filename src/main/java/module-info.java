@@ -5,6 +5,9 @@ module org.example.appnganhang {
     requires java.desktop;
     requires java.net.http;
     requires com.fasterxml.jackson.databind;
+    requires org.apache.poi.poi;
+    requires org.apache.poi.ooxml;
+    requires org.apache.pdfbox;
 
     opens org.example.appnganhang to javafx.fxml;
 

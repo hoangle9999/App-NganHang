@@ -4,14 +4,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
+import org.example.appnganhang.model.entity.LichSuGiaoDich;
 
 public interface BaoCaoDAO {
-    int demTongSoGiaoDich();
-    BigDecimal tinhTongTienChuyen();
-    int demGiaoDichThanhCong();
-    int demGiaoDichThatBai();
-    Map<LocalDate, Integer> thongKeGiaoDichTheoNgay();
-    Map<String, Integer> thongKeGiaoDichTheoLoai();
-    Map<String, Integer> thongKeGiaoDichTheoChiNhanh();
-    List<Map<String, Object>> baoCaoGiaoDich();
+    List<GiaoDichChuyenTien> layDanhSachGiaoDich();
+    List<LichSuGiaoDich> layDanhSachLichSuGiaoDich();
+    List<String> layDanhSachLoaiGiaoDich();
+    List<String> layDanhSachNganHang();
 }

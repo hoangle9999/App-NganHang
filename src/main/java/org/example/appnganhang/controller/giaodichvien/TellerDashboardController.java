@@ -11,12 +11,12 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
-import org.example.appnganhang.model.util.DBConnection;
+import org.example.appnganhang.model.entity.NhanVien;
+import org.example.appnganhang.model.entity.TellerDashboardStats;
+import org.example.appnganhang.controller.service.Iml.TellerDashboardServiceImpl;
+import org.example.appnganhang.controller.service.intf.TellerDashboardService;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,11 +47,15 @@ public class TellerDashboardController {
     @FXML private TableColumn<GiaoDichChuyenTien, String> colTrangThai;
 
     private final ObservableList<GiaoDichChuyenTien> danhSachGiaoDich = FXCollections.observableArrayList();
+    private final TellerDashboardService dashboardService = new TellerDashboardServiceImpl();
     private final DecimalFormat dfTien = new DecimalFormat("#,### VNĐ");
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     @FXML
     public void initialize() {
+        lblTellerName.setText("Đang tải...");
+        lblTellerBranch.setText("Đang tải...");
+        taiDuLieuGiaoDichVien();
         if (lblThoiGianCa != null) {
             lblThoiGianCa.setText("Trực tuyến | Hôm nay: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
@@ -59,6 +63,29 @@ public class TellerDashboardController {
         cauHinhBangGiaoDich();
         taiDuLieuThongKe();
         taiDuLieuGiaoDich();
+    }
+
+    private void taiDuLieuGiaoDichVien() {
+        String username = TellerSession.getTenDangNhap();
+        if (username == null || username.isBlank()) {
+            hienCanhBao("Phiên đăng nhập không hợp lệ", "Vui lòng đăng nhập lại để tải thông tin giao dịch viên.");
+            lblTellerName.setText("Giao dịch viên");
+            lblTellerBranch.setText("Chưa xác định chi nhánh");
+            return;
+        }
+        try {
+            NhanVien nv = dashboardService.timNhanVienTheoTenDangNhap(username).orElse(null);
+            if (nv == null) {
+                lblTellerName.setText(username);
+                lblTellerBranch.setText("Chưa có thông tin chi nhánh");
+                hienCanhBao("Không tìm thấy hồ sơ", "Tài khoản đăng nhập chưa được liên kết với hồ sơ nhân viên.");
+                return;
+            }
+            lblTellerName.setText(nv.getHoTen());
+            lblTellerBranch.setText(nv.getTenChiNhanh() == null ? "Chưa phân công chi nhánh" : nv.getTenChiNhanh());
+        } catch (RuntimeException e) {
+            hienCanhBao("Lỗi tải thông tin giao dịch viên", e.getMessage());
+        }
     }
 
     private void cauHinhBangGiaoDich() {
@@ -110,120 +137,33 @@ public class TellerDashboardController {
     }
 
     private void taiDuLieuThongKe() {
-        int tongGD = 0;
-        BigDecimal tongTien = BigDecimal.ZERO;
-        int choXuLy = 0;
-        int tongTK = 0;
-
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement()) {
-
-            // Thống kê giao dịch
-            ResultSet rs1 = stmt.executeQuery("SELECT COUNT(*) AS TongGD, ISNULL(SUM(SoTien), 0) AS TongTien FROM GiaoDichChuyenTien");
-            if (rs1.next()) {
-                tongGD = rs1.getInt("TongGD");
-                tongTien = rs1.getBigDecimal("TongTien");
-            }
-
-            // Giao dịch chờ xử lý
-            ResultSet rs2 = stmt.executeQuery("SELECT COUNT(*) AS ChoXuLy FROM GiaoDichChuyenTien WHERE TrangThai LIKE N'%Chờ%' OR TrangThai = 'CHO_XU_LY'");
-            if (rs2.next()) {
-                choXuLy = rs2.getInt("ChoXuLy");
-            }
-
-            // Tổng số tài khoản khách hàng
-            ResultSet rs3 = stmt.executeQuery("SELECT COUNT(*) AS TongTK FROM TaiKhoanNganHang");
-            if (rs3.next()) {
-                tongTK = rs3.getInt("TongTK");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Lỗi nạp thống kê giao dịch viên: " + e.getMessage());
-            tongGD = 18;
-            tongTien = new BigDecimal("850000000");
-            choXuLy = 3;
-            tongTK = 42;
+        try {
+            TellerDashboardStats stats = dashboardService.layThongKeDashboard();
+            if (lblStatTongGD != null) lblStatTongGD.setText(stats.getSoGiaoDichHomNay() + " GD");
+            if (lblStatTongTien != null) lblStatTongTien.setText(dfTien.format(stats.getTongTienHomNay()));
+            if (lblStatChoXuLy != null) lblStatChoXuLy.setText(stats.getSoGiaoDichChoXuLy() + " GD");
+            if (lblStatTaiKhoan != null) lblStatTaiKhoan.setText(stats.getSoTaiKhoanKhachHang() + " TK");
+        } catch (RuntimeException e) {
+            hienCanhBao("Lỗi tải số liệu dashboard", e.getMessage());
+            if (lblStatTongGD != null) lblStatTongGD.setText("—");
+            if (lblStatTongTien != null) lblStatTongTien.setText("—");
+            if (lblStatChoXuLy != null) lblStatChoXuLy.setText("—");
+            if (lblStatTaiKhoan != null) lblStatTaiKhoan.setText("—");
         }
-
-        if (lblStatTongGD != null) lblStatTongGD.setText(tongGD + " GD");
-        if (lblStatTongTien != null) lblStatTongTien.setText(dfTien.format(tongTien));
-        if (lblStatChoXuLy != null) lblStatChoXuLy.setText(choXuLy + " GD");
-        if (lblStatTaiKhoan != null) lblStatTaiKhoan.setText(tongTK + " TK");
     }
 
     private void taiDuLieuGiaoDich() {
-        danhSachGiaoDich.clear();
-        String sql = "SELECT TOP 30 MaGiaoDich, MaTaiKhoanNguon, MaTaiKhoanDich, SoTien, NgayGiaoDich, NoiDung, MaLoaiGD, TrangThai " +
-                     "FROM GiaoDichChuyenTien ORDER BY NgayGiaoDich DESC";
-
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                GiaoDichChuyenTien gd = new GiaoDichChuyenTien();
-                gd.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                gd.setMaTaiKhoanNguon(rs.getString("MaTaiKhoanNguon"));
-                gd.setMaTaiKhoanDich(rs.getString("MaTaiKhoanDich"));
-                gd.setSoTien(rs.getBigDecimal("SoTien"));
-
-                java.sql.Timestamp ts = rs.getTimestamp("NgayGiaoDich");
-                if (ts != null) {
-                    gd.setNgayGiaoDich(ts.toLocalDateTime());
-                } else {
-                    gd.setNgayGiaoDich(LocalDateTime.now());
-                }
-
-                gd.setNoiDung(rs.getString("NoiDung"));
-                gd.setMaLoaiGD(rs.getString("MaLoaiGD"));
-                gd.setTrangThai(rs.getString("TrangThai"));
-
-                danhSachGiaoDich.add(gd);
-            }
-
-        } catch (Exception e) {
-            System.err.println("Lỗi nạp giao dịch gần đây: " + e.getMessage());
-            themDuLieuMauNeuTrong();
+        try {
+            danhSachGiaoDich.setAll(dashboardService.layGiaoDichGanDay(30));
+        } catch (RuntimeException e) {
+            danhSachGiaoDich.clear();
+            hienCanhBao("Lỗi tải giao dịch gần đây", e.getMessage());
         }
-
-        if (danhSachGiaoDich.isEmpty()) {
-            themDuLieuMauNeuTrong();
-        }
-    }
-
-    private void themDuLieuMauNeuTrong() {
-        GiaoDichChuyenTien g1 = new GiaoDichChuyenTien();
-        g1.setMaGiaoDich("GD20261017-001");
-        g1.setMaTaiKhoanNguon("1000000001");
-        g1.setMaTaiKhoanDich("1000000002");
-        g1.setSoTien(new BigDecimal("5000000"));
-        g1.setNgayGiaoDich(LocalDateTime.now().minusMinutes(15));
-        g1.setMaLoaiGD("CK01");
-        g1.setTrangThai("Thành công");
-
-        GiaoDichChuyenTien g2 = new GiaoDichChuyenTien();
-        g2.setMaGiaoDich("NT20261017-002");
-        g2.setMaTaiKhoanNguon("---");
-        g2.setMaTaiKhoanDich("1000000003");
-        g2.setSoTien(new BigDecimal("20000000"));
-        g2.setNgayGiaoDich(LocalDateTime.now().minusHours(1));
-        g2.setMaLoaiGD("NT01");
-        g2.setTrangThai("Thành công");
-
-        GiaoDichChuyenTien g3 = new GiaoDichChuyenTien();
-        g3.setMaGiaoDich("RT20261017-003");
-        g3.setMaTaiKhoanNguon("1000000001");
-        g3.setMaTaiKhoanDich("---");
-        g3.setSoTien(new BigDecimal("3000000"));
-        g3.setNgayGiaoDich(LocalDateTime.now().minusHours(2));
-        g3.setMaLoaiGD("RT01");
-        g3.setTrangThai("Chờ xử lý");
-
-        danhSachGiaoDich.addAll(g1, g2, g3);
     }
 
     @FXML
     public void onLamMoiDashboard() {
+        taiDuLieuGiaoDichVien();
         taiDuLieuThongKe();
         taiDuLieuGiaoDich();
     }
@@ -242,7 +182,7 @@ public class TellerDashboardController {
     }
 
     @FXML
-    public void onChuyenTien(MouseEvent event) {
+    public void onChuyenTienTile(MouseEvent event) {
         ActionEvent ae = new ActionEvent(event.getSource(), null);
         moView("teller-transfer-view.fxml", ae);
     }
@@ -253,7 +193,7 @@ public class TellerDashboardController {
     }
 
     @FXML
-    public void onNapRutThanhToan(MouseEvent event) {
+    public void onNapRutThanhToanTile(MouseEvent event) {
         ActionEvent ae = new ActionEvent(event.getSource(), null);
         moView("teller-cash-view.fxml", ae);
     }
@@ -264,7 +204,7 @@ public class TellerDashboardController {
     }
 
     @FXML
-    public void onQuanLyTaiKhoan(MouseEvent event) {
+    public void onQuanLyTaiKhoanTile(MouseEvent event) {
         ActionEvent ae = new ActionEvent(event.getSource(), null);
         moView("teller-account-view.fxml", ae);
     }
@@ -275,7 +215,7 @@ public class TellerDashboardController {
     }
 
     @FXML
-    public void onTraCuuSaoKe(MouseEvent event) {
+    public void onTraCuuSaoKeTile(MouseEvent event) {
         ActionEvent ae = new ActionEvent(event.getSource(), null);
         moView("teller-statement-view.fxml", ae);
     }
@@ -286,13 +226,22 @@ public class TellerDashboardController {
     }
 
     @FXML
-    public void onTheoDoiTrangThai(MouseEvent event) {
+    public void onTheoDoiTrangThaiTile(MouseEvent event) {
         ActionEvent ae = new ActionEvent(event.getSource(), null);
         moView("teller-status-view.fxml", ae);
     }
 
     @FXML
     public void onDangXuat(ActionEvent event) {
+        TellerSession.clear();
         moView("login-view.fxml", event);
+    }
+
+    private void hienCanhBao(String tieuDe, String noiDung) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(tieuDe);
+        alert.setHeaderText(null);
+        alert.setContentText(noiDung == null ? "Không thể tải dữ liệu." : noiDung);
+        alert.showAndWait();
     }
 }

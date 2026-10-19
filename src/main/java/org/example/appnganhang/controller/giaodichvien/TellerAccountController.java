@@ -8,22 +8,18 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import org.example.appnganhang.model.dao.Impl.KhachHangDAOImpl;
-import org.example.appnganhang.model.dao.Impl.TaiKhoanDAOImpl;
-import org.example.appnganhang.model.dao.intf.KhachHangDAO;
-import org.example.appnganhang.model.dao.intf.TaiKhoanDAO;
+import javafx.scene.layout.HBox;
+import org.example.appnganhang.controller.service.Iml.TellerAccountServiceImpl;
+import org.example.appnganhang.controller.service.intf.TellerAccountService;
+import org.example.appnganhang.model.entity.ChiNhanh;
+import org.example.appnganhang.model.entity.HanMucGiaoDich;
 import org.example.appnganhang.model.entity.KhachHang;
 import org.example.appnganhang.model.entity.TaiKhoanNganHang;
-import org.example.appnganhang.model.util.DBConnection;
+import org.example.appnganhang.model.entity.TellerAccountInfo;
 
 import java.math.BigDecimal;
 import java.security.SecureRandom;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.util.Optional;
 
@@ -51,7 +47,9 @@ public class TellerAccountController {
     @FXML private TableColumn<TaiKhoanRow, String> colChiNhanh;
     @FXML private TableColumn<TaiKhoanRow, String> colHanMuc;
     @FXML private TableColumn<TaiKhoanRow, String> colTrangThai;
-    @FXML private TableColumn<TaiKhoanRow, Void> colThaoTac;
+    @FXML private Button btnXemChiTiet;
+    @FXML private Button btnDoiTrangThai;
+    @FXML private Button btnGanHanMuc;
 
     // Modal 1: Mở tài khoản 3 bước
     @FXML private VBox modalTaoTaiKhoan;
@@ -93,8 +91,7 @@ public class TellerAccountController {
     private final ObservableList<TaiKhoanRow> danhSachHienThi = FXCollections.observableArrayList();
     private final DecimalFormat dfTien = new DecimalFormat("#,### VNĐ");
 
-    private final TaiKhoanDAO taiKhoanDAO = new TaiKhoanDAOImpl();
-    private final KhachHangDAO khachHangDAO = new KhachHangDAOImpl();
+    private final TellerAccountService tellerAccountService = new TellerAccountServiceImpl();
 
     // Biến lưu tạm khi thực hiện wizard 3 bước
     private String currentMaKhachHang = "";
@@ -105,26 +102,28 @@ public class TellerAccountController {
     public void initialize() {
         khoiTaoBoLoc();
         cauHinhBangTaiKhoan();
+        tblTaiKhoan.getSelectionModel().selectedItemProperty().addListener((obs, oldRow, row) -> {
+            boolean chuaChon = row == null;
+            btnXemChiTiet.setDisable(chuaChon);
+            btnDoiTrangThai.setDisable(chuaChon);
+            btnGanHanMuc.setDisable(chuaChon);
+        });
         taiDuLieuTaiKhoan();
         khoiTaoDuLieuWizard();
     }
 
     private void khoiTaoBoLoc() {
         if (cboLocTrangThai != null) {
-            cboLocTrangThai.getItems().setAll("Tất cả trạng thái", "Hoạt động", "Tạm khóa", "Đã khóa", "Chờ kích hoạt");
+            cboLocTrangThai.getItems().setAll("Tất cả trạng thái", "Hoạt động", "Bị khóa", "Đóng");
             cboLocTrangThai.getSelectionModel().selectFirst();
         }
 
         ObservableList<String> listCN = FXCollections.observableArrayList();
         listCN.add("Tất cả chi nhánh");
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT TenChiNhanh FROM ChiNhanh")) {
-            while (rs.next()) {
-                listCN.add(rs.getString("TenChiNhanh"));
-            }
-        } catch (Exception e) {
-            listCN.addAll("Hội sở chính", "Chi nhánh Ba Đình", "Chi nhánh Quận 1", "Chi nhánh Đà Nẵng");
+        try {
+            for (ChiNhanh branch : tellerAccountService.layDanhSachChiNhanh()) listCN.add(branch.getTenChiNhanh());
+        } catch (RuntimeException e) {
+            hienCanhBao("Lỗi tải danh sách chi nhánh: " + e.getMessage());
         }
 
         if (cboLocChiNhanh != null) {
@@ -140,41 +139,27 @@ public class TellerAccountController {
         }
 
         ObservableList<String> listCN = FXCollections.observableArrayList();
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT MaChiNhanh, TenChiNhanh FROM ChiNhanh")) {
-            while (rs.next()) {
-                listCN.add(rs.getString("MaChiNhanh") + " - " + rs.getString("TenChiNhanh"));
-            }
-        } catch (Exception e) {
-            listCN.addAll("CN01 - Trụ sở chính", "CN02 - Chi nhánh Ba Đình", "CN03 - Chi nhánh Quận 1");
-        }
+        try {
+            for (ChiNhanh branch : tellerAccountService.layDanhSachChiNhanh())
+                listCN.add(branch.getMaChiNhanh() + " - " + branch.getTenChiNhanh());
+        } catch (RuntimeException e) { hienCanhBao("Lỗi tải chi nhánh mở tài khoản: " + e.getMessage()); }
         if (cboStep3ChiNhanh != null) {
             cboStep3ChiNhanh.setItems(listCN);
             cboStep3ChiNhanh.getSelectionModel().selectFirst();
         }
 
         ObservableList<String> listHM = FXCollections.observableArrayList();
-        listHM.add("Mặc định - 50.000.000 VNĐ/ngày");
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT MaHanMuc, TenHanMuc, HanMucNgay FROM [HanMucGiaoDịch]")) {
-            while (rs.next()) {
-                String ma = rs.getString("MaHanMuc");
-                String ten = rs.getString("TenHanMuc");
-                BigDecimal tien = rs.getBigDecimal("HanMucNgay");
-                listHM.add(ma + " - " + ten + " (" + dfTien.format(tien) + "/ngày)");
-            }
-        } catch (Exception e) {
-            listHM.addAll("HM01 - Tiêu chuẩn (50,000,000 VNĐ)", "HM02 - VIP (200,000,000 VNĐ)", "HM03 - Doanh nghiệp (1,000,000,000 VNĐ)");
-        }
+        try {
+            for (HanMucGiaoDich limit : tellerAccountService.layDanhSachHanMuc())
+                listHM.add(limit.getMaHanMuc() + " - " + limit.getTenHanMuc() + " (" + dfTien.format(limit.getHanMucNgay()) + "/ngày)");
+        } catch (RuntimeException e) { hienCanhBao("Lỗi tải hạn mức giao dịch: " + e.getMessage()); }
         if (cboStep3HanMuc != null) {
             cboStep3HanMuc.setItems(listHM);
             cboStep3HanMuc.getSelectionModel().selectFirst();
         }
 
         if (cboModalTrangThaiMoi != null) {
-            cboModalTrangThaiMoi.getItems().setAll("Hoạt động", "Tạm khóa", "Đã khóa");
+            cboModalTrangThaiMoi.getItems().setAll("Hoạt động", "Bị khóa", "Đóng");
             cboModalTrangThaiMoi.getSelectionModel().selectFirst();
         }
 
@@ -226,101 +211,33 @@ public class TellerAccountController {
             }
         });
 
-        // Cột Thao tác: [Xem chi tiết], [Đổi trạng thái], [Gán hạn mức]
-        colThaoTac.setCellFactory(param -> new TableCell<>() {
-            private final Button btnChiTiet = new Button("Xem");
-            private final Button btnTrangThai = new Button("Đổi TT");
-            private final Button btnHanMuc = new Button("Gán HM");
-            private final HBox box = new HBox(6, btnChiTiet, btnTrangThai, btnHanMuc);
-
-            {
-                box.setAlignment(Pos.CENTER);
-                btnChiTiet.setStyle("-fx-background-color: #ECEBFA; -fx-text-fill: #5148C9; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-size: 11px; -fx-padding: 4 8;");
-                btnTrangThai.setStyle("-fx-background-color: #FEF3C7; -fx-text-fill: #D97706; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-size: 11px; -fx-padding: 4 8;");
-                btnHanMuc.setStyle("-fx-background-color: #E8F8F0; -fx-text-fill: #10B981; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-size: 11px; -fx-padding: 4 8;");
-
-                btnChiTiet.setOnAction(e -> {
-                    TaiKhoanRow row = getTableView().getItems().get(getIndex());
-                    moModalChiTiet(row);
-                });
-
-                btnTrangThai.setOnAction(e -> {
-                    TaiKhoanRow row = getTableView().getItems().get(getIndex());
-                    moModalDoiTrangThai(row);
-                });
-
-                btnHanMuc.setOnAction(e -> {
-                    TaiKhoanRow row = getTableView().getItems().get(getIndex());
-                    moModalGanHanMuc(row);
-                });
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) setGraphic(null);
-                else setGraphic(box);
-            }
-        });
-
         tblTaiKhoan.setItems(danhSachHienThi);
     }
 
     private void taiDuLieuTaiKhoan() {
         danhSachTaiKhoan.clear();
-
-        String sql = "SELECT tk.MaTaiKhoan, tk.SoTaiKhoan, tk.SoDu, tk.TrangThai, " +
-                     "kh.HoTen, kh.SoCCCD, kh.SoDienThoai, kh.Email, kh.DiaChi, " +
-                     "ISNULL(cn.TenChiNhanh, N'Hội sở SMART BANK') AS TenChiNhanh, " +
-                     "ISNULL(hm.TenHanMuc, N'Tiêu chuẩn') AS TenHanMuc, " +
-                     "ISNULL(nh.TenNganHang, N'SMART BANK') AS TenNganHang " +
-                     "FROM TaiKhoanNganHang tk " +
-                     "JOIN KhachHang kh ON tk.MaKhachHang = kh.MaKhachHang " +
-                     "LEFT JOIN ChiNhanh cn ON tk.MaChiNhanh = cn.MaChiNhanh " +
-                     "LEFT JOIN [HanMucGiaoDịch] hm ON tk.MaHanMuc = hm.MaHanMuc " +
-                     "LEFT JOIN NganHang nh ON tk.MaNganHang = nh.MaNganHang " +
-                     "ORDER BY tk.MaTaiKhoan DESC";
-
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                TaiKhoanRow r = new TaiKhoanRow();
-                r.setMaTaiKhoan(rs.getString("MaTaiKhoan"));
-                r.setSoTaiKhoan(rs.getString("SoTaiKhoan"));
-                r.setSoDu(rs.getBigDecimal("SoDu"));
-                r.setTrangThai(rs.getString("TrangThai"));
-                r.setTenKhachHang(rs.getString("HoTen"));
-                r.setSoCCCD(rs.getString("SoCCCD"));
-                r.setSoDienThoai(rs.getString("SoDienThoai"));
-                r.setEmail(rs.getString("Email"));
-                r.setDiaChi(rs.getString("DiaChi"));
-                r.setTenChiNhanh(rs.getString("TenChiNhanh"));
-                r.setTenHanMuc(rs.getString("TenHanMuc"));
-                r.setTenNganHang(rs.getString("TenNganHang"));
-
-                danhSachTaiKhoan.add(r);
+        try {
+            for (TellerAccountInfo account : tellerAccountService.layDanhSachTaiKhoan()) {
+                TaiKhoanRow row = new TaiKhoanRow();
+                row.setMaTaiKhoan(account.getMaTaiKhoan());
+                row.setSoTaiKhoan(account.getSoTaiKhoan());
+                row.setTenKhachHang(account.getTenKhachHang());
+                row.setSoCCCD(account.getSoCCCD());
+                row.setSoDienThoai(account.getSoDienThoai());
+                row.setEmail(account.getEmail());
+                row.setDiaChi(account.getDiaChi());
+                row.setSoDu(account.getSoDu());
+                row.setTenNganHang(account.getTenNganHang());
+                row.setTenChiNhanh(account.getTenChiNhanh());
+                row.setTenHanMuc(account.getTenHanMuc());
+                row.setTrangThai(account.getTrangThai());
+                danhSachTaiKhoan.add(row);
             }
-
-        } catch (Exception e) {
-            System.err.println("Lỗi nạp danh sách tài khoản: " + e.getMessage());
-            themDuLieuMauNeuTrong();
-        }
-
-        if (danhSachTaiKhoan.isEmpty()) {
-            themDuLieuMauNeuTrong();
+        } catch (RuntimeException e) {
+            hienCanhBao("Lỗi tải danh sách tài khoản: " + e.getMessage());
         }
 
         onTimKiem();
-    }
-
-    private void themDuLieuMauNeuTrong() {
-        TaiKhoanRow r1 = new TaiKhoanRow("TK001", "1000000001", "Nguyễn Văn An", "001200001234", new BigDecimal("45000000"), "SMART BANK", "Hội sở chính", "Tiêu chuẩn (50tr)", "Hoạt động");
-        TaiKhoanRow r2 = new TaiKhoanRow("TK002", "1000000002", "Trần Thị Bích", "001200005678", new BigDecimal("125000000"), "SMART BANK", "Chi nhánh Ba Đình", "VIP (200tr)", "Hoạt động");
-        TaiKhoanRow r3 = new TaiKhoanRow("TK003", "1000000003", "Lê Hoàng Long", "079200009999", new BigDecimal("1500000"), "SMART BANK", "Chi nhánh Quận 1", "Tiêu chuẩn (50tr)", "Tạm khóa");
-        TaiKhoanRow r4 = new TaiKhoanRow("TK004", "1000000004", "Công ty TNHH Ánh Dương", "001099887766", new BigDecimal("850000000"), "SMART BANK", "Hội sở chính", "Doanh nghiệp (1 tỷ)", "Hoạt động");
-        danhSachTaiKhoan.addAll(r1, r2, r3, r4);
     }
 
     @FXML
@@ -399,7 +316,13 @@ public class TellerAccountController {
             return;
         }
 
-        Optional<KhachHang> khOpt = khachHangDAO.findByCCCD(cccd);
+        Optional<KhachHang> khOpt;
+        try {
+            khOpt = tellerAccountService.timKhachHangTheoCCCD(cccd);
+        } catch (RuntimeException e) {
+            hienCanhBao("Không thể tra cứu CCCD: " + e.getMessage());
+            return;
+        }
 
         if (khOpt.isPresent()) {
             KhachHang kh = khOpt.get();
@@ -447,30 +370,15 @@ public class TellerAccountController {
             return;
         }
 
-        String maKH = khachHangDAO.taoMaKhachHang();
+        String maKH;
+        try {
+            maKH = tellerAccountService.taoHoSoKhachHang(tenDN, matKhau, hoTen, cccd, sdt, email, diaChi);
+        } catch (RuntimeException e) {
+            hienCanhBao("Không thể tạo hồ sơ khách hàng: " + e.getMessage());
+            return;
+        }
         currentMaKhachHang = maKH;
         currentHoTen = hoTen;
-
-        try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false);
-
-            // 1. Tạo tài khoản đăng nhập với RoleName = 'Khách hàng'
-            String sqlLogin = "INSERT INTO TaiKhoanDangNhap_VaiTro (TenDangNhap, MatKhau, RoleName, MaNguoiDung) VALUES (?, ?, N'Khách hàng', ?)";
-            try (PreparedStatement ps1 = conn.prepareStatement(sqlLogin)) {
-                ps1.setString(1, tenDN);
-                ps1.setString(2, matKhau);
-                ps1.setString(3, maKH);
-                ps1.executeUpdate();
-            }
-
-            // 2. Tạo hồ sơ KhachHang
-            KhachHang kh = new KhachHang(maKH, hoTen, cccd, sdt, diaChi, email, tenDN);
-            khachHangDAO.insert(kh);
-
-            conn.commit();
-        } catch (Exception e) {
-            System.err.println("Lỗi lưu hồ sơ khách hàng mới: " + e.getMessage());
-        }
 
         Alert info = new Alert(Alert.AlertType.INFORMATION);
         info.setTitle("Tạo hồ sơ thành công");
@@ -498,12 +406,26 @@ public class TellerAccountController {
             return;
         }
 
-        String maTK = taiKhoanDAO.taoMaTaiKhoan();
         String chiNhanhStr = cboStep3ChiNhanh.getValue();
-        String maCN = chiNhanhStr != null && chiNhanhStr.contains(" - ") ? chiNhanhStr.split(" - ")[0] : "CN01";
-
+        if (chiNhanhStr == null || !chiNhanhStr.contains(" - ")) {
+            hienCanhBao("Vui lòng chọn chi nhánh hợp lệ.");
+            return;
+        }
         String hanMucStr = cboStep3HanMuc.getValue();
-        String maHM = hanMucStr != null && hanMucStr.contains(" - ") ? hanMucStr.split(" - ")[0] : "HM01";
+        if (hanMucStr == null || !hanMucStr.contains(" - ")) {
+            hienCanhBao("Vui lòng chọn hạn mức giao dịch.");
+            return;
+        }
+
+        String maTK;
+        try {
+            maTK = tellerAccountService.taoMaTaiKhoan();
+        } catch (RuntimeException e) {
+            hienCanhBao("Không thể tạo mã tài khoản: " + e.getMessage());
+            return;
+        }
+        String maCN = chiNhanhStr.split(" - ", 2)[0];
+        String maHM = hanMucStr.split(" - ", 2)[0];
 
         TaiKhoanNganHang tk = new TaiKhoanNganHang();
         tk.setMaTaiKhoan(maTK);
@@ -513,9 +435,15 @@ public class TellerAccountController {
         tk.setTrangThai("Hoạt động");
         tk.setMaChiNhanh(maCN);
         tk.setMaHanMuc(maHM);
-        tk.setMaNganHang("NH01");
+        tk.setMaNganHang("SMART");
 
-        boolean thanhCong = taiKhoanDAO.themTaiKhoan(tk);
+        boolean thanhCong;
+        try {
+            thanhCong = tellerAccountService.moTaiKhoan(tk);
+        } catch (RuntimeException e) {
+            hienCanhBao("Không thể mở tài khoản: " + e.getMessage());
+            return;
+        }
 
         anModal(modalTaoTaiKhoan);
 
@@ -563,6 +491,27 @@ public class TellerAccountController {
         hienModal(modalChiTietTK);
     }
 
+    private TaiKhoanRow layDongDangChon() {
+        TaiKhoanRow row = tblTaiKhoan.getSelectionModel().getSelectedItem();
+        if (row == null) hienCanhBao("Vui lòng chọn một tài khoản trong bảng trước.");
+        return row;
+    }
+
+    @FXML public void onXemChiTietDongDaChon() {
+        TaiKhoanRow row = layDongDangChon();
+        if (row != null) moModalChiTiet(row);
+    }
+
+    @FXML public void onDoiTrangThaiDongDaChon() {
+        TaiKhoanRow row = layDongDangChon();
+        if (row != null) moModalDoiTrangThai(row);
+    }
+
+    @FXML public void onGanHanMucDongDaChon() {
+        TaiKhoanRow row = layDongDangChon();
+        if (row != null) moModalGanHanMuc(row);
+    }
+
     @FXML
     public void onDongModalChiTiet() {
         anModal(modalChiTietTK);
@@ -573,7 +522,7 @@ public class TellerAccountController {
         lblModalStatusSoTK.setText(row.getSoTaiKhoan());
         lblModalStatusTenKH.setText(row.getTenKhachHang());
         lblModalStatusHienTai.setText(row.getTrangThai());
-        cboModalTrangThaiMoi.setValue("Hoạt động".equalsIgnoreCase(row.getTrangThai()) ? "Tạm khóa" : "Hoạt động");
+        cboModalTrangThaiMoi.setValue("Hoạt động".equalsIgnoreCase(row.getTrangThai()) ? "Bị khóa" : "Hoạt động");
         txtModalLyDoDoiTrangThai.clear();
         hienModal(modalDoiTrangThai);
     }
@@ -587,15 +536,20 @@ public class TellerAccountController {
     public void onLuuDoiTrangThai() {
         if (currentSelectedTK == null) return;
         String trangThaiMoi = cboModalTrangThaiMoi.getValue();
-        taiKhoanDAO.capNhatTrangThai(currentSelectedTK.getMaTaiKhoan(), trangThaiMoi);
-        currentSelectedTK.setTrangThai(trangThaiMoi);
+        try {
+            tellerAccountService.doiTrangThai(currentSelectedTK.getMaTaiKhoan(), trangThaiMoi);
+        } catch (RuntimeException e) {
+            hienCanhBao("Không thể cập nhật trạng thái: " + e.getMessage());
+            return;
+        }
+        String soTaiKhoan = currentSelectedTK.getSoTaiKhoan();
         anModal(modalDoiTrangThai);
-        tblTaiKhoan.refresh();
+        taiDuLieuTaiKhoan();
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Cập nhật thành công");
         alert.setHeaderText(null);
-        alert.setContentText("Tài khoản [" + currentSelectedTK.getSoTaiKhoan() + "] đã được đổi trạng thái thành: " + trangThaiMoi);
+        alert.setContentText("Tài khoản [" + soTaiKhoan + "] đã được đổi trạng thái thành: " + trangThaiMoi);
         alert.showAndWait();
     }
 
@@ -616,17 +570,25 @@ public class TellerAccountController {
     public void onLuuGanHanMuc() {
         if (currentSelectedTK == null) return;
         String hmStr = cboModalHanMucMoi.getValue();
-        String maHM = hmStr != null && hmStr.contains(" - ") ? hmStr.split(" - ")[0] : "HM01";
-
-        taiKhoanDAO.ganHanMuc(currentSelectedTK.getMaTaiKhoan(), maHM);
-        currentSelectedTK.setTenHanMuc(hmStr);
+        if (hmStr == null || !hmStr.contains(" - ")) {
+            hienCanhBao("Vui lòng chọn hạn mức hợp lệ.");
+            return;
+        }
+        String maHM = hmStr.split(" - ", 2)[0];
+        try {
+            tellerAccountService.ganHanMuc(currentSelectedTK.getMaTaiKhoan(), maHM);
+        } catch (RuntimeException e) {
+            hienCanhBao("Không thể cập nhật hạn mức: " + e.getMessage());
+            return;
+        }
+        String soTaiKhoan = currentSelectedTK.getSoTaiKhoan();
         anModal(modalGanHanMuc);
-        tblTaiKhoan.refresh();
+        taiDuLieuTaiKhoan();
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Cập nhật thành công");
         alert.setHeaderText(null);
-        alert.setContentText("Đã cập nhật hạn mức mới cho tài khoản [" + currentSelectedTK.getSoTaiKhoan() + "]!");
+        alert.setContentText("Đã cập nhật hạn mức mới cho tài khoản [" + soTaiKhoan + "]!");
         alert.showAndWait();
     }
 

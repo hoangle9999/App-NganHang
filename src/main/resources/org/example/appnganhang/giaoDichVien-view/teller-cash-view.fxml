@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -17,7 +16,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane prefHeight="760.0" prefWidth="1280.0" style="-fx-background-color: #F7F8FC;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.appnganhang.controller.giaodichvien.TellerCashController">
+<StackPane prefHeight="760.0" prefWidth="1280.0" style="-fx-background-color: #F7F8FC;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.appnganhang.controller.giaodichvien.TellerCashController">
     <children>
         <!-- LỚP NỀN GIAO DIỆN CHÍNH -->
         <BorderPane>
@@ -112,7 +111,7 @@
                                         </Button>
 
                                         <!-- Tab Thanh toán (TT01) -->
-                                        <Button fx:id="btnTabThanhToan" onAction="#onChonTabThanhToan" prefHeight="44.0" style="-fx-background-color: #F1F2F6; -fx-background-radius: 12; -fx-text-fill: #4B5563; -fx-font-weight: bold; -fx-font-size: 13px; -fx-cursor: hand; -fx-padding: 8 20;" text="🧾  Thanh toán hóa đơn / DV (TT01)" HBox.hgrow="ALWAYS">
+                                        <Button fx:id="btnTabThanhToan" onAction="#onChonTabThanhToan" prefHeight="44.0" style="-fx-background-color: #F1F2F6; -fx-background-radius: 12; -fx-text-fill: #4B5563; -fx-font-weight: bold; -fx-font-size: 13px; -fx-cursor: hand; -fx-padding: 8 20;" text="💵  Thanh toán hóa đơn / DV (TT01)" HBox.hgrow="ALWAYS">
                                             <cursor><Cursor fx:constant="HAND" /></cursor>
                                         </Button>
                                     </children>
@@ -224,7 +223,7 @@
                                                 </VBox>
 
                                                 <!-- THÔNG BÁO KIỂM TRA ĐIỀU KIỆN RÚT TIỀN (ẨN / HIỆN THEO TAB) -->
-                                                <Label fx:id="lblCanhBaoRutTien" style="-fx-background-color: #FDECEC; -fx-background-radius: 10; -fx-padding: 8 12; -fx-text-fill: #D9534F; -fx-font-size: 12px; -fx-font-weight: bold;" text="⚠ Số dư tài khoản không đủ để thực hiện rút tiền!" visible="false" managed="false" />
+                                                <Label fx:id="lblCanhBaoRutTien" managed="false" style="-fx-background-color: #FDECEC; -fx-background-radius: 10; -fx-padding: 8 12; -fx-text-fill: #D9534F; -fx-font-size: 12px; -fx-font-weight: bold;" text="⚠ Số dư tài khoản không đủ để thực hiện rút tiền!" visible="false" />
 
                                                 <Region VBox.vgrow="ALWAYS" />
 

@@ -181,8 +181,6 @@
                                                 <TableColumn fx:id="colSoDienThoaiNV" prefWidth="125" text="Số điện thoại" />
                                                 <TableColumn fx:id="colChucVuNV" prefWidth="130" text="Chức vụ" />
                                                 <TableColumn fx:id="colChiNhanhNV" prefWidth="160" text="Chi nhánh" />
-                                                <TableColumn fx:id="colTaiKhoanLienKet" prefWidth="180" text="Tài khoản liên kết" />
-                                                <TableColumn fx:id="colThaoTacNV" prefWidth="250" text="Thao tác" />
                                             </columns>
                                             <columnResizePolicy>
                                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -192,11 +190,6 @@
                                         <!-- Row Actions Bar -->
                                         <HBox alignment="CENTER_RIGHT" spacing="10">
                                             <Label style="-fx-font-size: 12px; -fx-text-fill: #85879A;" text="Thao tác nhân viên đã chọn:" />
-                                            <Button onAction="#onMoPopupLienKetTK" prefHeight="35" prefWidth="160" style="-fx-background-color: #ECEBFA; -fx-background-radius: 10; -fx-text-fill: #5148C9; -fx-font-weight: bold; -fx-cursor: hand;" text="Cấp/Liên kết tài khoản">
-                                                <cursor>
-                                                    <Cursor fx:constant="HAND" />
-                                                </cursor>
-                                            </Button>
                                             <Button onAction="#onMoPopupSuaNV" prefHeight="35" prefWidth="110" style="-fx-background-color: #F1F2F6; -fx-background-radius: 10; -fx-text-fill: #171A35; -fx-font-weight: bold; -fx-cursor: hand;" text="Chỉnh sửa">
                                                 <cursor>
                                                     <Cursor fx:constant="HAND" />
@@ -272,7 +265,6 @@
                                                 <TableColumn fx:id="colMaCN" prefWidth="150" text="Mã chi nhánh" />
                                                 <TableColumn fx:id="colTenCN" prefWidth="280" text="Tên chi nhánh" />
                                                 <TableColumn fx:id="colDiaChiCN" prefWidth="420" text="Địa chỉ" />
-                                                <TableColumn fx:id="colThaoTacCN" prefWidth="200" text="Thao tác" />
                                             </columns>
                                             <columnResizePolicy>
                                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -316,16 +308,10 @@
             <Label style="-fx-font-size: 19px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="Thêm nhân viên mới" />
             <Label style="-fx-font-size: 12px; -fx-text-fill: #85879A;" text="Nhập các trường thông tin nhân viên ngân hàng" />
 
-            <HBox spacing="12">
-                <VBox alignment="CENTER_LEFT" spacing="5" HBox.hgrow="ALWAYS">
-                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Mã nhân viên" />
-                    <TextField fx:id="txtModalThemMaNV" prefHeight="40" promptText="vd: NV009" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13; -fx-padding: 10 15;" />
-                </VBox>
-                <VBox alignment="CENTER_LEFT" spacing="5" HBox.hgrow="ALWAYS">
-                    <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Họ tên nhân viên" />
-                    <TextField fx:id="txtModalThemHoTenNV" prefHeight="40" promptText="vd: Nguyễn Văn A" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13; -fx-padding: 10 15;" />
-                </VBox>
-            </HBox>
+            <VBox alignment="CENTER_LEFT" spacing="5">
+                <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Họ tên nhân viên" />
+                <TextField fx:id="txtModalThemHoTenNV" prefHeight="40" promptText="vd: Nguyễn Văn A" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13; -fx-padding: 10 15;" />
+            </VBox>
 
             <HBox spacing="12">
                 <VBox alignment="CENTER_LEFT" spacing="5" HBox.hgrow="ALWAYS">
@@ -334,7 +320,7 @@
                 </VBox>
                 <VBox alignment="CENTER_LEFT" spacing="5" HBox.hgrow="ALWAYS">
                     <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Chức vụ" />
-                    <TextField fx:id="txtModalThemChucVuNV" prefHeight="40" promptText="vd: Giao dịch viên, CSKH..." style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13; -fx-padding: 10 15;" />
+                    <ComboBox fx:id="cboModalThemChucVuNV" maxWidth="Infinity" prefHeight="40" promptText="Chọn chức vụ" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13; -fx-padding: 5 10;" />
                 </VBox>
             </HBox>
 
@@ -444,7 +430,7 @@
             <HBox spacing="12">
                 <VBox alignment="CENTER_LEFT" spacing="5" HBox.hgrow="ALWAYS">
                     <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Chức vụ" />
-                    <TextField fx:id="txtModalSuaChucVuNV" prefHeight="40" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13; -fx-padding: 10 15;" />
+                    <ComboBox fx:id="cboModalSuaChucVuNV" maxWidth="Infinity" prefHeight="40" promptText="Chọn chức vụ" style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13; -fx-padding: 5 10;" />
                 </VBox>
                 <VBox alignment="CENTER_LEFT" spacing="5" HBox.hgrow="ALWAYS">
                     <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Chi nhánh" />
@@ -518,9 +504,9 @@
             <Label fx:id="lblModalCNTitle" style="-fx-font-size: 19px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="Thêm chi nhánh mới" />
             <Label style="-fx-font-size: 12px; -fx-text-fill: #85879A;" text="Nhập các thông tin chi nhánh hoạt động của ngân hàng" />
 
-            <VBox alignment="CENTER_LEFT" spacing="5">
+            <VBox fx:id="boxModalMaCN" alignment="CENTER_LEFT" managed="false" spacing="5" visible="false">
                 <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4B5563;" text="Mã chi nhánh" />
-                <TextField fx:id="txtModalMaCN" prefHeight="40" promptText="vd: CN001, CN_HCM..." style="-fx-background-color: white; -fx-background-radius: 13; -fx-border-color: #E0E1E8; -fx-border-radius: 13; -fx-padding: 10 15;" />
+                <Label fx:id="lblModalMaCN" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="" />
             </VBox>
 
             <VBox alignment="CENTER_LEFT" spacing="5">

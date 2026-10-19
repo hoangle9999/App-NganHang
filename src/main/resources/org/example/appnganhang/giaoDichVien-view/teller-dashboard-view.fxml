@@ -31,8 +31,8 @@
                         <VBox spacing="4.0" style="-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 12; -fx-padding: 12 15;">
                             <children>
                                 <Label style="-fx-font-size: 11px; -fx-text-fill: #BDBDD2;" text="Xin chào Giao dịch viên" />
-                                <Label fx:id="lblTellerName" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;" text="Nguyễn Văn A" />
-                                <Label fx:id="lblTellerBranch" style="-fx-font-size: 11px; -fx-text-fill: #93C5FD;" text="Quầy số 01 - Trụ sở chính" />
+                                <Label fx:id="lblTellerName" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;" text="Đang tải..." />
+                                <Label fx:id="lblTellerBranch" style="-fx-font-size: 11px; -fx-text-fill: #93C5FD;" text="Đang tải..." />
                             </children>
                         </VBox>
 
@@ -197,7 +197,7 @@
                                             </rowConstraints>
                                             <children>
                                                 <!-- Action 1: Chuyển tiền -->
-                                                <VBox alignment="CENTER" onMouseClicked="#onChuyenTien" spacing="8.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14; -fx-padding: 16 12; -fx-cursor: hand;" GridPane.columnIndex="0">
+                                                <VBox alignment="CENTER" onMouseClicked="#onChuyenTienTile" spacing="8.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14; -fx-padding: 16 12; -fx-cursor: hand;" GridPane.columnIndex="0">
                                                     <children>
                                                         <Label style="-fx-font-size: 28px;" text="💸" />
                                                         <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="Chuyển tiền quầy" />
@@ -206,7 +206,7 @@
                                                 </VBox>
 
                                                 <!-- Action 2: Nạp / Rút / TT -->
-                                                <VBox alignment="CENTER" onMouseClicked="#onNapRutThanhToan" spacing="8.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14; -fx-padding: 16 12; -fx-cursor: hand;" GridPane.columnIndex="1">
+                                                <VBox alignment="CENTER" onMouseClicked="#onNapRutThanhToanTile" spacing="8.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14; -fx-padding: 16 12; -fx-cursor: hand;" GridPane.columnIndex="1">
                                                     <children>
                                                         <Label style="-fx-font-size: 28px;" text="💳" />
                                                         <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="Nạp / Rút / TT" />
@@ -215,7 +215,7 @@
                                                 </VBox>
 
                                                 <!-- Action 3: Quản lý tài khoản & Mở mới -->
-                                                <VBox alignment="CENTER" onMouseClicked="#onQuanLyTaiKhoan" spacing="8.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14; -fx-padding: 16 12; -fx-cursor: hand;" GridPane.columnIndex="2">
+                                                <VBox alignment="CENTER" onMouseClicked="#onQuanLyTaiKhoanTile" spacing="8.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14; -fx-padding: 16 12; -fx-cursor: hand;" GridPane.columnIndex="2">
                                                     <children>
                                                         <Label style="-fx-font-size: 28px;" text="✨" />
                                                         <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="Mở tài khoản mới" />
@@ -224,7 +224,7 @@
                                                 </VBox>
 
                                                 <!-- Action 4: In sao kê -->
-                                                <VBox alignment="CENTER" onMouseClicked="#onTraCuuSaoKe" spacing="8.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14; -fx-padding: 16 12; -fx-cursor: hand;" GridPane.columnIndex="3">
+                                                <VBox alignment="CENTER" onMouseClicked="#onTraCuuSaoKeTile" spacing="8.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14; -fx-padding: 16 12; -fx-cursor: hand;" GridPane.columnIndex="3">
                                                     <children>
                                                         <Label style="-fx-font-size: 28px;" text="📄" />
                                                         <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="In sao kê tài khoản" />
@@ -233,7 +233,7 @@
                                                 </VBox>
 
                                                 <!-- Action 5: Theo dõi trạng thái -->
-                                                <VBox alignment="CENTER" onMouseClicked="#onTheoDoiTrangThai" spacing="8.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14; -fx-padding: 16 12; -fx-cursor: hand;" GridPane.columnIndex="4">
+                                                <VBox alignment="CENTER" onMouseClicked="#onTheoDoiTrangThaiTile" spacing="8.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14; -fx-padding: 16 12; -fx-cursor: hand;" GridPane.columnIndex="4">
                                                     <children>
                                                         <Label style="-fx-font-size: 28px;" text="⏳" />
                                                         <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #171A35;" text="Giám sát &amp; Duyệt GD" />

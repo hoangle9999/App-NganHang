@@ -6,19 +6,20 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import org.example.appnganhang.model.dao.Impl.ChuyenTienDAOImpl;
-import org.example.appnganhang.model.dao.intf.ChuyenTienDAO;
-import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
-import org.example.appnganhang.model.util.DBConnection;
+import org.example.appnganhang.controller.service.Iml.TellerTransferServiceImpl;
+import org.example.appnganhang.controller.service.intf.TellerTransferService;
+import org.example.appnganhang.model.entity.LoaiGiaoDich;
+import org.example.appnganhang.model.entity.NganHang;
+import org.example.appnganhang.model.entity.TellerTransferRecipientInfo;
+import org.example.appnganhang.model.entity.TellerTransferResult;
+import org.example.appnganhang.model.entity.TellerTransferSourceInfo;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.example.appnganhang.controller.util.Navigation.moView;
 
@@ -93,13 +94,17 @@ public class TellerTransferController {
     private String trangThaiTKnguon = "";
     private String trangThaiTKdich = "";
     private String trangThaiNHdich = "Hoạt động";
+    private boolean taiKhoanDichNoiBo;
+    private String tenNguoiNhanDich;
     private String maTaiKhoanNguonDB = "";
     private String maTaiKhoanDichDB = "";
     private String lastGeneratedMaGD = "";
+    private boolean dangDinhDangSoTien;
 
     private final DecimalFormat dfTien = new DecimalFormat("#,### VNĐ");
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-    private final ChuyenTienDAO chuyenTienDAO = new ChuyenTienDAOImpl();
+    private final TellerTransferService tellerTransferService = new TellerTransferServiceImpl();
+    private final Map<String, String> maNganHangTheoTen = new HashMap<>();
 
     @FXML
     public void initialize() {
@@ -108,6 +113,7 @@ public class TellerTransferController {
 
         // Tự động chuyển đổi số tiền thành chữ
         txtSoTien.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!dangDinhDangSoTien) dinhDangSoTien(newVal);
             capNhatTienBangChu();
             // Reset trạng thái kiểm tra điều kiện khi sửa số tiền
             btnXacNhanChuyenTien.setDisable(true);
@@ -117,77 +123,94 @@ public class TellerTransferController {
         txtSoTaiKhoanDich.textProperty().addListener((obs, oldVal, newVal) -> btnXacNhanChuyenTien.setDisable(true));
     }
 
-    private void khoiTaoDanhSachNganHang() {
-        if (cboNganHangNguon != null) {
-            cboNganHangNguon.getItems().setAll("SMART BANK - Ngân hàng Hệ thống");
-            cboNganHangNguon.getSelectionModel().selectFirst();
+    private void dinhDangSoTien(String giaTri) {
+        if (giaTri == null) return;
+        int viTriConTro = Math.min(txtSoTien.getCaretPosition(), giaTri.length());
+        int soChuSoTruocConTro = (int) giaTri.substring(0, viTriConTro).chars().filter(Character::isDigit).count();
+        String chuSo = giaTri.replaceAll("\\D", "");
+        StringBuilder dinhDang = new StringBuilder(chuSo.length() + chuSo.length() / 3);
+        for (int i = 0; i < chuSo.length(); i++) {
+            if (i > 0 && (chuSo.length() - i) % 3 == 0) dinhDang.append(',');
+            dinhDang.append(chuSo.charAt(i));
         }
+        String ketQua = dinhDang.toString();
+        if (!ketQua.equals(giaTri)) {
+            int viTriMoi = 0;
+            int daDem = 0;
+            while (viTriMoi < ketQua.length() && daDem < soChuSoTruocConTro) {
+                if (Character.isDigit(ketQua.charAt(viTriMoi))) daDem++;
+                viTriMoi++;
+            }
+            dangDinhDangSoTien = true;
+            txtSoTien.setText(ketQua);
+            txtSoTien.positionCaret(viTriMoi);
+            dangDinhDangSoTien = false;
+        }
+    }
 
-        ObservableList<String> listNganHangDich = FXCollections.observableArrayList();
-        listNganHangDich.add("SMART BANK - Nội bộ hệ thống");
-
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT MaNganHang, TenNganHang, TrangThai FROM NganHang")) {
-
-            while (rs.next()) {
-                String ten = rs.getString("TenNganHang");
-                String tt = rs.getString("TrangThai");
-                if ("Hoạt động".equalsIgnoreCase(tt) && !"SMART BANK".equalsIgnoreCase(ten)) {
-                    listNganHangDich.add(ten);
+    private void khoiTaoDanhSachNganHang() {
+        try {
+            ObservableList<String> listNganHangDich = FXCollections.observableArrayList();
+            for (NganHang bank : tellerTransferService.layDanhSachNganHangHoatDong()) {
+                if ("SMART".equalsIgnoreCase(bank.getMaNganHang())) {
+                    String noiBo = bank.getTenNganHang() + " - Nội bộ hệ thống";
+                    listNganHangDich.add(noiBo);
+                    maNganHangTheoTen.put(noiBo, bank.getMaNganHang());
+                    if (cboNganHangNguon != null) {
+                        String nguon = bank.getTenNganHang() + " - Ngân hàng Hệ thống";
+                        cboNganHangNguon.getItems().setAll(nguon);
+                        cboNganHangNguon.getSelectionModel().selectFirst();
+                    }
+                } else {
+                    listNganHangDich.add(bank.getTenNganHang());
+                    maNganHangTheoTen.put(bank.getTenNganHang(), bank.getMaNganHang());
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Lỗi nạp ngân hàng: " + e.getMessage());
-            listNganHangDich.addAll("Vietcombank", "BIDV", "Techcombank", "MB Bank", "VietinBank");
-        }
-
-        if (cboNganHangDich != null) {
-            cboNganHangDich.setItems(listNganHangDich);
-            cboNganHangDich.getSelectionModel().selectFirst();
+            if (cboNganHangDich != null) {
+                cboNganHangDich.setItems(listNganHangDich);
+                cboNganHangDich.getSelectionModel().selectFirst();
+            }
+            if (listNganHangDich.isEmpty()) hienCanhBao("Không có ngân hàng đang hoạt động.");
+        } catch (RuntimeException e) {
+            hienCanhBao("Lỗi tải danh sách ngân hàng: " + e.getMessage());
         }
     }
 
     private void khoiTaoDanhSachLoaiGD() {
         ObservableList<String> listLoaiGD = FXCollections.observableArrayList();
-        listLoaiGD.add("CK01 - Chuyển khoản trong & ngoài hệ thống");
-
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT MaLoaiGD, TenLoaiGD FROM LoaiGiaoDich")) {
-
-            while (rs.next()) {
-                String ma = rs.getString("MaLoaiGD");
-                String ten = rs.getString("TenLoaiGD");
-                String item = ma + " - " + ten;
-                if (!listLoaiGD.contains(item)) {
-                    listLoaiGD.add(item);
-                }
+        try {
+            for (LoaiGiaoDich loai : tellerTransferService.layDanhSachLoaiGiaoDich())
+                listLoaiGD.add(loai.getMaLoaiGD() + " - " + loai.getTenLoaiGD());
+            if (cboLoaiGiaoDich != null) {
+                cboLoaiGiaoDich.setItems(listLoaiGD);
+                cboLoaiGiaoDich.getSelectionModel().selectFirst();
             }
-        } catch (Exception e) {
-            System.err.println("Lỗi nạp loại GD: " + e.getMessage());
-        }
-
-        if (cboLoaiGiaoDich != null) {
-            cboLoaiGiaoDich.setItems(listLoaiGD);
-            cboLoaiGiaoDich.getSelectionModel().selectFirst();
+            if (listLoaiGD.isEmpty()) hienCanhBao("Chưa có loại giao dịch trong cơ sở dữ liệu.");
+        } catch (RuntimeException e) {
+            hienCanhBao("Lỗi tải danh sách loại giao dịch: " + e.getMessage());
         }
     }
 
     @FXML
     public void onChonNganHangDich() {
-        String nhChon = cboNganHangDich.getValue();
-        if (nhChon != null && nhChon.toLowerCase().contains("tạm ngừng")) {
-            lblThongBaoNganHangDich.setText("⚠ Ngân hàng đối tác tạm dừng kết nối");
-            lblThongBaoNganHangDich.setVisible(true);
-            lblThongBaoNganHangDich.setManaged(true);
-            trangThaiNHdich = "Tạm dừng";
-        } else {
+        trangThaiNHdich = maNganHangDichDangChon().isBlank() ? "Không tồn tại" : "Hoạt động";
+        if (lblThongBaoNganHangDich != null) {
             lblThongBaoNganHangDich.setVisible(false);
             lblThongBaoNganHangDich.setManaged(false);
-            trangThaiNHdich = "Hoạt động";
         }
+        taiKhoanDichNoiBo = "SMART".equalsIgnoreCase(maNganHangDichDangChon());
         btnXacNhanChuyenTien.setDisable(true);
+    }
+
+    private String maNganHangDichDangChon() {
+        return cboNganHangDich == null ? "" : maNganHangTheoTen.getOrDefault(cboNganHangDich.getValue(), "");
+    }
+
+    private String maLoaiGiaoDichDangChon() {
+        String value = cboLoaiGiaoDich == null ? null : cboLoaiGiaoDich.getValue();
+        if (value == null || value.isBlank()) return "";
+        int separator = value.indexOf(" - ");
+        return separator < 0 ? value.trim() : value.substring(0, separator).trim();
     }
 
     @FXML
@@ -197,67 +220,30 @@ public class TellerTransferController {
             hienCanhBao("Vui lòng nhập số tài khoản nguồn cần tra cứu!");
             return;
         }
-
-        String sql = "SELECT tk.MaTaiKhoan, tk.SoTaiKhoan, tk.SoDu, tk.TrangThai, kh.HoTen, " +
-                     "ISNULL(hm.HanMucNgay, 50000000) AS HanMucNgay " +
-                     "FROM TaiKhoanNganHang tk " +
-                     "JOIN KhachHang kh ON tk.MaKhachHang = kh.MaKhachHang " +
-                     "LEFT JOIN [HanMucGiaoDịch] hm ON tk.MaHanMuc = hm.MaHanMuc " +
-                     "WHERE tk.SoTaiKhoan = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, stk);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                maTaiKhoanNguonDB = rs.getString("MaTaiKhoan");
-                String hoTen = rs.getString("HoTen");
-                soDuHienTaiNguon = rs.getBigDecimal("SoDu");
-                trangThaiTKnguon = rs.getString("TrangThai");
-                BigDecimal hanMucNgay = rs.getBigDecimal("HanMucNgay");
-
-                lblTenChuNguon.setText(hoTen);
-                lblSoDuNguon.setText(dfTien.format(soDuHienTaiNguon));
-                lblTrangThaiNguon.setText(trangThaiTKnguon);
-
-                if ("Hoạt động".equalsIgnoreCase(trangThaiTKnguon)) {
-                    lblTrangThaiNguon.setStyle("-fx-background-color: #E8F8F0; -fx-background-radius: 8; -fx-padding: 3 8; -fx-text-fill: #10B981; -fx-font-weight: bold; -fx-font-size: 11px;");
-                } else {
-                    lblTrangThaiNguon.setStyle("-fx-background-color: #FDECEC; -fx-background-radius: 8; -fx-padding: 3 8; -fx-text-fill: #D9534F; -fx-font-weight: bold; -fx-font-size: 11px;");
-                }
-
-                // Tính hạn mức ngày còn lại
-                BigDecimal daDungHomNay = chuyenTienDAO.layTongTienGiaoDichTrongNgay(maTaiKhoanNguonDB);
-                if (daDungHomNay == null) daDungHomNay = BigDecimal.ZERO;
-                hanMucNgayConLai = hanMucNgay.subtract(daDungHomNay);
-                if (hanMucNgayConLai.compareTo(BigDecimal.ZERO) < 0) hanMucNgayConLai = BigDecimal.ZERO;
-
-                lblHanMucNguon.setText(dfTien.format(hanMucNgayConLai));
-
-            } else {
-                hienCanhBao("Không tìm thấy tài khoản nguồn có số: " + stk);
-                lblTenChuNguon.setText("Không tìm thấy");
-                lblSoDuNguon.setText("0 VNĐ");
-                lblTrangThaiNguon.setText("Không tồn tại");
-                lblTrangThaiNguon.setStyle("-fx-background-color: #FDECEC; -fx-text-fill: #D9534F; -fx-padding: 3 8; -fx-background-radius: 8;");
-                lblHanMucNguon.setText("0 VNĐ");
-                trangThaiTKnguon = "Không tồn tại";
-            }
-
-        } catch (Exception e) {
-            System.err.println("Lỗi tra cứu tài khoản nguồn: " + e.getMessage());
-            // Dữ liệu mẫu demo
-            lblTenChuNguon.setText("Nguyễn Văn Khách Hàng");
-            soDuHienTaiNguon = new BigDecimal("45000000");
+        try {
+            TellerTransferSourceInfo source = tellerTransferService.traCuuTaiKhoanNguon(stk)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản nguồn có số: " + stk));
+            maTaiKhoanNguonDB = source.getMaTaiKhoan();
+            soDuHienTaiNguon = source.getSoDu();
+            hanMucNgayConLai = source.getHanMucConLai();
+            trangThaiTKnguon = source.getTrangThai();
+            lblTenChuNguon.setText(source.getTenChuTaiKhoan());
             lblSoDuNguon.setText(dfTien.format(soDuHienTaiNguon));
-            trangThaiTKnguon = "Hoạt động";
             lblTrangThaiNguon.setText(trangThaiTKnguon);
-            lblTrangThaiNguon.setStyle("-fx-background-color: #E8F8F0; -fx-background-radius: 8; -fx-padding: 3 8; -fx-text-fill: #10B981; -fx-font-weight: bold; -fx-font-size: 11px;");
-            hanMucNgayConLai = new BigDecimal("50000000");
             lblHanMucNguon.setText(dfTien.format(hanMucNgayConLai));
-            maTaiKhoanNguonDB = stk;
+            lblTrangThaiNguon.setStyle("Hoạt động".equalsIgnoreCase(trangThaiTKnguon)
+                    ? "-fx-background-color: #E8F8F0; -fx-background-radius: 8; -fx-padding: 3 8; -fx-text-fill: #10B981; -fx-font-weight: bold; -fx-font-size: 11px;"
+                    : "-fx-background-color: #FDECEC; -fx-background-radius: 8; -fx-padding: 3 8; -fx-text-fill: #D9534F; -fx-font-weight: bold; -fx-font-size: 11px;");
+        } catch (RuntimeException e) {
+            hienCanhBao(e.getMessage());
+            maTaiKhoanNguonDB = "";
+            soDuHienTaiNguon = BigDecimal.ZERO;
+            hanMucNgayConLai = BigDecimal.ZERO;
+            trangThaiTKnguon = "Không tồn tại";
+            lblTenChuNguon.setText("Không tìm thấy");
+            lblSoDuNguon.setText("0 VNĐ");
+            lblTrangThaiNguon.setText(trangThaiTKnguon);
+            lblHanMucNguon.setText("0 VNĐ");
         }
 
         btnXacNhanChuyenTien.setDisable(true);
@@ -271,55 +257,30 @@ public class TellerTransferController {
             return;
         }
 
-        String sql = "SELECT tk.MaTaiKhoan, tk.SoTaiKhoan, tk.TrangThai, kh.HoTen " +
-                     "FROM TaiKhoanNganHang tk " +
-                     "JOIN KhachHang kh ON tk.MaKhachHang = kh.MaKhachHang " +
-                     "WHERE tk.SoTaiKhoan = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, stkDich);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                maTaiKhoanDichDB = rs.getString("MaTaiKhoan");
-                String hoTen = rs.getString("HoTen");
-                trangThaiTKdich = rs.getString("TrangThai");
-
-                lblTenChuDich.setText(hoTen);
-                lblTrangThaiDich.setText(trangThaiTKdich);
-
-                if ("Hoạt động".equalsIgnoreCase(trangThaiTKdich)) {
-                    lblTrangThaiDich.setStyle("-fx-background-color: #E8F8F0; -fx-background-radius: 8; -fx-padding: 3 8; -fx-text-fill: #10B981; -fx-font-weight: bold; -fx-font-size: 11px;");
-                } else {
-                    lblTrangThaiDich.setStyle("-fx-background-color: #FDECEC; -fx-background-radius: 8; -fx-padding: 3 8; -fx-text-fill: #D9534F; -fx-font-weight: bold; -fx-font-size: 11px;");
-                }
-
-            } else {
-                // Nếu là liên ngân hàng đối tác hoặc không có trong SMART BANK
-                String nhDich = cboNganHangDich.getValue();
-                if (nhDich != null && !nhDich.contains("Nội bộ")) {
-                    lblTenChuDich.setText("Khách hàng đối tác (" + nhDich + ")");
-                    lblTrangThaiDich.setText("Sẵn sàng nhận");
-                    lblTrangThaiDich.setStyle("-fx-background-color: #E8F8F0; -fx-background-radius: 8; -fx-padding: 3 8; -fx-text-fill: #10B981; -fx-font-weight: bold; -fx-font-size: 11px;");
-                    trangThaiTKdich = "Hoạt động";
-                    maTaiKhoanDichDB = stkDich;
-                } else {
-                    lblTenChuDich.setText("Không tìm thấy");
-                    lblTrangThaiDich.setText("Không tồn tại");
-                    lblTrangThaiDich.setStyle("-fx-background-color: #FDECEC; -fx-text-fill: #D9534F; -fx-padding: 3 8; -fx-background-radius: 8;");
-                    trangThaiTKdich = "Không tồn tại";
-                }
-            }
-
-        } catch (Exception e) {
-            System.err.println("Lỗi tra cứu tài khoản đích: " + e.getMessage());
-            lblTenChuDich.setText("Trần Thị Người Nhận");
-            trangThaiTKdich = "Hoạt động";
+        try {
+            String maNganHang = maNganHangDichDangChon();
+            if (maNganHang.isBlank()) throw new IllegalArgumentException("Ngân hàng đích chưa được chọn hoặc không còn hoạt động.");
+            TellerTransferRecipientInfo recipient = tellerTransferService.traCuuTaiKhoanDich(maNganHang, stkDich);
+            maTaiKhoanDichDB = recipient.getSoTaiKhoan();
+            tenNguoiNhanDich = recipient.getTenNguoiNhan();
+            taiKhoanDichNoiBo = recipient.isTaiKhoanNoiBo();
+            trangThaiTKdich = recipient.getTrangThaiTaiKhoan();
+            trangThaiNHdich = "Hoạt động";
+            lblTenChuDich.setText(tenNguoiNhanDich == null || tenNguoiNhanDich.isBlank()
+                    ? "Người nhận ngân hàng ngoài" : tenNguoiNhanDich);
+            lblTrangThaiDich.setText(taiKhoanDichNoiBo ? trangThaiTKdich : "Chưa xác minh tại ngân hàng ngoài");
+            lblTrangThaiDich.setStyle(taiKhoanDichNoiBo && !"Hoạt động".equalsIgnoreCase(trangThaiTKdich)
+                    ? "-fx-background-color: #FDECEC; -fx-text-fill: #D9534F; -fx-padding: 3 8; -fx-background-radius: 8;"
+                    : "-fx-background-color: #E8F8F0; -fx-background-radius: 8; -fx-padding: 3 8; -fx-text-fill: #10B981; -fx-font-weight: bold; -fx-font-size: 11px;");
+        } catch (RuntimeException e) {
+            hienCanhBao(e.getMessage());
+            maTaiKhoanDichDB = "";
+            tenNguoiNhanDich = null;
+            trangThaiTKdich = "Không tồn tại";
+            taiKhoanDichNoiBo = false;
+            lblTenChuDich.setText("Không tìm thấy");
             lblTrangThaiDich.setText(trangThaiTKdich);
-            lblTrangThaiDich.setStyle("-fx-background-color: #E8F8F0; -fx-background-radius: 8; -fx-padding: 3 8; -fx-text-fill: #10B981; -fx-font-weight: bold; -fx-font-size: 11px;");
-            maTaiKhoanDichDB = stkDich;
+            lblTrangThaiDich.setStyle("-fx-background-color: #FDECEC; -fx-text-fill: #D9534F; -fx-padding: 3 8; -fx-background-radius: 8;");
         }
 
         btnXacNhanChuyenTien.setDisable(true);
@@ -375,8 +336,11 @@ public class TellerTransferController {
         if (c4) score++;
 
         // 5. Cả hai tài khoản đang Hoạt động
-        boolean c5 = "Hoạt động".equalsIgnoreCase(trangThaiTKnguon) && "Hoạt động".equalsIgnoreCase(trangThaiTKdich);
-        setCheckItem(iconChk5, lblChk5, c5, "5. Cả hai tài khoản đều ở trạng thái 'Hoạt động'");
+        boolean c5 = "Hoạt động".equalsIgnoreCase(trangThaiTKnguon)
+                && (!taiKhoanDichNoiBo || "Hoạt động".equalsIgnoreCase(trangThaiTKdich));
+        setCheckItem(iconChk5, lblChk5, c5, taiKhoanDichNoiBo
+                ? "5. Cả hai tài khoản đều ở trạng thái 'Hoạt động'"
+                : "5. Tài khoản nguồn đang ở trạng thái 'Hoạt động'");
         if (c5) score++;
 
         // 6. Ngân hàng đích Hoạt động
@@ -441,47 +405,39 @@ public class TellerTransferController {
         anModal(modalXacNhanGD);
 
         String strSoTien = txtSoTien.getText().replaceAll("[^0-9]", "");
+        if (strSoTien.isEmpty()) {
+            hienCanhBao("Vui lòng nhập số tiền chuyển hợp lệ.");
+            return;
+        }
         BigDecimal soTien = new BigDecimal(strSoTien);
         String stkNguon = txtSoTaiKhoanNguon.getText().trim();
         String stkDich = txtSoTaiKhoanDich.getText().trim();
         String noiDung = txtNoiDung.getText().trim();
-        if (noiDung.isEmpty()) noiDung = "Chuyen tien tai quay SMART BANK";
-
-        lastGeneratedMaGD = "GD" + System.currentTimeMillis();
-
-        GiaoDichChuyenTien gd = new GiaoDichChuyenTien();
-        gd.setMaGiaoDich(lastGeneratedMaGD);
-        gd.setMaTaiKhoanNguon(stkNguon);
-        gd.setMaTaiKhoanDich(stkDich);
-        gd.setSoTien(soTien);
-        gd.setNgayGiaoDich(LocalDateTime.now());
-        gd.setNoiDung(noiDung);
-        gd.setMaLoaiGD("CK01");
-        gd.setTrangThai("Thành công");
-
+        if (noiDung.isEmpty()) noiDung = "Chuyển tiền tại quầy SMART BANK";
         try {
-            chuyenTienDAO.thucHienChuyenTien(gd, cboNganHangDich.getValue());
+            TellerTransferResult result = tellerTransferService.thucHienChuyenTien(
+                    "GD" + System.currentTimeMillis(), stkNguon, maNganHangDichDangChon(), stkDich,
+                    tenNguoiNhanDich, maLoaiGiaoDichDangChon(), soTien, noiDung);
+            lastGeneratedMaGD = result.getMaGiaoDich();
+            soDuHienTaiNguon = result.getSoDuNguonSauGiaoDich();
+            hanMucNgayConLai = result.getHanMucConLai();
+            lblSoDuNguon.setText(dfTien.format(soDuHienTaiNguon));
+            lblHanMucNguon.setText(dfTien.format(hanMucNgayConLai));
+            btnInBienNhan.setDisable(false);
+            btnXacNhanChuyenTien.setDisable(true);
+
+            boolean choXuLy = "Chờ xử lý".equalsIgnoreCase(result.getTrangThai());
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle(choXuLy ? "Giao dịch đang chờ xử lý" : "Giao dịch thành công");
+            alert.setHeaderText(choXuLy ? "Đã ghi nhận yêu cầu chuyển tiền liên ngân hàng." : "Chuyển tiền thành công tại quầy!");
+            alert.setContentText("Mã giao dịch: " + lastGeneratedMaGD + "\nSố tiền: " + dfTien.format(soTien)
+                    + (choXuLy ? "\nGiao dịch đang chờ ngân hàng thụ hưởng xử lý." : "\nSố dư và hạn mức đã được cập nhật."));
+            alert.showAndWait();
         } catch (Exception e) {
-            System.err.println("Thực hiện chuyển tiền: " + e.getMessage());
+            hienCanhBao("Không thể thực hiện giao dịch: " + e.getMessage());
+            btnInBienNhan.setDisable(true);
+            return;
         }
-
-        // Cập nhật số dư và hạn mức trực tiếp trên giao diện
-        soDuHienTaiNguon = soDuHienTaiNguon.subtract(soTien);
-        lblSoDuNguon.setText(dfTien.format(soDuHienTaiNguon));
-
-        hanMucNgayConLai = hanMucNgayConLai.subtract(soTien);
-        if (hanMucNgayConLai.compareTo(BigDecimal.ZERO) < 0) hanMucNgayConLai = BigDecimal.ZERO;
-        lblHanMucNguon.setText(dfTien.format(hanMucNgayConLai));
-
-        // Kích hoạt nút In biên nhận
-        btnInBienNhan.setDisable(false);
-        btnXacNhanChuyenTien.setDisable(true);
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Giao dịch thành công");
-        alert.setHeaderText("Chuyển tiền thành công tại quầy!");
-        alert.setContentText("Mã giao dịch: " + lastGeneratedMaGD + "\nSố tiền: " + dfTien.format(soTien) + "\nĐã cập nhật số dư khả dụng và hạn mức của khách hàng.");
-        alert.showAndWait();
     }
 
     @FXML
@@ -524,6 +480,15 @@ public class TellerTransferController {
         txtSoTaiKhoanDich.clear();
         txtSoTien.clear();
         txtNoiDung.clear();
+        maTaiKhoanNguonDB = "";
+        maTaiKhoanDichDB = "";
+        tenNguoiNhanDich = null;
+        lastGeneratedMaGD = "";
+        trangThaiTKnguon = "";
+        trangThaiTKdich = "";
+        taiKhoanDichNoiBo = false;
+        soDuHienTaiNguon = BigDecimal.ZERO;
+        hanMucNgayConLai = BigDecimal.ZERO;
 
         lblTenChuNguon.setText("Chưa xác định");
         lblSoDuNguon.setText("0 VNĐ");

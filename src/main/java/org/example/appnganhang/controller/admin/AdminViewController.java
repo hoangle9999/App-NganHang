@@ -3,6 +3,9 @@ package org.example.appnganhang.controller.admin;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import org.example.appnganhang.controller.service.Iml.AdminDashboardServiceImpl;
+import org.example.appnganhang.controller.service.intf.AdminDashboardService;
+import org.example.appnganhang.model.entity.AdminDashboardStats;
 import org.example.appnganhang.model.util.DBConnection;
 
 import java.math.BigDecimal;
@@ -21,6 +24,8 @@ public class AdminViewController {
     @FXML private Label lblStatGiaoDich;
     @FXML private Label lblStatCanhBao;
 
+    private final AdminDashboardService dashboardService = new AdminDashboardServiceImpl();
+
     private final DecimalFormat dfTien = new DecimalFormat("#,### VNĐ");
 
     @FXML
@@ -29,36 +34,55 @@ public class AdminViewController {
     }
 
     private void taiThongKeTongQuan() {
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement()) {
+        try {
+            AdminDashboardStats stats = dashboardService.layThongKeDashboard();
 
-            // Đếm tài khoản
-            ResultSet rs1 = stmt.executeQuery("SELECT COUNT(*) AS TongTK FROM TaiKhoanDangNhap_VaiTro");
-            if (rs1.next()) {
-                int tongTK = rs1.getInt("TongTK");
-                if (lblStatTaiKhoan != null) lblStatTaiKhoan.setText(tongTK + " tài khoản");
+            if (lblStatTaiKhoan != null) {
+                lblStatTaiKhoan.setText(
+                        stats.getTongTaiKhoan() + " tài khoản"
+                );
             }
 
-            // Đếm nhân viên & chi nhánh
-            ResultSet rs2 = stmt.executeQuery("SELECT (SELECT COUNT(*) FROM NhanVien) AS TongNV, (SELECT COUNT(*) FROM ChiNhanh) AS TongCN");
-            if (rs2.next()) {
-                int tongNV = rs2.getInt("TongNV");
-                int tongCN = rs2.getInt("TongCN");
-                if (lblStatNhanVien != null) lblStatNhanVien.setText(tongNV + " NV / " + tongCN + " CN");
+            if (lblStatNhanVien != null) {
+                lblStatNhanVien.setText(
+                        stats.getTongNhanVien() + " NV / "
+                                + stats.getTongChiNhanh() + " CN"
+                );
             }
 
-            // Thống kê giao dịch
-            ResultSet rs3 = stmt.executeQuery("SELECT COUNT(*) AS TongGD, SUM(SoTien) AS TongTien FROM GiaoDichChuyenTien");
-            if (rs3.next()) {
-                BigDecimal tongTien = rs3.getBigDecimal("TongTien");
-                if (lblStatGiaoDich != null && tongTien != null) {
-                    lblStatGiaoDich.setText(dfTien.format(tongTien));
-                }
+            if (lblStatGiaoDich != null) {
+                lblStatGiaoDich.setText(
+                        dfTien.format(stats.getTongTienGiaoDich())
+                );
             }
 
-        } catch (Exception e) {
-            System.err.println("Lỗi nạp thống kê DB: " + e.getMessage());
-            // Giữ giá trị mặc định đẹp mắt
+            if (lblStatCanhBao != null) {
+                lblStatCanhBao.setText(
+                        stats.getTongCanhBao() + " tài khoản bị khóa"
+                );
+            }
+
+        } catch (RuntimeException e) {
+            System.err.println(
+                    "Lỗi nạp thống kê Dashboard: " + e.getMessage()
+            );
+
+            // Không làm ứng dụng bị dừng nếu database xảy ra lỗi.
+            if (lblStatTaiKhoan != null) {
+                lblStatTaiKhoan.setText("Không tải được");
+            }
+
+            if (lblStatNhanVien != null) {
+                lblStatNhanVien.setText("Không tải được");
+            }
+
+            if (lblStatGiaoDich != null) {
+                lblStatGiaoDich.setText("Không tải được");
+            }
+
+            if (lblStatCanhBao != null) {
+                lblStatCanhBao.setText("Không tải được");
+            }
         }
     }
 

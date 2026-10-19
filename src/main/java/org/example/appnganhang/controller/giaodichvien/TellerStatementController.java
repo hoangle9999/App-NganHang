@@ -6,17 +6,23 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import org.example.appnganhang.model.entity.LichSuGiaoDich;
-import org.example.appnganhang.model.util.DBConnection;
+import org.example.appnganhang.controller.service.Iml.TellerStatementServiceImpl;
+import org.example.appnganhang.controller.service.intf.TellerStatementService;
+import org.example.appnganhang.model.entity.LoaiGiaoDich;
+import org.example.appnganhang.model.entity.TellerStatementData;
+import org.example.appnganhang.model.entity.TellerStatementEntry;
+import org.example.appnganhang.controller.util.TellerStatementExporter;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -71,6 +77,7 @@ public class TellerStatementController {
     private final DecimalFormat dfTien = new DecimalFormat("#,### VNĐ");
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
     private final DateTimeFormatter dfDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final TellerStatementService tellerStatementService = new TellerStatementServiceImpl();
 
     private BigDecimal soDuDauKy = BigDecimal.ZERO;
     private BigDecimal soDuCuoiKy = BigDecimal.ZERO;
@@ -79,12 +86,21 @@ public class TellerStatementController {
 
     @FXML
     public void initialize() {
-        if (cboLoaiGiaoDich != null) {
-            cboLoaiGiaoDich.getItems().setAll("Tất cả giao dịch", "CK01 - Chuyển khoản", "NT01 - Nạp tiền", "RT01 - Rút tiền", "TT01 - Thanh toán");
-            cboLoaiGiaoDich.getSelectionModel().selectFirst();
-        }
-
         cauHinhBangLichSu();
+        khoiTaoLoaiGiaoDich();
+    }
+
+    private void khoiTaoLoaiGiaoDich() {
+        if (cboLoaiGiaoDich == null) return;
+        try {
+            ObservableList<String> types = FXCollections.observableArrayList("Tất cả giao dịch");
+            for (LoaiGiaoDich type : tellerStatementService.layDanhSachLoaiGiaoDich())
+                types.add(type.getMaLoaiGD() + " - " + type.getTenLoaiGD());
+            cboLoaiGiaoDich.setItems(types);
+            cboLoaiGiaoDich.getSelectionModel().selectFirst();
+        } catch (RuntimeException e) {
+            hienCanhBao("Không thể tải danh sách loại giao dịch: " + e.getMessage());
+        }
     }
 
     private void cauHinhBangLichSu() {
@@ -138,107 +154,54 @@ public class TellerStatementController {
             return;
         }
 
-        // 1. Lấy thông tin tài khoản & chủ sở hữu
-        String sqlTK = "SELECT tk.MaTaiKhoan, tk.SoTaiKhoan, tk.SoDu, kh.HoTen " +
-                       "FROM TaiKhoanNganHang tk " +
-                       "JOIN KhachHang kh ON tk.MaKhachHang = kh.MaKhachHang " +
-                       "WHERE tk.SoTaiKhoan = ?";
-
-        String hoTenKH = "";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sqlTK)) {
-            ps.setString(1, stk);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                hoTenKH = rs.getString("HoTen");
-                soDuCuoiKy = rs.getBigDecimal("SoDu");
-            } else {
-                hienCanhBao("Không tìm thấy tài khoản [" + stk + "] trong hệ thống!");
-                return;
-            }
-        } catch (Exception e) {
-            System.err.println("Lỗi tra cứu tài khoản sao kê: " + e.getMessage());
-            hoTenKH = "Nguyễn Văn Khách Hàng";
-            soDuCuoiKy = new BigDecimal("45000000");
-        }
-
-        lblTenKhachHang.setText(hoTenKH);
-        lblSoTKHienThi.setText("STK: " + stk);
-
-        // Kỳ sao kê
         LocalDate dTu = dpTuNgay.getValue();
         LocalDate dDen = dpDenNgay.getValue();
-        if (dTu != null && dDen != null) {
-            lblKySaoKe.setText("Kỳ sao kê: Từ " + dTu.format(dfDate) + " đến " + dDen.format(dfDate));
-        } else {
-            lblKySaoKe.setText("Kỳ sao kê: Toàn bộ lịch sử phát sinh");
+        String selectedType = cboLoaiGiaoDich.getValue();
+        String maLoai = selectedType == null || selectedType.startsWith("Tất cả")
+                ? "" : selectedType.split(" - ", 2)[0];
+        TellerStatementData data;
+        try {
+            data = tellerStatementService.traCuuSaoKe(stk, dTu, dDen, maLoai);
+        } catch (RuntimeException e) {
+            hienCanhBao(e.getMessage());
+            danhSachLichSu.clear();
+            lblTenKhachHang.setText("Chưa xác định");
+            lblSoTKHienThi.setText("STK: ---");
+            lblKySaoKe.setText("Kỳ sao kê: ---");
+            lblSoDuDauKy.setText("0 VNĐ");
+            lblSoDuCuoiKy.setText("0 VNĐ");
+            lblTongPhatSinhCo.setText("+0 VNĐ");
+            lblTongPhatSinhNo.setText("-0 VNĐ");
+            lblTongButToan.setText("0 giao dịch");
+            btnInSaoKe.setDisable(true);
+            btnXuatFile.setDisable(true);
+            return;
         }
 
-        // 2. Tra cứu lịch sử từ LichSuGiaoDich kết hợp GiaoDichChuyenTien
+        lblTenKhachHang.setText(data.getTaiKhoan().getTenKhachHang());
+        lblSoTKHienThi.setText("STK: " + data.getTaiKhoan().getSoTaiKhoan());
+        if (dTu == null && dDen == null) lblKySaoKe.setText("Kỳ sao kê: Toàn bộ lịch sử phát sinh");
+        else lblKySaoKe.setText("Kỳ sao kê: " + (dTu == null ? "Từ trước" : dTu.format(dfDate))
+                + " đến " + (dDen == null ? "hiện tại" : dDen.format(dfDate)));
+
         danhSachLichSu.clear();
-        tongCo = BigDecimal.ZERO;
-        tongNo = BigDecimal.ZERO;
-
-        String sqlLichSu = "SELECT ls.MaLog, ls.MaGiaoDich, ls.SoTaiKhoanLienQuan, ls.HanhDong, " +
-                           "ls.SoTienThayDoi, ls.SoDuSauThayDoi, ls.ThoiGianGhiLog, " +
-                           "ISNULL(gd.NoiDung, ls.HanhDong) AS NoiDung, ISNULL(gd.MaLoaiGD, 'CK01') AS MaLoaiGD " +
-                           "FROM LichSuGiaoDich ls " +
-                           "LEFT JOIN GiaoDichChuyenTien gd ON ls.MaGiaoDich = gd.MaGiaoDich " +
-                           "WHERE ls.SoTaiKhoanLienQuan = ? OR gd.MaTaiKhoanNguon = ? OR gd.MaTaiKhoanDich = ? " +
-                           "ORDER BY ls.ThoiGianGhiLog DESC";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sqlLichSu)) {
-
-            ps.setString(1, stk);
-            ps.setString(2, stk);
-            ps.setString(3, stk);
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                StatementRow row = new StatementRow();
-                row.setMaGiaoDich(rs.getString("MaGiaoDich"));
-
-                java.sql.Timestamp ts = rs.getTimestamp("ThoiGianGhiLog");
-                if (ts != null) {
-                    row.setThoiGian(ts.toLocalDateTime());
-                    row.setThoiGianStr(ts.toLocalDateTime().format(dtf));
-                } else {
-                    row.setThoiGian(LocalDateTime.now());
-                    row.setThoiGianStr(LocalDateTime.now().format(dtf));
-                }
-
-                row.setLoaiGD(rs.getString("MaLoaiGD"));
-                row.setSoTKLienQuan(rs.getString("SoTaiKhoanLienQuan"));
-
-                BigDecimal tien = rs.getBigDecimal("SoTienThayDoi");
-                row.setSoTienThayDoi(tien);
-                row.setSoDuSauThayDoi(rs.getBigDecimal("SoDuSauThayDoi"));
-                row.setNoiDung(rs.getString("NoiDung"));
-
-                if (tien != null) {
-                    if (tien.compareTo(BigDecimal.ZERO) >= 0) {
-                        tongCo = tongCo.add(tien);
-                    } else {
-                        tongNo = tongNo.add(tien.abs());
-                    }
-                }
-
-                danhSachLichSu.add(row);
-            }
-
-        } catch (Exception e) {
-            System.err.println("Lỗi nạp sao kê DB: " + e.getMessage());
-            themDuLieuMauSaoKe(stk);
+        for (TellerStatementEntry entry : data.getGiaoDich()) {
+            StatementRow row = new StatementRow();
+            row.setMaGiaoDich(entry.getMaGiaoDich());
+            row.setThoiGian(entry.getThoiGian());
+            row.setThoiGianStr(entry.getThoiGian() == null ? "---" : entry.getThoiGian().format(dtf));
+            row.setLoaiGD(entry.getMaLoaiGD() == null ? entry.getTenLoaiGD()
+                    : entry.getMaLoaiGD() + " - " + entry.getTenLoaiGD());
+            row.setSoTKLienQuan(entry.getSoTaiKhoanLienQuan());
+            row.setSoTienThayDoi(entry.getSoTienThayDoi());
+            row.setSoDuSauThayDoi(entry.getSoDuSauThayDoi());
+            row.setNoiDung(entry.getNoiDung());
+            danhSachLichSu.add(row);
         }
-
-        if (danhSachLichSu.isEmpty()) {
-            themDuLieuMauSaoKe(stk);
-        }
-
-        // Tính số dư đầu kỳ xấp xỉ
-        soDuDauKy = soDuCuoiKy.subtract(tongCo).add(tongNo);
-        if (soDuDauKy.compareTo(BigDecimal.ZERO) < 0) soDuDauKy = BigDecimal.ZERO;
+        soDuDauKy = data.getSoDuDauKy();
+        soDuCuoiKy = data.getSoDuCuoiKy();
+        tongCo = data.getTongPhatSinhCo();
+        tongNo = data.getTongPhatSinhNo();
 
         lblSoDuDauKy.setText(dfTien.format(soDuDauKy));
         lblSoDuCuoiKy.setText(dfTien.format(soDuCuoiKy));
@@ -248,17 +211,6 @@ public class TellerStatementController {
 
         btnInSaoKe.setDisable(false);
         btnXuatFile.setDisable(false);
-    }
-
-    private void themDuLieuMauSaoKe(String stk) {
-        StatementRow r1 = new StatementRow("GD20261017-001", LocalDateTime.now().minusMinutes(20), "CK01", "1000000002", new BigDecimal("-5000000"), new BigDecimal("45000000"), "Chuyen tien hoc phi ky I");
-        StatementRow r2 = new StatementRow("NT20261017-002", LocalDateTime.now().minusDays(1), "NT01", stk, new BigDecimal("20000000"), new BigDecimal("50000000"), "Nop tien mat tai quay SMART BANK");
-        StatementRow r3 = new StatementRow("GD20261016-003", LocalDateTime.now().minusDays(2), "CK01", "1000000008", new BigDecimal("10000000"), new BigDecimal("30000000"), "Nhan luong thang 10");
-        StatementRow r4 = new StatementRow("RT20261015-004", LocalDateTime.now().minusDays(3), "RT01", stk, new BigDecimal("-2000000"), new BigDecimal("20000000"), "Rut tien mat chi tieu");
-
-        danhSachLichSu.addAll(r1, r2, r3, r4);
-        tongCo = new BigDecimal("30000000");
-        tongNo = new BigDecimal("7000000");
     }
 
     @FXML
@@ -284,17 +236,53 @@ public class TellerStatementController {
         Alert info = new Alert(Alert.AlertType.INFORMATION);
         info.setTitle("In sao kê");
         info.setHeaderText("In bản sao kê chính thức thành công!");
-        info.setContentText("Bản sao kê tài khoản [" + txtSoTaiKhoan.getText().trim() + "] gồm " + danhSachLichSu.size() + " bút toán đã được in ra với con dấu ngân hàng và chữ ký xác thực.");
+        info.setContentText("Bản sao kê tài khoản [" + txtSoTaiKhoan.getText().trim() + "] gồm " + danhSachLichSu.size() + " dòng giao dịch đã được gửi tới máy in.");
         info.showAndWait();
     }
 
     @FXML
     public void onXuatFilePDFExcel() {
-        Alert info = new Alert(Alert.AlertType.INFORMATION);
-        info.setTitle("Xuất báo cáo");
-        info.setHeaderText("Xuất sao kê thành công!");
-        info.setContentText("File sao kê tài khoản [" + txtSoTaiKhoan.getText().trim() + "] đã được xuất thành công dưới định dạng PDF/Excel vào thư mục lưu trữ!");
-        info.showAndWait();
+        ChoiceDialog<String> formatDialog = new ChoiceDialog<>("Excel (.xlsx)", "Excel (.xlsx)", "PDF (.pdf)");
+        formatDialog.setTitle("Xuất sao kê");
+        formatDialog.setHeaderText("Chọn định dạng file cần xuất");
+        formatDialog.setContentText("Định dạng:");
+        String format = formatDialog.showAndWait().orElse(null);
+        if (format == null) return;
+
+        boolean excel = format.startsWith("Excel");
+        String extension = excel ? ".xlsx" : ".pdf";
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Lưu sao kê");
+        chooser.setInitialFileName("SaoKe_" + txtSoTaiKhoan.getText().trim() + extension);
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
+                excel ? "Excel Workbook (*.xlsx)" : "PDF (*.pdf)", "*" + extension));
+        Window owner = btnXuatFile == null || btnXuatFile.getScene() == null
+                ? null : btnXuatFile.getScene().getWindow();
+        File selectedFile = chooser.showSaveDialog(owner);
+        if (selectedFile == null) return;
+
+        String path = selectedFile.getAbsolutePath();
+        if (!path.toLowerCase(java.util.Locale.ROOT).endsWith(extension)) path += extension;
+        try {
+            if (excel) {
+                TellerStatementExporter.exportExcel(Path.of(path), lblTenKhachHang.getText(),
+                        txtSoTaiKhoan.getText().trim(), lblKySaoKe.getText(), lblSoDuDauKy.getText(),
+                        lblSoDuCuoiKy.getText(), lblTongPhatSinhCo.getText(), lblTongPhatSinhNo.getText(),
+                        danhSachLichSu);
+            } else {
+                TellerStatementExporter.exportPdf(Path.of(path), lblTenKhachHang.getText(),
+                        txtSoTaiKhoan.getText().trim(), lblKySaoKe.getText(), lblSoDuDauKy.getText(),
+                        lblSoDuCuoiKy.getText(), lblTongPhatSinhCo.getText(), lblTongPhatSinhNo.getText(),
+                        danhSachLichSu);
+            }
+            Alert success = new Alert(Alert.AlertType.INFORMATION);
+            success.setTitle("Xuất sao kê");
+            success.setHeaderText("Đã xuất file sao kê thành công");
+            success.setContentText(path);
+            success.showAndWait();
+        } catch (IOException | RuntimeException e) {
+            hienCanhBao("Không thể xuất file sao kê: " + e.getMessage());
+        }
     }
 
     private void hienModal(VBox modal) {

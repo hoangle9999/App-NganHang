@@ -11,6 +11,7 @@ public class GiaoDichChuyenTien {
     private LocalDateTime ngayGiaoDich;
     private String noiDung;
     private String maLoaiGD;
+    private String tenNganHangDich;
     private String trangThai;
 
     public String getMaGiaoDich() {
@@ -67,6 +68,14 @@ public class GiaoDichChuyenTien {
 
     public void setMaLoaiGD(String maLoaiGD) {
         this.maLoaiGD = maLoaiGD;
+    }
+
+    public String getTenNganHangDich() {
+        return tenNganHangDich;
+    }
+
+    public void setTenNganHangDich(String tenNganHangDich) {
+        this.tenNganHangDich = tenNganHangDich;
     }
 
     public String getTrangThai() {

@@ -9,10 +9,10 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.appnganhang.MainApp;
-//import org.example.appnganhang.controller.nhanvien.DashboardController;
 import org.example.appnganhang.controller.service.intf.AuthService;
 import org.example.appnganhang.controller.service.Iml.AuthServiceImpl;
 import org.example.appnganhang.model.entity.TaiKhoanDangNhap_VaiTro;
+import org.example.appnganhang.controller.giaodichvien.TellerSession;
 
 import java.io.IOException;
 
@@ -55,6 +55,11 @@ public class LoginController {
             }
 
             String roleName = currentUser.getRoleName();
+            TellerSession.clear();
+
+            if ("Giao dịch viên".equals(roleName)) {
+                TellerSession.setCurrentUsername(currentUser.getTenDangNhap());
+            }
 
             String fxmlPath;
 

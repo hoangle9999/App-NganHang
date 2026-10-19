@@ -13,17 +13,15 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 import org.example.appnganhang.model.entity.LichSuGiaoDich;
-import org.example.appnganhang.model.util.DBConnection;
+import org.example.appnganhang.controller.service.Iml.BaoCaoServiceImpl;
+import org.example.appnganhang.controller.service.intf.BaoCaoService;
 
 import java.io.File;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import static org.example.appnganhang.controller.util.Navigation.moView;
@@ -33,8 +31,8 @@ public class AdminReportController {
     @FXML private TabPane tabPaneReport;
 
     // Filter Bar
-    @FXML private TextField txtTuNgay;
-    @FXML private TextField txtDenNgay;
+    @FXML private DatePicker dpTuNgay;
+    @FXML private DatePicker dpDenNgay;
     @FXML private ComboBox<String> cboLoaiGiaoDich;
     @FXML private ComboBox<String> cboNganHang;
     @FXML private TextField txtTimKiemGD;
@@ -92,6 +90,7 @@ public class AdminReportController {
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     private GiaoDichChuyenTien giaoDichDangChon;
+    private final BaoCaoService baoCaoService = new BaoCaoServiceImpl();
 
     @FXML
     public void initialize() {
@@ -105,13 +104,15 @@ public class AdminReportController {
     }
 
     private void cauHinhBoLoc() {
-        if (cboLoaiGiaoDich != null) {
-            cboLoaiGiaoDich.getItems().addAll("Tất cả loại GD", "Chuyển khoản", "Nạp tiền", "Rút tiền", "Thanh toán");
+        try {
+            cboLoaiGiaoDich.setItems(FXCollections.observableArrayList("Tất cả loại GD"));
+            cboLoaiGiaoDich.getItems().addAll(baoCaoService.layDanhSachLoaiGiaoDich());
             cboLoaiGiaoDich.setValue("Tất cả loại GD");
-        }
-        if (cboNganHang != null) {
-            cboNganHang.getItems().addAll("Tất cả ngân hàng", "SMART BANK", "Vietcombank", "BIDV", "Techcombank", "MB Bank");
+            cboNganHang.setItems(FXCollections.observableArrayList("Tất cả ngân hàng"));
+            cboNganHang.getItems().addAll(baoCaoService.layDanhSachNganHang());
             cboNganHang.setValue("Tất cả ngân hàng");
+        } catch (RuntimeException e) {
+            hienCanhBao("Lỗi tải bộ lọc báo cáo", e.getMessage());
         }
     }
 
@@ -207,142 +208,25 @@ public class AdminReportController {
     }
 
     private void taiDuLieuGiaoDich() {
-        danhSachGiaoDich.clear();
-        String sql = """
-                SELECT gd.MaGiaoDich, gd.MaTaiKhoanNguon, gd.MaTaiKhoanDich, gd.SoTien, gd.NgayGiaoDich, gd.NoiDung, lgd.TenLoaiGD, gd.TrangThai
-                FROM GiaoDichChuyenTien gd
-                LEFT JOIN LoaiGiaoDich lgd ON gd.MaLoaiGD = lgd.MaLoaiGD
-                ORDER BY gd.NgayGiaoDich DESC
-                """;
-
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                GiaoDichChuyenTien gd = new GiaoDichChuyenTien();
-                gd.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                gd.setMaTaiKhoanNguon(rs.getString("MaTaiKhoanNguon"));
-                gd.setMaTaiKhoanDich(rs.getString("MaTaiKhoanDich"));
-                gd.setSoTien(rs.getBigDecimal("SoTien"));
-                Timestamp ts = rs.getTimestamp("NgayGiaoDich");
-                if (ts != null) gd.setNgayGiaoDich(ts.toLocalDateTime());
-                gd.setNoiDung(rs.getString("NoiDung"));
-                gd.setMaLoaiGD(rs.getString("TenLoaiGD") != null ? rs.getString("TenLoaiGD") : "Chuyển khoản");
-                gd.setTrangThai(rs.getString("TrangThai"));
-                danhSachGiaoDich.add(gd);
-            }
-        } catch (Exception e) {
-            System.err.println("Lỗi nạp GiaoDich DB: " + e.getMessage());
-            napGiaoDichMau();
+        try {
+            danhSachGiaoDich.setAll(baoCaoService.layDanhSachGiaoDich());
+            danhSachHienThiGD.setAll(danhSachGiaoDich);
+        } catch (RuntimeException e) {
+            danhSachGiaoDich.clear();
+            danhSachHienThiGD.clear();
+            hienCanhBao("Lỗi tải giao dịch", e.getMessage());
         }
-
-        if (danhSachGiaoDich.isEmpty()) {
-            napGiaoDichMau();
-        }
-
-        danhSachHienThiGD.setAll(danhSachGiaoDich);
-    }
-
-    private void napGiaoDichMau() {
-        GiaoDichChuyenTien g1 = new GiaoDichChuyenTien();
-        g1.setMaGiaoDich("GD20261017001");
-        g1.setMaTaiKhoanNguon("1000000001");
-        g1.setMaTaiKhoanDich("1000000002");
-        g1.setSoTien(new BigDecimal("5000000"));
-        g1.setNgayGiaoDich(LocalDateTime.now().minusHours(2));
-        g1.setNoiDung("Nguyen Van A chuyen tien hoc phi");
-        g1.setMaLoaiGD("Chuyển khoản");
-        g1.setTrangThai("Thành công");
-
-        GiaoDichChuyenTien g2 = new GiaoDichChuyenTien();
-        g2.setMaGiaoDich("GD20261017002");
-        g2.setMaTaiKhoanNguon("1000000002");
-        g2.setMaTaiKhoanDich("1000000003");
-        g2.setSoTien(new BigDecimal("12000000"));
-        g2.setNgayGiaoDich(LocalDateTime.now().minusHours(4));
-        g2.setNoiDung("Thanh toan tien thue nha");
-        g2.setMaLoaiGD("Chuyển khoản");
-        g2.setTrangThai("Thất bại");
-
-        GiaoDichChuyenTien g3 = new GiaoDichChuyenTien();
-        g3.setMaGiaoDich("GD20261017003");
-        g3.setMaTaiKhoanNguon("1000000001");
-        g3.setMaTaiKhoanDich("1000000001");
-        g3.setSoTien(new BigDecimal("2000000"));
-        g3.setNgayGiaoDich(LocalDateTime.now().minusHours(6));
-        g3.setNoiDung("Nap tien vao tai khoan");
-        g3.setMaLoaiGD("Nạp tiền");
-        g3.setTrangThai("Thành công");
-
-        danhSachGiaoDich.addAll(g1, g2, g3);
     }
 
     private void taiDuLieuAuditLog() {
-        danhSachAuditLog.clear();
-        String sql = """
-                SELECT MaLog, MaGiaoDich, SoTaiKhoanLienQuan, HanhDong, SoTienThayDoi, SoDuSauThayDoi, ThoiGianGhiLog
-                FROM LichSuGiaoDich
-                ORDER BY ThoiGianGhiLog DESC
-                """;
-
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                LichSuGiaoDich ls = new LichSuGiaoDich();
-                ls.setMaLog(rs.getInt("MaLog"));
-                ls.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                ls.setSoTaiKhoanLienQuan(rs.getString("SoTaiKhoanLienQuan"));
-                ls.setHanhDong(rs.getString("HanhDong"));
-                ls.setSoTienThayDoi(rs.getBigDecimal("SoTienThayDoi"));
-                ls.setSoDuSauThayDoi(rs.getBigDecimal("SoDuSauThayDoi"));
-                Timestamp ts = rs.getTimestamp("ThoiGianGhiLog");
-                if (ts != null) ls.setThoiGianGhiLog(ts.toLocalDateTime());
-                danhSachAuditLog.add(ls);
-            }
-        } catch (Exception e) {
-            System.err.println("Lỗi nạp AuditLog DB: " + e.getMessage());
-            napAuditLogMau();
+        try {
+            danhSachAuditLog.setAll(baoCaoService.layDanhSachLichSuGiaoDich());
+            danhSachHienThiAudit.setAll(danhSachAuditLog);
+        } catch (RuntimeException e) {
+            danhSachAuditLog.clear();
+            danhSachHienThiAudit.clear();
+            hienCanhBao("Lỗi tải lịch sử kiểm toán", e.getMessage());
         }
-
-        if (danhSachAuditLog.isEmpty()) {
-            napAuditLogMau();
-        }
-
-        danhSachHienThiAudit.setAll(danhSachAuditLog);
-    }
-
-    private void napAuditLogMau() {
-        LichSuGiaoDich l1 = new LichSuGiaoDich();
-        l1.setMaLog(1);
-        l1.setMaGiaoDich("GD20261017001");
-        l1.setSoTaiKhoanLienQuan("1000000001");
-        l1.setHanhDong("Trừ tiền chuyển khoản đi");
-        l1.setSoTienThayDoi(new BigDecimal("-5000000"));
-        l1.setSoDuSauThayDoi(new BigDecimal("20400000"));
-        l1.setThoiGianGhiLog(LocalDateTime.now().minusHours(2));
-
-        LichSuGiaoDich l2 = new LichSuGiaoDich();
-        l2.setMaLog(2);
-        l2.setMaGiaoDich("GD20261017001");
-        l2.setSoTaiKhoanLienQuan("1000000002");
-        l2.setHanhDong("Cộng tiền nhận chuyển khoản");
-        l2.setSoTienThayDoi(new BigDecimal("5000000"));
-        l2.setSoDuSauThayDoi(new BigDecimal("15000000"));
-        l2.setThoiGianGhiLog(LocalDateTime.now().minusHours(2));
-
-        LichSuGiaoDich l3 = new LichSuGiaoDich();
-        l3.setMaLog(3);
-        l3.setMaGiaoDich("GD20261017002");
-        l3.setSoTaiKhoanLienQuan("1000000002");
-        l3.setHanhDong("Giao dịch chuyển tiền thất bại");
-        l3.setSoTienThayDoi(BigDecimal.ZERO);
-        l3.setSoDuSauThayDoi(new BigDecimal("15000000"));
-        l3.setThoiGianGhiLog(LocalDateTime.now().minusHours(4));
-
-        danhSachAuditLog.addAll(l1, l2, l3);
     }
 
     private void capNhatTheChiSo() {
@@ -372,6 +256,13 @@ public class AdminReportController {
         String keyword = txtTimKiemGD != null && txtTimKiemGD.getText() != null
                 ? txtTimKiemGD.getText().trim().toLowerCase() : "";
         String loaiGD = cboLoaiGiaoDich != null ? cboLoaiGiaoDich.getValue() : "Tất cả loại GD";
+        String nganHang = cboNganHang != null ? cboNganHang.getValue() : "Tất cả ngân hàng";
+        LocalDate tuNgay = dpTuNgay.getValue();
+        LocalDate denNgay = dpDenNgay.getValue();
+        if (tuNgay != null && denNgay != null && tuNgay.isAfter(denNgay)) {
+            hienCanhBao("Khoảng ngày không hợp lệ", "Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc.");
+            return;
+        }
 
         danhSachHienThiGD.clear();
         for (GiaoDichChuyenTien gd : danhSachGiaoDich) {
@@ -382,17 +273,27 @@ public class AdminReportController {
 
             boolean matchLoai = loaiGD == null || loaiGD.equals("Tất cả loại GD")
                     || (gd.getMaLoaiGD() != null && gd.getMaLoaiGD().equalsIgnoreCase(loaiGD));
+            boolean matchNganHang = nganHang == null || nganHang.equals("Tất cả ngân hàng")
+                    || nganHang.equalsIgnoreCase(gd.getTenNganHangDich());
+            LocalDateTime ngayGiaoDich = gd.getNgayGiaoDich();
+            boolean matchNgay = ngayGiaoDich == null ? tuNgay == null && denNgay == null
+                    : (tuNgay == null || !ngayGiaoDich.toLocalDate().isBefore(tuNgay))
+                    && (denNgay == null || !ngayGiaoDich.toLocalDate().isAfter(denNgay));
 
-            if (matchKw && matchLoai) {
+            if (matchKw && matchLoai && matchNganHang && matchNgay) {
                 danhSachHienThiGD.add(gd);
             }
         }
 
         danhSachHienThiAudit.clear();
         for (LichSuGiaoDich ls : danhSachAuditLog) {
-            if (keyword.isEmpty()
+            LocalDateTime thoiGian = ls.getThoiGianGhiLog();
+            boolean matchNgay = thoiGian == null ? tuNgay == null && denNgay == null
+                    : (tuNgay == null || !thoiGian.toLocalDate().isBefore(tuNgay))
+                    && (denNgay == null || !thoiGian.toLocalDate().isAfter(denNgay));
+            if (matchNgay && (keyword.isEmpty()
                     || (ls.getMaGiaoDich() != null && ls.getMaGiaoDich().toLowerCase().contains(keyword))
-                    || (ls.getSoTaiKhoanLienQuan() != null && ls.getSoTaiKhoanLienQuan().toLowerCase().contains(keyword))) {
+                    || (ls.getSoTaiKhoanLienQuan() != null && ls.getSoTaiKhoanLienQuan().toLowerCase().contains(keyword)))) {
                 danhSachHienThiAudit.add(ls);
             }
         }
@@ -402,14 +303,16 @@ public class AdminReportController {
 
     @FXML
     private void onLamMoi() {
-        if (txtTuNgay != null) txtTuNgay.clear();
-        if (txtDenNgay != null) txtDenNgay.clear();
+        if (dpTuNgay != null) dpTuNgay.setValue(null);
+        if (dpDenNgay != null) dpDenNgay.setValue(null);
         if (txtTimKiemGD != null) txtTimKiemGD.clear();
         if (cboLoaiGiaoDich != null) cboLoaiGiaoDich.setValue("Tất cả loại GD");
         if (cboNganHang != null) cboNganHang.setValue("Tất cả ngân hàng");
 
         taiDuLieuGiaoDich();
         taiDuLieuAuditLog();
+        cauHinhBoLoc();
+        onLocDuLieu();
         capNhatTheChiSo();
     }
 
@@ -519,6 +422,18 @@ public class AdminReportController {
             modal.setVisible(false);
             modal.setManaged(false);
         }
+    }
+
+    private static String safe(String value) {
+        return value == null ? "" : value;
+    }
+
+    private void hienCanhBao(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message == null ? "Đã xảy ra lỗi khi tải dữ liệu." : message);
+        alert.showAndWait();
     }
 
     // =========================================================

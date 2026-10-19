@@ -172,12 +172,19 @@
                                                 <TableColumn fx:id="colChiNhanh" prefWidth="130.0" text="Chi nhánh" />
                                                 <TableColumn fx:id="colHanMuc" prefWidth="120.0" text="Hạn mức/ngày" />
                                                 <TableColumn fx:id="colTrangThai" prefWidth="110.0" text="Trạng thái" />
-                                                <TableColumn fx:id="colThaoTac" prefWidth="200.0" text="Thao tác" />
                                             </columns>
                                             <columnResizePolicy>
                                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                             </columnResizePolicy>
                                         </TableView>
+                                        <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: #F8FAFC; -fx-background-radius: 10; -fx-padding: 10 12;">
+                                            <children>
+                                                <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #475569;" text="Thao tác nhanh cho dòng đã chọn:" />
+                                                <Button fx:id="btnXemChiTiet" disable="true" onAction="#onXemChiTietDongDaChon" style="-fx-background-color: #ECEBFA; -fx-text-fill: #5148C9; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="Xem chi tiết" />
+                                                <Button fx:id="btnDoiTrangThai" disable="true" onAction="#onDoiTrangThaiDongDaChon" style="-fx-background-color: #FEF3C7; -fx-text-fill: #D97706; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="Đổi trạng thái" />
+                                                <Button fx:id="btnGanHanMuc" disable="true" onAction="#onGanHanMucDongDaChon" style="-fx-background-color: #E8F8F0; -fx-text-fill: #10B981; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="Gán hạn mức" />
+                                            </children>
+                                        </HBox>
                                     </children>
                                 </VBox>
                             </children>
