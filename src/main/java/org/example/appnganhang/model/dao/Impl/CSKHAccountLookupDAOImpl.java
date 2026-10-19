@@ -32,7 +32,7 @@ public class CSKHAccountLookupDAOImpl implements CSKHAccountLookupDAO {
                ON tk.MaNganHang = nh.MaNganHang
         LEFT JOIN dbo.ChiNhanh cn
                ON tk.MaChiNhanh = cn.MaChiNhanh
-        LEFT JOIN dbo.HanMucGiaoDich hm
+        LEFT JOIN dbo.[HanMucGiaoDịch] hm
                ON tk.MaHanMuc = hm.MaHanMuc
         WHERE (? = '' OR tk.SoTaiKhoan LIKE ? OR kh.SoCCCD LIKE ?)
         ORDER BY tk.SoTaiKhoan
