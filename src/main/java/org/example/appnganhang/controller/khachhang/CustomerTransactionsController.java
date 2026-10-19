@@ -10,13 +10,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
-import org.example.appnganhang.model.util.DBConnection;
+import org.example.appnganhang.controller.service.Impl.KhachHangPortalServiceImpl;
+import org.example.appnganhang.controller.service.intf.KhachHangPortalService;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,9 +22,9 @@ import java.time.format.DateTimeFormatter;
 import static org.example.appnganhang.controller.util.Navigation.moView;
 
 public class CustomerTransactionsController {
+    private final KhachHangPortalService portalService = new KhachHangPortalServiceImpl();
 
     @FXML private Label lblSidebarTenKH;
-    @FXML private Label lblSidebarMaKH;
 
     @FXML private ComboBox<String> cboChonTaiKhoan;
     @FXML private DatePicker dpTuNgay;
@@ -75,8 +72,6 @@ public class CustomerTransactionsController {
     @FXML
     public void initialize() {
         lblSidebarTenKH.setText(CustomerSession.getCurrentHoTen());
-        lblSidebarMaKH.setText("Mã KH: " + CustomerSession.getCurrentMaKhachHang());
-
         khoiTaoDanhSachTaiKhoan();
         cauHinhBangGiaoDich();
         taiDuLieuGiaoDich();
@@ -84,25 +79,11 @@ public class CustomerTransactionsController {
 
     private void khoiTaoDanhSachTaiKhoan() {
         ObservableList<String> listSTK = FXCollections.observableArrayList();
-        String sql = "SELECT SoTaiKhoan FROM TaiKhoanNganHang WHERE MaKhachHang = ? OR MaKhachHang IN (SELECT MaKhachHang FROM KhachHang WHERE TenDangNhap = ?)";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, CustomerSession.getCurrentMaKhachHang());
-            ps.setString(2, CustomerSession.getCurrentTenDangNhap());
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                listSTK.add(rs.getString("SoTaiKhoan"));
-            }
-        } catch (Exception e) {
-            System.err.println("Lỗi nạp danh sách STK: " + e.getMessage());
-        }
-
-        if (listSTK.isEmpty()) {
-            listSTK.add("1000000001");
-            listSTK.add("1000000002");
+        try {
+            listSTK.addAll(portalService.laySoTaiKhoanKhachHang(
+                    CustomerSession.getCurrentMaKhachHang(), CustomerSession.getCurrentTenDangNhap()));
+        } catch (RuntimeException e) {
+            System.err.println("Lỗi nạp danh sách tài khoản: " + e.getMessage());
         }
 
         cboChonTaiKhoan.setItems(listSTK);
@@ -236,65 +217,40 @@ public class CustomerTransactionsController {
         currentSTK = cboChonTaiKhoan.getValue();
         if (currentSTK == null || currentSTK.isEmpty()) return;
 
-        String sql = "SELECT gd.MaGiaoDich, gd.MaTaiKhoanNguon, gd.MaTaiKhoanDich, gd.SoTien, gd.NgayGiaoDich, " +
-                     "gd.NoiDung, gd.MaLoaiGD, gd.TrangThai, " +
-                     "ISNULL(lg.TenLoaiGD, N'Chuyển khoản') AS TenLoaiGD " +
-                     "FROM GiaoDichChuyenTien gd " +
-                     "LEFT JOIN LoaiGiaoDich lg ON gd.MaLoaiGD = lg.MaLoaiGD " +
-                     "WHERE gd.MaTaiKhoanNguon = ? OR gd.MaTaiKhoanDich = ? " +
-                     "ORDER BY gd.NgayGiaoDich DESC";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, currentSTK);
-            ps.setString(2, currentSTK);
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
+        try {
+            for (java.util.Map<String, Object> rs : portalService.layGiaoDich(currentSTK, CustomerSession.getCurrentMaKhachHang(), CustomerSession.getCurrentTenDangNhap())) {
                 CustomerTransactionRow row = new CustomerTransactionRow();
-                row.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                row.setMaTaiKhoanNguon(rs.getString("MaTaiKhoanNguon"));
-                row.setMaTaiKhoanDich(rs.getString("MaTaiKhoanDich"));
-                row.setSoTien(rs.getBigDecimal("SoTien"));
-
-                java.sql.Timestamp ts = rs.getTimestamp("NgayGiaoDich");
-                row.setNgayGiaoDich(ts != null ? ts.toLocalDateTime() : LocalDateTime.now());
-
-                row.setNoiDung(rs.getString("NoiDung"));
-                row.setMaLoaiGD(rs.getString("MaLoaiGD"));
-                row.setTenLoaiGD(rs.getString("TenLoaiGD"));
-                row.setTrangThai(rs.getString("TrangThai"));
-
-                // Xác định chiều giao dịch
+                row.setMaGiaoDich(str(rs, "MaGiaoDich"));
+                row.setMaTaiKhoanNguon(str(rs, "MaTaiKhoanNguon"));
+                row.setMaTaiKhoanDich(str(rs, "MaTaiKhoanDich"));
+                row.setSoTien(decimal(rs.get("SoTien")));
+                Object ts = rs.get("NgayGiaoDich");
+                row.setNgayGiaoDich(ts instanceof java.sql.Timestamp ? ((java.sql.Timestamp) ts).toLocalDateTime() : null);
+                row.setNoiDung(str(rs, "NoiDung"));
+                row.setMaLoaiGD(str(rs, "MaLoaiGD"));
+                row.setTenLoaiGD(str(rs, "TenLoaiGD"));
+                row.setTrangThai(str(rs, "TrangThai"));
                 boolean chuyenDi = currentSTK.equalsIgnoreCase(row.getMaTaiKhoanNguon());
                 row.setChuyenDi(chuyenDi);
                 row.setTkDoiUng(chuyenDi ? row.getMaTaiKhoanDich() : row.getMaTaiKhoanNguon());
-
                 danhSachTatCaGD.add(row);
             }
-
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             System.err.println("Lỗi nạp giao dịch khách hàng: " + e.getMessage());
-            themDuLieuMauNeuTrong();
-        }
-
-        if (danhSachTatCaGD.isEmpty()) {
-            themDuLieuMauNeuTrong();
         }
 
         capNhatBadgeTabs();
         locDuLieu();
     }
 
-    private void themDuLieuMauNeuTrong() {
-        CustomerTransactionRow r1 = new CustomerTransactionRow("GD20261017-001", currentSTK, "1000000008", new BigDecimal("5000000"), LocalDateTime.now().minusMinutes(30), "Chuyen tien mua hang hoa", "CK01", "Chuyển khoản", "Thành công", true, "1000000008");
-        CustomerTransactionRow r2 = new CustomerTransactionRow("GD20261016-002", "1000000099", currentSTK, new BigDecimal("25000000"), LocalDateTime.now().minusDays(1), "Nhan luong thang 10", "CK01", "Chuyển khoản", "Thành công", false, "1000000099");
-        CustomerTransactionRow r3 = new CustomerTransactionRow("GD20261015-003", currentSTK, "1000000055", new BigDecimal("12000000"), LocalDateTime.now().minusDays(2), "Chuyen tien du an", "CK01", "Chuyển khoản", "Chờ xử lý", true, "1000000055");
-        CustomerTransactionRow r4 = new CustomerTransactionRow("GD20261014-004", currentSTK, "1000000033", new BigDecimal("80000000"), LocalDateTime.now().minusDays(3), "Vuot han muc ngay", "CK01", "Chuyển khoản", "Thất bại", true, "1000000033");
-        CustomerTransactionRow r5 = new CustomerTransactionRow("GD20261012-005", currentSTK, "1000000012", new BigDecimal("1000000"), LocalDateTime.now().minusDays(5), "Yeu cau huy giao dich", "CK01", "Chuyển khoản", "Đã hủy", true, "1000000012");
-        danhSachTatCaGD.addAll(r1, r2, r3, r4, r5);
+    private static String str(java.util.Map<String, Object> row, String key) {
+        Object value = row.get(key); return value == null ? "" : value.toString();
     }
+    private static BigDecimal decimal(Object value) {
+        if (value == null) return BigDecimal.ZERO;
+        return value instanceof BigDecimal ? (BigDecimal) value : new BigDecimal(value.toString());
+    }
+
 
     private void capNhatBadgeTabs() {
         int countAll = danhSachTatCaGD.size();

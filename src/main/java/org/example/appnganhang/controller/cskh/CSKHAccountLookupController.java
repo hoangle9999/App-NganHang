@@ -9,14 +9,12 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import org.example.appnganhang.model.util.DBConnection;
+import org.example.appnganhang.controller.service.Impl.CSKHAccountLookupServiceImpl;
+import org.example.appnganhang.controller.service.intf.CSKHAccountLookupService;
+import org.example.appnganhang.model.entity.CSKHAccountLookupItem;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.DecimalFormat;
 
 import static org.example.appnganhang.controller.util.Navigation.moView;
@@ -34,25 +32,25 @@ public class CSKHAccountLookupController {
     private ProgressIndicator piLoading;
 
     @FXML
-    private TableView<AccountLookupItem> tblTaiKhoan;
+    private TableView<CSKHAccountLookupItem> tblTaiKhoan;
     @FXML
-    private TableColumn<AccountLookupItem, String> colMaTK;
+    private TableColumn<CSKHAccountLookupItem, String> colMaTK;
     @FXML
-    private TableColumn<AccountLookupItem, String> colSoTK;
+    private TableColumn<CSKHAccountLookupItem, String> colSoTK;
     @FXML
-    private TableColumn<AccountLookupItem, String> colTenChuTK;
+    private TableColumn<CSKHAccountLookupItem, String> colTenChuTK;
     @FXML
-    private TableColumn<AccountLookupItem, String> colSoDu;
+    private TableColumn<CSKHAccountLookupItem, String> colSoDu;
     @FXML
-    private TableColumn<AccountLookupItem, String> colTenNganHang;
+    private TableColumn<CSKHAccountLookupItem, String> colTenNganHang;
     @FXML
-    private TableColumn<AccountLookupItem, String> colChiNhanh;
+    private TableColumn<CSKHAccountLookupItem, String> colChiNhanh;
     @FXML
-    private TableColumn<AccountLookupItem, String> colHanMuc;
+    private TableColumn<CSKHAccountLookupItem, String> colHanMuc;
     @FXML
-    private TableColumn<AccountLookupItem, String> colTrangThai;
+    private TableColumn<CSKHAccountLookupItem, String> colTrangThai;
     @FXML
-    private TableColumn<AccountLookupItem, Void> colThaoTac;
+    private TableColumn<CSKHAccountLookupItem, Void> colThaoTac;
 
     // ======================== Modal Chi tiết ========================
     @FXML
@@ -77,8 +75,9 @@ public class CSKHAccountLookupController {
     private Label lblModalHanMucNgay;
 
     // ======================== Data ========================
-    private final ObservableList<AccountLookupItem> danhSachTK = FXCollections.observableArrayList();
+    private final ObservableList<CSKHAccountLookupItem> danhSachTK = FXCollections.observableArrayList();
     private final DecimalFormat currencyFormat = new DecimalFormat("#,### VNĐ");
+    private final CSKHAccountLookupService accountLookupService = new CSKHAccountLookupServiceImpl();
 
     // ======================== Initialize ========================
     @FXML
@@ -131,7 +130,7 @@ public class CSKHAccountLookupController {
                         + "-fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;");
                 hbox.setAlignment(Pos.CENTER);
                 btnChiTiet.setOnAction(event -> {
-                    AccountLookupItem item = getTableView().getItems().get(getIndex());
+                    CSKHAccountLookupItem item = getTableView().getItems().get(getIndex());
                     if (item != null) {
                         moPopupChiTiet(item);
                     }
@@ -154,52 +153,17 @@ public class CSKHAccountLookupController {
     // ======================== Load Data ========================
     private void taiDanhSach() {
         danhSachTK.clear();
-        String keyword = (txtTimKiemTK != null) ? txtTimKiemTK.getText().trim() : "";
+        String keyword = txtTimKiemTK != null ? txtTimKiemTK.getText().trim() : "";
 
-        String sql = "SELECT tk.MaTaiKhoan, tk.SoTaiKhoan, kh.HoTen AS TenChuTK, tk.SoDu, "
-                + "ISNULL(nh.TenNganHang, 'SMART BANK') AS TenNganHang, "
-                + "ISNULL(cn.TenChiNhanh, 'N/A') AS ChiNhanh, "
-                + "ISNULL(hm.TenHanMuc, N'Hạn mức mặc định') AS HanMuc, "
-                + "tk.TrangThai, kh.SoCCCD, "
-                + "ISNULL(CAST(hm.HanMucNgay AS NVARCHAR), N'Mặc định') AS HanMucNgay "
-                + "FROM TaiKhoanNganHang tk "
-                + "LEFT JOIN KhachHang kh ON tk.MaKhachHang = kh.MaKhachHang "
-                + "LEFT JOIN NganHang nh ON tk.MaNganHang = nh.MaNganHang "
-                + "LEFT JOIN ChiNhanh cn ON tk.MaChiNhanh = cn.MaChiNhanh "
-                + "LEFT JOIN HanMucGiaoDich hm ON tk.MaHanMuc = hm.MaHanMuc";
-
-        if (!keyword.isEmpty()) {
-            sql += " WHERE tk.SoTaiKhoan LIKE ? OR kh.SoCCCD LIKE ?";
-        }
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            if (!keyword.isEmpty()) {
-                String wildcard = "%" + keyword + "%";
-                ps.setString(1, wildcard);
-                ps.setString(2, wildcard);
-            }
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    AccountLookupItem item = new AccountLookupItem(
-                            rs.getString("MaTaiKhoan"),
-                            rs.getString("SoTaiKhoan"),
-                            rs.getString("TenChuTK"),
-                            rs.getBigDecimal("SoDu"),
-                            rs.getString("TenNganHang"),
-                            rs.getString("ChiNhanh"),
-                            rs.getString("HanMuc"),
-                            rs.getString("TrangThai"),
-                            rs.getString("SoCCCD"),
-                            rs.getString("HanMucNgay")
-                    );
-                    danhSachTK.add(item);
-                }
-            }
-        } catch (SQLException e) {
+        try {
+            danhSachTK.setAll(accountLookupService.timKiemTaiKhoan(keyword));
+        } catch (Exception e) {
             e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Lỗi tra cứu tài khoản");
+            alert.setHeaderText("Không thể tải danh sách tài khoản");
+            alert.setContentText("Vui lòng kiểm tra kết nối cơ sở dữ liệu và thử lại.");
+            alert.showAndWait();
         }
 
         if (lblTongTaiKhoan != null) {
@@ -214,7 +178,7 @@ public class CSKHAccountLookupController {
     }
 
     // ======================== Modal Chi tiết ========================
-    private void moPopupChiTiet(AccountLookupItem item) {
+    private void moPopupChiTiet(CSKHAccountLookupItem item) {
         if (item == null) return;
 
         lblModalSoTK.setText(item.getSoTaiKhoan() != null ? item.getSoTaiKhoan() : "");
@@ -247,7 +211,7 @@ public class CSKHAccountLookupController {
 
     @FXML
     void onMoPopupChiTietTaiKhoan(ActionEvent event) {
-        AccountLookupItem selected = tblTaiKhoan.getSelectionModel().getSelectedItem();
+        CSKHAccountLookupItem selected = tblTaiKhoan.getSelectionModel().getSelectedItem();
         moPopupChiTiet(selected);
     }
 
@@ -295,62 +259,4 @@ public class CSKHAccountLookupController {
         moView("login-view.fxml", event);
     }
 
-    // ======================== Inner Class ========================
-    public static class AccountLookupItem {
-        private String maTaiKhoan;
-        private String soTaiKhoan;
-        private String tenChuTK;
-        private BigDecimal soDu;
-        private String tenNganHang;
-        private String chiNhanh;
-        private String hanMuc;
-        private String trangThai;
-        private String soCCCD;
-        private String hanMucNgay;
-
-        public AccountLookupItem(String maTaiKhoan, String soTaiKhoan, String tenChuTK,
-                                 BigDecimal soDu, String tenNganHang, String chiNhanh,
-                                 String hanMuc, String trangThai, String soCCCD, String hanMucNgay) {
-            this.maTaiKhoan = maTaiKhoan;
-            this.soTaiKhoan = soTaiKhoan;
-            this.tenChuTK = tenChuTK;
-            this.soDu = soDu;
-            this.tenNganHang = tenNganHang;
-            this.chiNhanh = chiNhanh;
-            this.hanMuc = hanMuc;
-            this.trangThai = trangThai;
-            this.soCCCD = soCCCD;
-            this.hanMucNgay = hanMucNgay;
-        }
-
-        public String getMaTaiKhoan() { return maTaiKhoan; }
-        public void setMaTaiKhoan(String maTaiKhoan) { this.maTaiKhoan = maTaiKhoan; }
-
-        public String getSoTaiKhoan() { return soTaiKhoan; }
-        public void setSoTaiKhoan(String soTaiKhoan) { this.soTaiKhoan = soTaiKhoan; }
-
-        public String getTenChuTK() { return tenChuTK; }
-        public void setTenChuTK(String tenChuTK) { this.tenChuTK = tenChuTK; }
-
-        public BigDecimal getSoDu() { return soDu; }
-        public void setSoDu(BigDecimal soDu) { this.soDu = soDu; }
-
-        public String getTenNganHang() { return tenNganHang; }
-        public void setTenNganHang(String tenNganHang) { this.tenNganHang = tenNganHang; }
-
-        public String getChiNhanh() { return chiNhanh; }
-        public void setChiNhanh(String chiNhanh) { this.chiNhanh = chiNhanh; }
-
-        public String getHanMuc() { return hanMuc; }
-        public void setHanMuc(String hanMuc) { this.hanMuc = hanMuc; }
-
-        public String getTrangThai() { return trangThai; }
-        public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
-
-        public String getSoCCCD() { return soCCCD; }
-        public void setSoCCCD(String soCCCD) { this.soCCCD = soCCCD; }
-
-        public String getHanMucNgay() { return hanMucNgay; }
-        public void setHanMucNgay(String hanMucNgay) { this.hanMucNgay = hanMucNgay; }
-    }
 }

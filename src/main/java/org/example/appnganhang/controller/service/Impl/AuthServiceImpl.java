@@ -1,4 +1,4 @@
-package org.example.appnganhang.controller.service.Iml;
+package org.example.appnganhang.controller.service.Impl;
 
 import org.example.appnganhang.model.dao.Impl.DangKyDAOImpl;
 import org.example.appnganhang.model.dao.Impl.KhachHangDAOImpl;

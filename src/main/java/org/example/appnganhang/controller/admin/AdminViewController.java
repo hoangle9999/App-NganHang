@@ -3,15 +3,10 @@ package org.example.appnganhang.controller.admin;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import org.example.appnganhang.controller.service.Iml.AdminDashboardServiceImpl;
+import org.example.appnganhang.controller.service.Impl.AdminDashboardServiceImpl;
 import org.example.appnganhang.controller.service.intf.AdminDashboardService;
 import org.example.appnganhang.model.entity.AdminDashboardStats;
-import org.example.appnganhang.model.util.DBConnection;
 
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.text.DecimalFormat;
 
 import static org.example.appnganhang.controller.util.Navigation.moView;

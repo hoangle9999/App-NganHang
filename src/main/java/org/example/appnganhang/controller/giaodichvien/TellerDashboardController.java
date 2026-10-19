@@ -13,7 +13,7 @@ import javafx.scene.layout.HBox;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 import org.example.appnganhang.model.entity.NhanVien;
 import org.example.appnganhang.model.entity.TellerDashboardStats;
-import org.example.appnganhang.controller.service.Iml.TellerDashboardServiceImpl;
+import org.example.appnganhang.controller.service.Impl.TellerDashboardServiceImpl;
 import org.example.appnganhang.controller.service.intf.TellerDashboardService;
 
 import java.math.BigDecimal;

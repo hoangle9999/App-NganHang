@@ -10,12 +10,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import org.example.appnganhang.model.entity.KhachHang;
-import org.example.appnganhang.model.util.DBConnection;
+import org.example.appnganhang.controller.service.Impl.CSKHCustomerServiceImpl;
+import org.example.appnganhang.controller.service.intf.CSKHCustomerService;
+import org.example.appnganhang.model.entity.CSKHCustomerAccountItem;
 
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.text.DecimalFormat;
 import java.util.stream.Collectors;
 
@@ -64,10 +62,6 @@ public class CSKHCustomerController {
     // ====== Modal Thêm KH ======
     @FXML
     private StackPane modalThemKhachHang;
-
-    @FXML
-    private TextField txtThemMaKH;
-
     @FXML
     private TextField txtThemHoTen;
 
@@ -164,6 +158,7 @@ public class CSKHCustomerController {
     private ObservableList<KhachHang> danhSachKH = FXCollections.observableArrayList();
     private KhachHang khachHangDangChon;
 
+    private final CSKHCustomerService customerService = new CSKHCustomerServiceImpl();
     private final DecimalFormat currencyFormat = new DecimalFormat("#,### VNĐ");
 
     // ====== Inner class for detail account table ======
@@ -258,30 +253,22 @@ public class CSKHCustomerController {
 
     private void taiDanhSachKhachHang() {
         danhSachKH.clear();
-        String sql = "SELECT MaKhachHang, HoTen, SoCCCD, SoDienThoai, Email, DiaChi, TenDangNhap FROM KhachHang";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                KhachHang kh = new KhachHang();
-                kh.setMaKhachHang(rs.getString("MaKhachHang"));
-                kh.setHoTen(rs.getString("HoTen"));
-                kh.setSoCCCD(rs.getString("SoCCCD"));
-                kh.setSoDienThoai(rs.getString("SoDienThoai"));
-                kh.setEmail(rs.getString("Email"));
-                kh.setDiaChi(rs.getString("DiaChi"));
-                kh.setTenDangNhap(rs.getString("TenDangNhap"));
-                danhSachKH.add(kh);
-            }
-
+        try {
+            danhSachKH.setAll(customerService.layDanhSachKhachHang());
         } catch (Exception e) {
             e.printStackTrace();
+            hienThiThongBaoLoi("Không thể tải danh sách khách hàng: " + e.getMessage());
         }
-
         tblKhachHang.setItems(danhSachKH);
         lblTongKhachHang.setText(String.valueOf(danhSachKH.size()));
+    }
+
+    private void hienThiThongBaoLoi(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Lỗi dữ liệu");
+        alert.setHeaderText("Không thể thực hiện thao tác");
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     // ======================== SEARCH / REFRESH ========================
@@ -319,7 +306,6 @@ public class CSKHCustomerController {
 
     @FXML
     public void onMoPopupThemKhachHang(ActionEvent event) {
-        txtThemMaKH.clear();
         txtThemHoTen.clear();
         txtThemSoCCCD.clear();
         txtThemSoDienThoai.clear();
@@ -336,7 +322,6 @@ public class CSKHCustomerController {
 
     @FXML
     public void onLuuThemKhachHang(ActionEvent event) {
-        String maKH = txtThemMaKH.getText() != null ? txtThemMaKH.getText().trim() : "";
         String hoTen = txtThemHoTen.getText() != null ? txtThemHoTen.getText().trim() : "";
         String soCCCD = txtThemSoCCCD.getText() != null ? txtThemSoCCCD.getText().trim() : "";
         String soDienThoai = txtThemSoDienThoai.getText() != null ? txtThemSoDienThoai.getText().trim() : "";
@@ -346,62 +331,31 @@ public class CSKHCustomerController {
         String matKhau = txtThemMatKhau.getText() != null ? txtThemMatKhau.getText().trim() : "";
 
         // Validate required fields
-        if (maKH.isEmpty() || hoTen.isEmpty() || soCCCD.isEmpty()
+        if (hoTen.isEmpty() || soCCCD.isEmpty()
                 || soDienThoai.isEmpty() || tenDangNhap.isEmpty() || matKhau.isEmpty()) {
             hienThiLoiThem("Vui lòng điền đầy đủ các trường bắt buộc.");
             return;
         }
 
-        try (Connection conn = DBConnection.getConnection()) {
-            // Check duplicate CCCD
-            String sqlCheckCCCD = "SELECT COUNT(*) FROM KhachHang WHERE SoCCCD = ?";
-            try (PreparedStatement psCheck = conn.prepareStatement(sqlCheckCCCD)) {
-                psCheck.setString(1, soCCCD);
-                try (ResultSet rs = psCheck.executeQuery()) {
-                    if (rs.next() && rs.getInt(1) > 0) {
-                        hienThiLoiThem("Số CCCD đã tồn tại trong hệ thống.");
-                        return;
-                    }
-                }
+        try {
+            if (customerService.tonTaiCCCD(soCCCD)) {
+                hienThiLoiThem("Số CCCD đã tồn tại trong hệ thống.");
+                return;
+            }
+            if (customerService.tonTaiSoDienThoai(soDienThoai, null)) {
+                hienThiLoiThem("Số điện thoại đã tồn tại trong hệ thống.");
+                return;
             }
 
-            // Check duplicate SDT
-            String sqlCheckSDT = "SELECT COUNT(*) FROM KhachHang WHERE SoDienThoai = ?";
-            try (PreparedStatement psCheck = conn.prepareStatement(sqlCheckSDT)) {
-                psCheck.setString(1, soDienThoai);
-                try (ResultSet rs = psCheck.executeQuery()) {
-                    if (rs.next() && rs.getInt(1) > 0) {
-                        hienThiLoiThem("Số điện thoại đã tồn tại trong hệ thống.");
-                        return;
-                    }
-                }
-            }
+            KhachHang khachHang = new KhachHang();
+            khachHang.setHoTen(hoTen);
+            khachHang.setSoCCCD(soCCCD);
+            khachHang.setSoDienThoai(soDienThoai);
+            khachHang.setEmail(email);
+            khachHang.setDiaChi(diaChi);
+            khachHang.setTenDangNhap(tenDangNhap);
 
-            // Insert KhachHang
-            String sqlInsertKH = "INSERT INTO KhachHang (MaKhachHang, HoTen, SoCCCD, SoDienThoai, Email, DiaChi, TenDangNhap) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement psInsert = conn.prepareStatement(sqlInsertKH)) {
-                psInsert.setString(1, maKH);
-                psInsert.setString(2, hoTen);
-                psInsert.setString(3, soCCCD);
-                psInsert.setString(4, soDienThoai);
-                psInsert.setString(5, email);
-                psInsert.setString(6, diaChi);
-                psInsert.setString(7, tenDangNhap);
-                psInsert.executeUpdate();
-            }
-
-            // Insert TaiKhoanDangNhap_VaiTro
-            String sqlInsertTK = "INSERT INTO TaiKhoanDangNhap_VaiTro (TenDangNhap, MatKhau, RoleName, MaNguoiDung) "
-                    + "VALUES (?, ?, N'Khách hàng', ?)";
-            try (PreparedStatement psInsertTK = conn.prepareStatement(sqlInsertTK)) {
-                psInsertTK.setString(1, tenDangNhap);
-                psInsertTK.setString(2, matKhau);
-                psInsertTK.setString(3, maKH);
-                psInsertTK.executeUpdate();
-            }
-
-            // Close modal and reload
+            customerService.themKhachHang(khachHang, matKhau);
             onDongPopupThem(event);
             taiDanhSachKhachHang();
 
@@ -471,31 +425,20 @@ public class CSKHCustomerController {
             return;
         }
 
-        try (Connection conn = DBConnection.getConnection()) {
-            // Check duplicate SDT with another customer
-            String sqlCheckSDT = "SELECT COUNT(*) FROM KhachHang WHERE SoDienThoai = ? AND MaKhachHang != ?";
-            try (PreparedStatement psCheck = conn.prepareStatement(sqlCheckSDT)) {
-                psCheck.setString(1, soDienThoai);
-                psCheck.setString(2, maKH);
-                try (ResultSet rs = psCheck.executeQuery()) {
-                    if (rs.next() && rs.getInt(1) > 0) {
-                        hienThiLoiSua("Số điện thoại đã được sử dụng bởi khách hàng khác.");
-                        return;
-                    }
-                }
+        try {
+            if (customerService.tonTaiSoDienThoai(soDienThoai, maKH)) {
+                hienThiLoiSua("Số điện thoại đã được sử dụng bởi khách hàng khác.");
+                return;
             }
 
-            // Update
-            String sqlUpdate = "UPDATE KhachHang SET HoTen = ?, SoDienThoai = ?, Email = ?, DiaChi = ? WHERE MaKhachHang = ?";
-            try (PreparedStatement psUpdate = conn.prepareStatement(sqlUpdate)) {
-                psUpdate.setString(1, hoTen);
-                psUpdate.setString(2, soDienThoai);
-                psUpdate.setString(3, email);
-                psUpdate.setString(4, diaChi);
-                psUpdate.setString(5, maKH);
-                psUpdate.executeUpdate();
-            }
+            KhachHang khachHang = new KhachHang();
+            khachHang.setMaKhachHang(maKH);
+            khachHang.setHoTen(hoTen);
+            khachHang.setSoDienThoai(soDienThoai);
+            khachHang.setEmail(email);
+            khachHang.setDiaChi(diaChi);
 
+            customerService.capNhatKhachHang(khachHang);
             onDongPopupSua(event);
             taiDanhSachKhachHang();
 
@@ -531,36 +474,23 @@ public class CSKHCustomerController {
         lblDetailTenDangNhap.setText(kh.getTenDangNhap() != null ? kh.getTenDangNhap() : "");
         lblDetailDiaChi.setText(kh.getDiaChi() != null ? kh.getDiaChi() : "");
 
-        // Load linked bank accounts
+        // Lấy danh sách tài khoản liên kết qua Service/DAO.
         ObservableList<DetailAccountItem> detailAccounts = FXCollections.observableArrayList();
-        String sql = "SELECT tk.SoTaiKhoan, tk.SoDu, tk.TrangThai, cn.TenChiNhanh "
-                + "FROM TaiKhoanNganHang tk "
-                + "LEFT JOIN ChiNhanh cn ON tk.MaChiNhanh = cn.MaChiNhanh "
-                + "WHERE tk.MaKhachHang = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, kh.getMaKhachHang());
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    String soTaiKhoan = rs.getString("SoTaiKhoan");
-                    BigDecimal soDu = rs.getBigDecimal("SoDu");
-                    String soDuFormatted = soDu != null ? currencyFormat.format(soDu) : "0 VNĐ";
-                    String trangThai = rs.getString("TrangThai");
-                    String chiNhanh = rs.getString("TenChiNhanh");
-
-                    detailAccounts.add(new DetailAccountItem(
-                            soTaiKhoan != null ? soTaiKhoan : "",
-                            soDuFormatted,
-                            trangThai != null ? trangThai : "",
-                            chiNhanh != null ? chiNhanh : ""
-                    ));
-                }
+        try {
+            for (CSKHCustomerAccountItem account :
+                    customerService.layTaiKhoanTheoKhachHang(kh.getMaKhachHang())) {
+                String soDuFormatted = account.getSoDu() != null
+                        ? currencyFormat.format(account.getSoDu()) : "0 VNĐ";
+                detailAccounts.add(new DetailAccountItem(
+                        account.getSoTaiKhoan() != null ? account.getSoTaiKhoan() : "",
+                        soDuFormatted,
+                        account.getTrangThai() != null ? account.getTrangThai() : "",
+                        account.getTenChiNhanh() != null ? account.getTenChiNhanh() : ""
+                ));
             }
-
         } catch (Exception e) {
             e.printStackTrace();
+            hienThiThongBaoLoi("Không thể tải tài khoản của khách hàng: " + e.getMessage());
         }
 
         tblDetailTaiKhoan.setItems(detailAccounts);

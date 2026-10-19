@@ -10,7 +10,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.appnganhang.MainApp;
 import org.example.appnganhang.controller.service.intf.AuthService;
-import org.example.appnganhang.controller.service.Iml.AuthServiceImpl;
+import org.example.appnganhang.controller.service.Impl.AuthServiceImpl;
 import org.example.appnganhang.model.entity.TaiKhoanDangNhap_VaiTro;
 import org.example.appnganhang.controller.giaodichvien.TellerSession;
 
@@ -80,6 +80,12 @@ public class LoginController {
                     break;
 
                 case "Khách hàng":
+                    if (!org.example.appnganhang.controller.khachhang.CustomerSession
+                            .loadSessionFromDB(currentUser.getMaNguoiDung(), tenDangNhap)) {
+                        lblThongBao.setStyle("-fx-text-fill: red;");
+                        lblThongBao.setText("Khong tim thay ho so khach hang cho tai khoan nay.");
+                        return;
+                    }
                     fxmlPath =
                             "/org/example/appnganhang/khachHang-view/customer-home-view.fxml";
                     break;

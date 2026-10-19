@@ -12,20 +12,18 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import org.example.appnganhang.model.util.DBConnection;
+import org.example.appnganhang.controller.service.Impl.KhachHangPortalServiceImpl;
+import org.example.appnganhang.controller.service.intf.KhachHangPortalService;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.text.DecimalFormat;
 
 import static org.example.appnganhang.controller.util.Navigation.moView;
 
 public class CustomerHomeController {
+    private final KhachHangPortalService portalService = new KhachHangPortalServiceImpl();
 
     @FXML private Label lblSidebarTenKH;
-    @FXML private Label lblSidebarMaKH;
     @FXML private Label lblHeaderTenKH;
 
     @FXML private ComboBox<String> cboChonTaiKhoan;
@@ -74,7 +72,6 @@ public class CustomerHomeController {
     @FXML
     public void initialize() {
         lblSidebarTenKH.setText(CustomerSession.getCurrentHoTen());
-        lblSidebarMaKH.setText("Mã KH: " + CustomerSession.getCurrentMaKhachHang());
         lblHeaderTenKH.setText(CustomerSession.getCurrentHoTen());
 
         cauHinhBangTaiKhoan();
@@ -130,55 +127,39 @@ public class CustomerHomeController {
         danhSachTaiKhoan.clear();
         ObservableList<String> listSTK = FXCollections.observableArrayList();
 
-        String sql = "SELECT tk.MaTaiKhoan, tk.SoTaiKhoan, tk.SoDu, tk.TrangThai, " +
-                     "ISNULL(nh.TenNganHang, 'SMART BANK') AS TenNganHang, " +
-                     "ISNULL(cn.TenChiNhanh, N'Hội sở SMART BANK') AS TenChiNhanh, " +
-                     "ISNULL(hm.TenHanMuc, N'Mặc định') AS TenHanMuc, " +
-                     "ISNULL(hm.HanMucNgay, 50000000) AS HanMucNgay " +
-                     "FROM TaiKhoanNganHang tk " +
-                     "LEFT JOIN NganHang nh ON tk.MaNganHang = nh.MaNganHang " +
-                     "LEFT JOIN ChiNhanh cn ON tk.MaChiNhanh = cn.MaChiNhanh " +
-                     "LEFT JOIN [HanMucGiaoDịch] hm ON tk.MaHanMuc = hm.MaHanMuc " +
-                     "WHERE tk.MaKhachHang = ? OR tk.MaKhachHang IN (SELECT MaKhachHang FROM KhachHang WHERE TenDangNhap = ?)";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, CustomerSession.getCurrentMaKhachHang());
-            ps.setString(2, CustomerSession.getCurrentTenDangNhap());
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
+        try {
+            for (java.util.Map<String, Object> rs : portalService.layTaiKhoanKhachHang(
+                    CustomerSession.getCurrentMaKhachHang(), CustomerSession.getCurrentTenDangNhap())) {
                 CustomerAccountItem item = new CustomerAccountItem();
-                item.setMaTaiKhoan(rs.getString("MaTaiKhoan"));
-                item.setSoTaiKhoan(rs.getString("SoTaiKhoan"));
-                item.setSoDu(rs.getBigDecimal("SoDu"));
-                item.setTrangThai(rs.getString("TrangThai"));
-                item.setTenNganHang(rs.getString("TenNganHang"));
-                item.setTenChiNhanh(rs.getString("TenChiNhanh"));
-                item.setTenHanMuc(rs.getString("TenHanMuc"));
-                item.setHanMucNgay(rs.getBigDecimal("HanMucNgay"));
-
+                item.setMaTaiKhoan(value(rs, "MaTaiKhoan"));
+                item.setSoTaiKhoan(value(rs, "SoTaiKhoan"));
+                item.setSoDu(decimal(rs.get("SoDu")));
+                item.setTrangThai(value(rs, "TrangThai"));
+                item.setTenNganHang(value(rs, "TenNganHang"));
+                item.setTenChiNhanh(value(rs, "TenChiNhanh"));
+                item.setTenHanMuc(value(rs, "TenHanMuc"));
+                item.setHanMucNgay(decimal(rs.get("HanMucNgay")));
                 danhSachTaiKhoan.add(item);
                 listSTK.add(item.getSoTaiKhoan());
             }
-
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             System.err.println("Lỗi nạp tài khoản khách hàng: " + e.getMessage());
-            themDuLieuMauNeuTrong();
-            for (CustomerAccountItem it : danhSachTaiKhoan) {
-                listSTK.add(it.getSoTaiKhoan());
-            }
-        }
-
-        if (danhSachTaiKhoan.isEmpty()) {
-            themDuLieuMauNeuTrong();
-            for (CustomerAccountItem it : danhSachTaiKhoan) {
-                listSTK.add(it.getSoTaiKhoan());
-            }
         }
 
         cboChonTaiKhoan.setItems(listSTK);
+
+        if (danhSachTaiKhoan.isEmpty()) {
+            currentAccount = null;
+            lblTenNganHang.setText("—");
+            lblCardTrangThai.setText("—");
+            lblCardTrangThaiText.setText("—");
+            lblSoTaiKhoan.setText("—");
+            lblSoDuKhachHang.setText("—");
+            lblCardTenChuTK.setText(CustomerSession.getCurrentHoTen());
+            lblCardChiNhanh.setText("—");
+            lblCardHanMuc.setText("—");
+            return;
+        }
 
         // Chọn tài khoản đầu tiên hoặc tài khoản đã lưu
         String savedSTK = CustomerSession.getSelectedSoTaiKhoan();
@@ -191,11 +172,14 @@ public class CustomerHomeController {
         }
     }
 
-    private void themDuLieuMauNeuTrong() {
-        CustomerAccountItem a1 = new CustomerAccountItem("TK001", "1000000001", new BigDecimal("15000000"), "Hoạt động", "SMART BANK", "Hội sở chính SMART BANK", "Tiêu chuẩn", new BigDecimal("50000000"));
-        CustomerAccountItem a2 = new CustomerAccountItem("TK002", "1000000002", new BigDecimal("85000000"), "Hoạt động", "SMART BANK", "Chi nhánh Ba Đình", "VIP", new BigDecimal("200000000"));
-        danhSachTaiKhoan.addAll(a1, a2);
+    private static String value(java.util.Map<String, Object> row, String key) {
+        Object value = row.get(key); return value == null ? "" : value.toString();
     }
+    private static BigDecimal decimal(Object value) {
+        if (value == null) return BigDecimal.ZERO;
+        return value instanceof BigDecimal ? (BigDecimal) value : new BigDecimal(value.toString());
+    }
+
 
     private void chonTheoSoTaiKhoan(String stk) {
         for (CustomerAccountItem it : danhSachTaiKhoan) {
@@ -288,8 +272,8 @@ public class CustomerHomeController {
 
         lblModalDetailSoTK.setText(currentAccount.getSoTaiKhoan());
         lblModalDetailChuTK.setText(CustomerSession.getCurrentHoTen());
-        lblModalDetailCCCD.setText(CustomerSession.getCurrentSoCCCD().isEmpty() ? "001200001234" : CustomerSession.getCurrentSoCCCD());
-        lblModalDetailSDT.setText(CustomerSession.getCurrentSoDienThoai().isEmpty() ? "0987654321" : CustomerSession.getCurrentSoDienThoai());
+        lblModalDetailCCCD.setText(CustomerSession.getCurrentSoCCCD().isEmpty() ? "Chưa cập nhật" : CustomerSession.getCurrentSoCCCD());
+        lblModalDetailSDT.setText(CustomerSession.getCurrentSoDienThoai().isEmpty() ? "Chưa cập nhật" : CustomerSession.getCurrentSoDienThoai());
         lblModalDetailChiNhanh.setText(currentAccount.getTenChiNhanh());
         lblModalDetailTenHanMuc.setText(currentAccount.getTenHanMuc() != null ? currentAccount.getTenHanMuc() : "Mặc định");
         lblModalDetailHanMucNgay.setText(dfTien.format(currentAccount.getHanMucNgay()));

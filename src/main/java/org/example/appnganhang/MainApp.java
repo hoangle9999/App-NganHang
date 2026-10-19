@@ -19,7 +19,7 @@ public class MainApp extends Application {
 
         if (fxmlLocation == null) {
             throw new IOException(
-                    "Không tìm thấy customer-login-view.fxml. "
+                    "Không tìm thấy login-view.fxml. "
                             + "Hãy kiểm tra vị trí file trong src/main/resources!"
             );
         }

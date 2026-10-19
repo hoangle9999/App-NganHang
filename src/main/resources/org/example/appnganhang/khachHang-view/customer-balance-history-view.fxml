@@ -34,8 +34,7 @@
                         <VBox spacing="4.0" style="-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 12; -fx-padding: 12 15;">
                             <children>
                                 <Label style="-fx-font-size: 11px; -fx-text-fill: #BDBDD2;" text="Khách hàng" />
-                                <Label fx:id="lblSidebarTenKH" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;" text="Nguyễn Văn A" />
-                                <Label fx:id="lblSidebarMaKH" style="-fx-font-size: 11px; -fx-text-fill: #93C5FD;" text="Mã KH: KH0001" />
+                                <Label fx:id="lblSidebarTenKH" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;" text="Khach hang" />
                             </children>
                         </VBox>
 

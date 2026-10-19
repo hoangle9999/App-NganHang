@@ -6,7 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import org.example.appnganhang.controller.service.Iml.TellerTransferServiceImpl;
+import org.example.appnganhang.controller.service.Impl.TellerTransferServiceImpl;
 import org.example.appnganhang.controller.service.intf.TellerTransferService;
 import org.example.appnganhang.model.entity.LoaiGiaoDich;
 import org.example.appnganhang.model.entity.NganHang;

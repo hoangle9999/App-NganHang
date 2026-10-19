@@ -9,13 +9,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
-import org.example.appnganhang.model.entity.LichSuGiaoDich;
-import org.example.appnganhang.model.util.DBConnection;
+import org.example.appnganhang.controller.service.Impl.KhachHangPortalServiceImpl;
+import org.example.appnganhang.controller.service.intf.KhachHangPortalService;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,9 +20,9 @@ import java.time.format.DateTimeFormatter;
 import static org.example.appnganhang.controller.util.Navigation.moView;
 
 public class CustomerBalanceHistoryController {
+    private final KhachHangPortalService portalService = new KhachHangPortalServiceImpl();
 
     @FXML private Label lblSidebarTenKH;
-    @FXML private Label lblSidebarMaKH;
 
     @FXML private ComboBox<String> cboChonTaiKhoan;
     @FXML private Button btnLamMoi;
@@ -61,8 +58,6 @@ public class CustomerBalanceHistoryController {
     @FXML
     public void initialize() {
         lblSidebarTenKH.setText(CustomerSession.getCurrentHoTen());
-        lblSidebarMaKH.setText("Mã KH: " + CustomerSession.getCurrentMaKhachHang());
-
         khoiTaoDanhSachTaiKhoan();
         cauHinhBangBienDong();
         taiDuLieuLichSuBienDong();
@@ -70,25 +65,11 @@ public class CustomerBalanceHistoryController {
 
     private void khoiTaoDanhSachTaiKhoan() {
         ObservableList<String> listSTK = FXCollections.observableArrayList();
-        String sql = "SELECT SoTaiKhoan FROM TaiKhoanNganHang WHERE MaKhachHang = ? OR MaKhachHang IN (SELECT MaKhachHang FROM KhachHang WHERE TenDangNhap = ?)";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, CustomerSession.getCurrentMaKhachHang());
-            ps.setString(2, CustomerSession.getCurrentTenDangNhap());
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                listSTK.add(rs.getString("SoTaiKhoan"));
-            }
-        } catch (Exception e) {
-            System.err.println("Lỗi nạp danh sách STK: " + e.getMessage());
-        }
-
-        if (listSTK.isEmpty()) {
-            listSTK.add("1000000001");
-            listSTK.add("1000000002");
+        try {
+            listSTK.addAll(portalService.laySoTaiKhoanKhachHang(
+                    CustomerSession.getCurrentMaKhachHang(), CustomerSession.getCurrentTenDangNhap()));
+        } catch (RuntimeException e) {
+            System.err.println("Lỗi nạp danh sách tài khoản: " + e.getMessage());
         }
 
         cboChonTaiKhoan.setItems(listSTK);
@@ -165,78 +146,36 @@ public class CustomerBalanceHistoryController {
         currentSTK = cboChonTaiKhoan.getValue();
         if (currentSTK == null || currentSTK.isEmpty()) return;
 
-        // 1. Lấy số dư hiện tại của tài khoản
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement("SELECT SoDu FROM TaiKhoanNganHang WHERE SoTaiKhoan = ?")) {
-            ps.setString(1, currentSTK);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                BigDecimal sd = rs.getBigDecimal("SoDu");
-                lblSoDuHienTai.setText(dfTien.format(sd));
-            }
-        } catch (Exception e) {
+        // Lấy số dư và lịch sử qua Service; Controller chỉ chuyển dữ liệu sang model hiển thị.
+        try {
+            BigDecimal soDu = portalService.laySoDu(currentSTK, CustomerSession.getCurrentMaKhachHang(), CustomerSession.getCurrentTenDangNhap());
+            if (soDu != null) lblSoDuHienTai.setText(dfTien.format(soDu));
+            else lblSoDuHienTai.setText("Không có dữ liệu");
+        } catch (RuntimeException e) {
             System.err.println("Lỗi nạp số dư: " + e.getMessage());
-            lblSoDuHienTai.setText("15,000,000 VNĐ");
+            lblSoDuHienTai.setText("Không có dữ liệu");
         }
-
-        // 2. Nạp dữ liệu biến động từ LichSuGiaoDich
-        String sql = "SELECT MaLog, MaGiaoDich, SoTaiKhoanLienQuan, HanhDong, SoTienThayDoi, SoDuSauThayDoi, ThoiGianGhiLog " +
-                     "FROM LichSuGiaoDich WHERE SoTaiKhoanLienQuan = ? ORDER BY ThoiGianGhiLog DESC";
 
         BigDecimal tongVao = BigDecimal.ZERO;
         BigDecimal tongRa = BigDecimal.ZERO;
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, currentSTK);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
+        try {
+            for (java.util.Map<String, Object> rs : portalService.layBienDongSoDu(currentSTK, CustomerSession.getCurrentMaKhachHang(), CustomerSession.getCurrentTenDangNhap())) {
                 BalanceFluctuationRow row = new BalanceFluctuationRow();
-                row.setMaLog(rs.getInt("MaLog"));
-                row.setMaGiaoDich(rs.getString("MaGiaoDich"));
-                row.setSoTaiKhoanLienQuan(rs.getString("SoTaiKhoanLienQuan"));
-                row.setHanhDong(rs.getString("HanhDong"));
-
-                BigDecimal st = rs.getBigDecimal("SoTienThayDoi");
+                row.setMaLog(((Number) rs.get("MaLog")).intValue());
+                row.setMaGiaoDich(str(rs, "MaGiaoDich"));
+                row.setSoTaiKhoanLienQuan(str(rs, "SoTaiKhoanLienQuan"));
+                row.setHanhDong(str(rs, "HanhDong"));
+                BigDecimal st = decimal(rs.get("SoTienThayDoi"));
                 row.setSoTienThayDoi(st);
-                row.setSoDuSauThayDoi(rs.getBigDecimal("SoDuSauThayDoi"));
-
-                java.sql.Timestamp ts = rs.getTimestamp("ThoiGianGhiLog");
-                row.setThoiGianGhiLog(ts != null ? ts.toLocalDateTime() : LocalDateTime.now());
-
-                if (st != null) {
-                    if (st.compareTo(BigDecimal.ZERO) >= 0) {
-                        tongVao = tongVao.add(st);
-                    } else {
-                        tongRa = tongRa.add(st.abs());
-                    }
-                }
-
+                row.setSoDuSauThayDoi(decimal(rs.get("SoDuSauThayDoi")));
+                Object ts = rs.get("ThoiGianGhiLog");
+                row.setThoiGianGhiLog(ts instanceof java.sql.Timestamp ? ((java.sql.Timestamp) ts).toLocalDateTime() : null);
+                if (st.compareTo(BigDecimal.ZERO) >= 0) tongVao = tongVao.add(st);
+                else tongRa = tongRa.add(st.abs());
                 danhSachTatCaLogs.add(row);
             }
-
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             System.err.println("Lỗi nạp lịch sử biến động số dư: " + e.getMessage());
-            themDuLieuMauNeuTrong();
-        }
-
-        if (danhSachTatCaLogs.isEmpty()) {
-            themDuLieuMauNeuTrong();
-        }
-
-        // Tính lại tổng nếu dùng dữ liệu mẫu
-        if (tongVao.compareTo(BigDecimal.ZERO) == 0 && tongRa.compareTo(BigDecimal.ZERO) == 0) {
-            for (BalanceFluctuationRow r : danhSachTatCaLogs) {
-                if (r.getSoTienThayDoi() != null) {
-                    if (r.getSoTienThayDoi().compareTo(BigDecimal.ZERO) >= 0) {
-                        tongVao = tongVao.add(r.getSoTienThayDoi());
-                    } else {
-                        tongRa = tongRa.add(r.getSoTienThayDoi().abs());
-                    }
-                }
-            }
         }
 
         lblTongTienVao.setText("+" + dfTien.format(tongVao));
@@ -246,14 +185,14 @@ public class CustomerBalanceHistoryController {
         locDuLieuTheoTab();
     }
 
-    private void themDuLieuMauNeuTrong() {
-        BalanceFluctuationRow b1 = new BalanceFluctuationRow(1, "GD20261017-001", currentSTK, "Chuyển tiền mua hàng hóa", new BigDecimal("-5000000"), new BigDecimal("15000000"), LocalDateTime.now().minusMinutes(25));
-        BalanceFluctuationRow b2 = new BalanceFluctuationRow(2, "NT20261017-002", currentSTK, "Nộp tiền mặt tại quầy SMART BANK", new BigDecimal("20000000"), new BigDecimal("20000000"), LocalDateTime.now().minusHours(2));
-        BalanceFluctuationRow b3 = new BalanceFluctuationRow(3, "GD20261016-003", currentSTK, "Nhận chuyển khoản từ đối tác", new BigDecimal("10000000"), new BigDecimal("35000000"), LocalDateTime.now().minusDays(1));
-        BalanceFluctuationRow b4 = new BalanceFluctuationRow(4, "RT20261015-004", currentSTK, "Rút tiền mặt tại ATM", new BigDecimal("-2000000"), new BigDecimal("25000000"), LocalDateTime.now().minusDays(2));
-
-        danhSachTatCaLogs.addAll(b1, b2, b3, b4);
+    private static String str(java.util.Map<String, Object> row, String key) {
+        Object value = row.get(key); return value == null ? "" : value.toString();
     }
+    private static BigDecimal decimal(Object value) {
+        if (value == null) return BigDecimal.ZERO;
+        return value instanceof BigDecimal ? (BigDecimal) value : new BigDecimal(value.toString());
+    }
+
 
     private void capNhatBadgeTabs() {
         int countAll = danhSachTatCaLogs.size();

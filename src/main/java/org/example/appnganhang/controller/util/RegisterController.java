@@ -11,7 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.example.appnganhang.controller.service.Iml.AuthServiceImpl;
+import org.example.appnganhang.controller.service.Impl.AuthServiceImpl;
 import org.example.appnganhang.controller.service.intf.AuthService;
 import org.example.appnganhang.model.entity.KhachHang;
 

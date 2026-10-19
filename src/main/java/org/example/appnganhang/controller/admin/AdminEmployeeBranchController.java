@@ -8,7 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import org.example.appnganhang.controller.service.Iml.AdminEmployBranchServiceImpl;
+import org.example.appnganhang.controller.service.Impl.AdminEmployBranchServiceImpl;
 import org.example.appnganhang.controller.service.intf.AdminEmployBranchService;
 import org.example.appnganhang.model.entity.ChiNhanh;
 import org.example.appnganhang.model.entity.NhanVien;
