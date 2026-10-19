@@ -4,8 +4,9 @@ import org.example.appnganhang.model.dao.intf.CSKHTransactionLookupDAO;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 import org.example.appnganhang.model.util.DBConnection;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -13,79 +14,28 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Cài đặt các truy vấn SQL cho tra cứu giao dịch CSKH. */
 public class CSKHTransactionLookupDAOImpl implements CSKHTransactionLookupDAO {
-
-    private static final String SQL_DANH_SACH = """
-            SELECT MaGiaoDich, MaTaiKhoanNguon, MaTaiKhoanDich, SoTien,
-                   NgayGiaoDich, NoiDung, MaLoaiGD, TrangThai
-            FROM GiaoDichChuyenTien
-            ORDER BY NgayGiaoDich DESC
-            """;
-
-    private static final String SQL_TIM_KIEM = """
-            SELECT MaGiaoDich, MaTaiKhoanNguon, MaTaiKhoanDich, SoTien,
-                   NgayGiaoDich, NoiDung, MaLoaiGD, TrangThai
-            FROM GiaoDichChuyenTien
-            WHERE 1 = 1
-            """;
 
     @Override
     public List<GiaoDichChuyenTien> layDanhSachGiaoDich() throws SQLException {
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(SQL_DANH_SACH);
+             CallableStatement statement = connection.prepareCall("{call dbo.sp_CSKH_DanhSachGiaoDich}");
              ResultSet resultSet = statement.executeQuery()) {
             return docDanhSach(resultSet);
         }
     }
 
     @Override
-    public List<GiaoDichChuyenTien> timKiemGiaoDich(
-            String tuKhoa,
-            LocalDate tuNgay,
-            LocalDate denNgay,
-            String maLoaiGiaoDich,
-            String trangThai) throws SQLException {
-
-        StringBuilder sql = new StringBuilder(SQL_TIM_KIEM);
-        List<Object> thamSo = new ArrayList<>();
-
-        if (tuKhoa != null && !tuKhoa.isBlank()) {
-            sql.append(" AND (MaGiaoDich LIKE ? OR MaTaiKhoanNguon LIKE ? OR MaTaiKhoanDich LIKE ?)");
-            String tuKhoaLike = "%" + tuKhoa.trim() + "%";
-            thamSo.add(tuKhoaLike);
-            thamSo.add(tuKhoaLike);
-            thamSo.add(tuKhoaLike);
-        }
-
-        if (tuNgay != null) {
-            sql.append(" AND NgayGiaoDich >= ?");
-            thamSo.add(Timestamp.valueOf(tuNgay.atStartOfDay()));
-        }
-
-        // Dùng mốc đầu ngày kế tiếp để bao gồm toàn bộ ngày kết thúc.
-        if (denNgay != null) {
-            sql.append(" AND NgayGiaoDich < ?");
-            thamSo.add(Timestamp.valueOf(denNgay.plusDays(1).atStartOfDay()));
-        }
-
-        if (maLoaiGiaoDich != null && !maLoaiGiaoDich.isBlank()) {
-            sql.append(" AND MaLoaiGD = ?");
-            thamSo.add(maLoaiGiaoDich);
-        }
-
-        if (trangThai != null && !trangThai.isBlank()) {
-            sql.append(" AND TrangThai = ?");
-            thamSo.add(trangThai);
-        }
-
-        sql.append(" ORDER BY NgayGiaoDich DESC");
-
+    public List<GiaoDichChuyenTien> timKiemGiaoDich(String tuKhoa, LocalDate tuNgay,
+                                                    LocalDate denNgay, String maLoaiGiaoDich,
+                                                    String trangThai) throws SQLException {
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
-            for (int i = 0; i < thamSo.size(); i++) {
-                statement.setObject(i + 1, thamSo.get(i));
-            }
+             CallableStatement statement = connection.prepareCall("{call dbo.sp_CSKH_TimGiaoDich(?, ?, ?, ?, ?)}")) {
+            setStringOrNull(statement, 1, tuKhoa);
+            setDateOrNull(statement, 2, tuNgay);
+            setDateOrNull(statement, 3, denNgay);
+            setStringOrNull(statement, 4, maLoaiGiaoDich);
+            setStringOrNull(statement, 5, trangThai);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return docDanhSach(resultSet);
             }
@@ -94,9 +44,8 @@ public class CSKHTransactionLookupDAOImpl implements CSKHTransactionLookupDAO {
 
     @Override
     public String layTenLoaiGiaoDich(String maLoaiGiaoDich) throws SQLException {
-        String sql = "SELECT TenLoaiGD FROM LoaiGiaoDich WHERE MaLoaiGD = ?";
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             CallableStatement statement = connection.prepareCall("{call dbo.sp_CSKH_TenLoaiGiaoDich(?)}")) {
             statement.setString(1, maLoaiGiaoDich);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next() ? resultSet.getString("TenLoaiGD") : maLoaiGiaoDich;
@@ -106,14 +55,23 @@ public class CSKHTransactionLookupDAOImpl implements CSKHTransactionLookupDAO {
 
     @Override
     public String layMaLoaiGiaoDich(String tenLoaiGiaoDich) throws SQLException {
-        String sql = "SELECT MaLoaiGD FROM LoaiGiaoDich WHERE TenLoaiGD = ?";
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             CallableStatement statement = connection.prepareCall("{call dbo.sp_CSKH_MaLoaiGiaoDich(?)}")) {
             statement.setString(1, tenLoaiGiaoDich);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next() ? resultSet.getString("MaLoaiGD") : null;
             }
         }
+    }
+
+    private void setStringOrNull(CallableStatement statement, int index, String value) throws SQLException {
+        if (value == null || value.isBlank()) statement.setNull(index, java.sql.Types.NVARCHAR);
+        else statement.setString(index, value.trim());
+    }
+
+    private void setDateOrNull(CallableStatement statement, int index, LocalDate value) throws SQLException {
+        if (value == null) statement.setNull(index, java.sql.Types.DATE);
+        else statement.setDate(index, Date.valueOf(value));
     }
 
     private List<GiaoDichChuyenTien> docDanhSach(ResultSet resultSet) throws SQLException {
@@ -124,8 +82,8 @@ public class CSKHTransactionLookupDAOImpl implements CSKHTransactionLookupDAO {
             giaoDich.setMaTaiKhoanNguon(resultSet.getString("MaTaiKhoanNguon"));
             giaoDich.setMaTaiKhoanDich(resultSet.getString("MaTaiKhoanDich"));
             giaoDich.setSoTien(resultSet.getBigDecimal("SoTien"));
-            Timestamp thoiGian = resultSet.getTimestamp("NgayGiaoDich");
-            giaoDich.setNgayGiaoDich(thoiGian != null ? thoiGian.toLocalDateTime() : null);
+            Timestamp ngayGiaoDich = resultSet.getTimestamp("NgayGiaoDich");
+            giaoDich.setNgayGiaoDich(ngayGiaoDich == null ? null : ngayGiaoDich.toLocalDateTime());
             giaoDich.setNoiDung(resultSet.getString("NoiDung"));
             giaoDich.setMaLoaiGD(resultSet.getString("MaLoaiGD"));
             giaoDich.setTrangThai(resultSet.getString("TrangThai"));

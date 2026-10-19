@@ -62,10 +62,6 @@ public class CSKHCustomerController {
     // ====== Modal Thêm KH ======
     @FXML
     private StackPane modalThemKhachHang;
-
-    @FXML
-    private TextField txtThemMaKH;
-
     @FXML
     private TextField txtThemHoTen;
 
@@ -310,7 +306,6 @@ public class CSKHCustomerController {
 
     @FXML
     public void onMoPopupThemKhachHang(ActionEvent event) {
-        txtThemMaKH.clear();
         txtThemHoTen.clear();
         txtThemSoCCCD.clear();
         txtThemSoDienThoai.clear();
@@ -327,7 +322,6 @@ public class CSKHCustomerController {
 
     @FXML
     public void onLuuThemKhachHang(ActionEvent event) {
-        String maKH = txtThemMaKH.getText() != null ? txtThemMaKH.getText().trim() : "";
         String hoTen = txtThemHoTen.getText() != null ? txtThemHoTen.getText().trim() : "";
         String soCCCD = txtThemSoCCCD.getText() != null ? txtThemSoCCCD.getText().trim() : "";
         String soDienThoai = txtThemSoDienThoai.getText() != null ? txtThemSoDienThoai.getText().trim() : "";
@@ -337,7 +331,7 @@ public class CSKHCustomerController {
         String matKhau = txtThemMatKhau.getText() != null ? txtThemMatKhau.getText().trim() : "";
 
         // Validate required fields
-        if (maKH.isEmpty() || hoTen.isEmpty() || soCCCD.isEmpty()
+        if (hoTen.isEmpty() || soCCCD.isEmpty()
                 || soDienThoai.isEmpty() || tenDangNhap.isEmpty() || matKhau.isEmpty()) {
             hienThiLoiThem("Vui lòng điền đầy đủ các trường bắt buộc.");
             return;
@@ -354,7 +348,6 @@ public class CSKHCustomerController {
             }
 
             KhachHang khachHang = new KhachHang();
-            khachHang.setMaKhachHang(maKH);
             khachHang.setHoTen(hoTen);
             khachHang.setSoCCCD(soCCCD);
             khachHang.setSoDienThoai(soDienThoai);

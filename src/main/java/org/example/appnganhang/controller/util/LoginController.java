@@ -75,6 +75,12 @@ public class LoginController {
                     break;
 
                 case "Khách hàng":
+                    if (!org.example.appnganhang.controller.khachhang.CustomerSession
+                            .loadSessionFromDB(currentUser.getMaNguoiDung(), tenDangNhap)) {
+                        lblThongBao.setStyle("-fx-text-fill: red;");
+                        lblThongBao.setText("Khong tim thay ho so khach hang cho tai khoan nay.");
+                        return;
+                    }
                     fxmlPath =
                             "/org/example/appnganhang/khachHang-view/customer-home-view.fxml";
                     break;

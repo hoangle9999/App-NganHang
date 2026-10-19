@@ -34,8 +34,7 @@
                         <VBox spacing="4.0" style="-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 12; -fx-padding: 12 15;">
                             <children>
                                 <Label style="-fx-font-size: 11px; -fx-text-fill: #BDBDD2;" text="Khách hàng" />
-                                <Label fx:id="lblSidebarTenKH" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;" text="Nguyễn Văn A" />
-                                <Label fx:id="lblSidebarMaKH" style="-fx-font-size: 11px; -fx-text-fill: #93C5FD;" text="Mã KH: KH0001" />
+                                <Label fx:id="lblSidebarTenKH" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;" text="Khach hang" />
                             </children>
                         </VBox>
 
@@ -84,7 +83,7 @@
                                                 <HBox alignment="CENTER_LEFT" spacing="6.0">
                                                     <children>
                                                         <Label style="-fx-font-size: 13px; -fx-text-fill: #6B7280;" text="Xin chào quý khách," />
-                                                        <Label fx:id="lblHeaderTenKH" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #5148C9;" text="Nguyễn Văn A" />
+                                                        <Label fx:id="lblHeaderTenKH" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #5148C9;" text="Khach hang" />
                                                     </children>
                                                 </HBox>
                                             </children>
@@ -124,12 +123,12 @@
                                                     <children>
                                                         <VBox spacing="2.0">
                                                             <children>
-                                                                <Label fx:id="lblTenNganHang" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" text="SMART BANK" />
+                                                                <Label fx:id="lblTenNganHang" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" text="-" />
                                                                 <Label style="-fx-font-size: 10px; -fx-text-fill: #C9C9DD;" text="DIGITAL DEBIT CARD" />
                                                             </children>
                                                         </VBox>
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <Label fx:id="lblCardTrangThai" style="-fx-background-color: rgba(16,185,129,0.25); -fx-background-radius: 8; -fx-padding: 4 10; -fx-text-fill: #34D399; -fx-font-weight: bold; -fx-font-size: 11px;" text="Hoạt động" />
+                                                        <Label fx:id="lblCardTrangThai" style="-fx-background-color: rgba(16,185,129,0.25); -fx-background-radius: 8; -fx-padding: 4 10; -fx-text-fill: #34D399; -fx-font-weight: bold; -fx-font-size: 11px;" text="-" />
                                                     </children>
                                                 </HBox>
 
@@ -147,7 +146,7 @@
                                                         <Label style="-fx-font-size: 11px; -fx-text-fill: #BDBDD2;" text="SỐ TÀI KHOẢN THANH TOÁN" />
                                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                                                             <children>
-                                                                <Label fx:id="lblSoTaiKhoan" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white; -fx-font-family: monospace;" text="1000 0000 01" />
+                                                                <Label fx:id="lblSoTaiKhoan" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white; -fx-font-family: monospace;" text="-" />
                                                                 <Button fx:id="btnSaoChepSTK" onAction="#onSaoChepSoTaiKhoan" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 8; -fx-text-fill: white; -fx-font-size: 11px; -fx-cursor: hand; -fx-padding: 4 8;" text="📋 Sao chép">
                                                                     <cursor><Cursor fx:constant="HAND" /></cursor>
                                                                 </Button>
@@ -162,7 +161,7 @@
                                                         <VBox spacing="2.0">
                                                             <children>
                                                                 <Label style="-fx-font-size: 11px; -fx-text-fill: #BDBDD2;" text="SỐ DƯ KHẢ DỤNG" />
-                                                                <Label fx:id="lblSoDuKhachHang" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #34D399;" text="15,000,000 VNĐ" />
+                                                                <Label fx:id="lblSoDuKhachHang" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #34D399;" text="-" />
                                                             </children>
                                                         </VBox>
                                                         <Region HBox.hgrow="ALWAYS" />
@@ -202,16 +201,16 @@
                                                             </rowConstraints>
                                                             <children>
                                                                 <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Chủ tài khoản:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                                                <Label fx:id="lblCardTenChuTK" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="Nguyễn Văn A" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                                                <Label fx:id="lblCardTenChuTK" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="Khach hang" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                                                                 <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Chi nhánh mở:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                                                <Label fx:id="lblCardChiNhanh" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="Hội sở chính SMART BANK" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                                <Label fx:id="lblCardChiNhanh" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                                                                 <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Gói hạn mức:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                                                <Label fx:id="lblCardHanMuc" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #2563EB;" text="Tiêu chuẩn (50,000,000 VNĐ/ngày)" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                                <Label fx:id="lblCardHanMuc" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #2563EB;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
                                                                 <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Trạng thái:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                                                <Label fx:id="lblCardTrangThaiText" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #10B981;" text="Hoạt động" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                                <Label fx:id="lblCardTrangThaiText" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #10B981;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                                             </children>
                                                         </GridPane>
                                                     </children>

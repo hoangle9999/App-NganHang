@@ -39,8 +39,7 @@ public class CSKHDashboardController {
             lblTongKH.setText(String.valueOf(stats.getTongKhachHang()));
             lblTongTKHoatDong.setText(String.valueOf(stats.getTongTaiKhoanHoatDong()));
             lblGDHomNay.setText(String.valueOf(stats.getGiaoDichHomNay()));
-            // Chưa có bảng nghiệp vụ khiếu nại trong phạm vi hiện tại.
-            lblKhieuNaiCho.setText("0");
+            lblKhieuNaiCho.setText(String.valueOf(stats.getKhieuNaiCho()));
         } catch (Exception e) {
             System.err.println("Lỗi khi tải thống kê dashboard CSKH: " + e.getMessage());
             e.printStackTrace();

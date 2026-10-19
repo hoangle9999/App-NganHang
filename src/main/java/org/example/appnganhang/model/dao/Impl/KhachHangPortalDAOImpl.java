@@ -4,47 +4,102 @@ import org.example.appnganhang.model.dao.intf.KhachHangPortalDAO;
 import org.example.appnganhang.model.util.DBConnection;
 
 import java.math.BigDecimal;
-import java.sql.*;
-import java.util.*;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-/** Tập trung toàn bộ SQL truy vấn dữ liệu màn hình khách hàng tại tầng DAO. */
+/** Read-only database access for the customer portal. */
 public class KhachHangPortalDAOImpl implements KhachHangPortalDAO {
-    private Map<String,Object> row(ResultSet rs, String... columns) throws SQLException {
-        Map<String,Object> data = new LinkedHashMap<>();
-        for (String column : columns) data.put(column, rs.getObject(column));
-        return data;
+
+    @FunctionalInterface
+    private interface Binder {
+        void bind(CallableStatement statement) throws SQLException;
     }
-    private List<Map<String,Object>> query(String sql, Binder binder, String... columns) {
-        List<Map<String,Object>> result = new ArrayList<>();
-        try (Connection c = DBConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            binder.bind(ps); try (ResultSet rs = ps.executeQuery()) { while (rs.next()) result.add(row(rs, columns)); }
-            return result;
-        } catch (SQLException e) { throw new RuntimeException("Lỗi truy vấn dữ liệu khách hàng: " + e.getMessage(), e); }
+
+    private List<Map<String, Object>> query(String procedure, Binder binder, String... columns) {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        try (Connection connection = DBConnection.getConnection();
+             CallableStatement statement = connection.prepareCall(procedure)) {
+            binder.bind(statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    for (String column : columns) row.put(column, resultSet.getObject(column));
+                    rows.add(row);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Customer data query failed: " + e.getMessage(), e);
+        }
+        return rows;
     }
-    @FunctionalInterface private interface Binder { void bind(PreparedStatement ps) throws SQLException; }
-    @Override public Optional<Map<String,Object>> timHoSo(String ma, String ten) {
-        List<Map<String,Object>> rows = query("SELECT TOP 1 MaKhachHang, HoTen, SoCCCD, SoDienThoai, Email, DiaChi, TenDangNhap FROM KhachHang WHERE MaKhachHang = ? OR TenDangNhap = ?", ps -> { ps.setString(1, ma == null ? "" : ma); ps.setString(2, ten == null ? "" : ten); }, "MaKhachHang","HoTen","SoCCCD","SoDienThoai","Email","DiaChi","TenDangNhap");
-        return rows.stream().findFirst();
+
+    @Override
+    public Optional<Map<String, Object>> timHoSo(String maKhachHang, String tenDangNhap) {
+        return query("{call dbo.sp_KH_TimHoSo(?, ?)}", statement -> {
+            statement.setString(1, maKhachHang);
+            statement.setString(2, tenDangNhap);
+        }, "MaKhachHang", "HoTen", "SoCCCD", "SoDienThoai", "Email", "DiaChi", "TenDangNhap")
+                .stream().findFirst();
     }
-    @Override public Optional<Map<String,Object>> timHoSoCoTaiKhoanDauTien() {
-        List<Map<String,Object>> rows = query("SELECT TOP 1 kh.MaKhachHang, kh.HoTen, kh.SoCCCD, kh.SoDienThoai, kh.Email, kh.DiaChi, kh.TenDangNhap FROM KhachHang kh JOIN TaiKhoanNganHang tk ON kh.MaKhachHang = tk.MaKhachHang ORDER BY kh.MaKhachHang", ps -> {}, "MaKhachHang","HoTen","SoCCCD","SoDienThoai","Email","DiaChi","TenDangNhap");
-        return rows.stream().findFirst();
+
+    @Override
+    public List<Map<String, Object>> layTaiKhoanKhachHang(String maKhachHang, String tenDangNhap) {
+        return query("{call dbo.sp_KH_DanhSachTaiKhoan(?, ?)}", statement -> {
+            statement.setString(1, maKhachHang);
+            statement.setString(2, tenDangNhap);
+        }, "MaTaiKhoan", "SoTaiKhoan", "SoDu", "TrangThai", "TenNganHang",
+                "TenChiNhanh", "TenHanMuc", "HanMucNgay");
     }
-    @Override public List<Map<String,Object>> layTaiKhoanKhachHang(String ma, String ten) {
-        return query("SELECT tk.MaTaiKhoan, tk.SoTaiKhoan, tk.SoDu, tk.TrangThai, ISNULL(nh.TenNganHang, 'SMART BANK') AS TenNganHang, ISNULL(cn.TenChiNhanh, N'Hội sở SMART BANK') AS TenChiNhanh, ISNULL(hm.TenHanMuc, N'Mặc định') AS TenHanMuc, ISNULL(hm.HanMucNgay, 50000000) AS HanMucNgay FROM TaiKhoanNganHang tk LEFT JOIN NganHang nh ON tk.MaNganHang = nh.MaNganHang LEFT JOIN ChiNhanh cn ON tk.MaChiNhanh = cn.MaChiNhanh LEFT JOIN [HanMucGiaoDịch] hm ON tk.MaHanMuc = hm.MaHanMuc WHERE tk.MaKhachHang = ? OR tk.MaKhachHang IN (SELECT MaKhachHang FROM KhachHang WHERE TenDangNhap = ?)", ps -> { ps.setString(1, ma == null ? "" : ma); ps.setString(2, ten == null ? "" : ten); }, "MaTaiKhoan","SoTaiKhoan","SoDu","TrangThai","TenNganHang","TenChiNhanh","TenHanMuc","HanMucNgay");
+
+    @Override
+    public List<String> laySoTaiKhoanKhachHang(String maKhachHang, String tenDangNhap) {
+        List<String> accounts = new ArrayList<>();
+        for (Map<String, Object> row : query("{call dbo.sp_KH_DanhSachSoTaiKhoan(?, ?)}", statement -> {
+            statement.setString(1, maKhachHang);
+            statement.setString(2, tenDangNhap);
+        }, "SoTaiKhoan")) {
+            Object value = row.get("SoTaiKhoan");
+            if (value != null) accounts.add(value.toString());
+        }
+        return accounts;
     }
-    @Override public List<String> laySoTaiKhoanKhachHang(String ma, String ten) {
-        List<Map<String,Object>> rows = query("SELECT SoTaiKhoan FROM TaiKhoanNganHang WHERE MaKhachHang = ? OR MaKhachHang IN (SELECT MaKhachHang FROM KhachHang WHERE TenDangNhap = ?) ORDER BY SoTaiKhoan", ps -> { ps.setString(1, ma == null ? "" : ma); ps.setString(2, ten == null ? "" : ten); }, "SoTaiKhoan");
-        List<String> result = new ArrayList<>(); for (Map<String,Object> r : rows) if (r.get("SoTaiKhoan") != null) result.add(r.get("SoTaiKhoan").toString()); return result;
+
+    @Override
+    public BigDecimal laySoDu(String soTaiKhoan, String maKhachHang, String tenDangNhap) {
+        List<Map<String, Object>> rows = query("{call dbo.sp_KH_SoDuTaiKhoan(?, ?, ?)}", statement -> {
+            statement.setString(1, soTaiKhoan);
+            statement.setString(2, maKhachHang);
+            statement.setString(3, tenDangNhap);
+        }, "SoDu");
+        if (rows.isEmpty() || rows.get(0).get("SoDu") == null) return null;
+        Object value = rows.get(0).get("SoDu");
+        return value instanceof BigDecimal ? (BigDecimal) value : new BigDecimal(value.toString());
     }
-    @Override public BigDecimal laySoDu(String stk) {
-        List<Map<String,Object>> rows = query("SELECT SoDu FROM TaiKhoanNganHang WHERE SoTaiKhoan = ?", ps -> ps.setString(1, stk), "SoDu");
-        if (rows.isEmpty() || rows.get(0).get("SoDu") == null) return null; Object v=rows.get(0).get("SoDu"); return v instanceof BigDecimal ? (BigDecimal)v : new BigDecimal(v.toString());
+
+    @Override
+    public List<Map<String, Object>> layBienDongSoDu(String soTaiKhoan, String maKhachHang, String tenDangNhap) {
+        return query("{call dbo.sp_KH_LichSuBienDong(?, ?, ?)}", statement -> {
+            statement.setString(1, soTaiKhoan);
+            statement.setString(2, maKhachHang);
+            statement.setString(3, tenDangNhap);
+        }, "MaLog", "MaGiaoDich", "SoTaiKhoanLienQuan", "HanhDong",
+                "SoTienThayDoi", "SoDuSauThayDoi", "ThoiGianGhiLog");
     }
-    @Override public List<Map<String,Object>> layBienDongSoDu(String stk) {
-        return query("SELECT MaLog, MaGiaoDich, SoTaiKhoanLienQuan, HanhDong, SoTienThayDoi, SoDuSauThayDoi, ThoiGianGhiLog FROM LichSuGiaoDich WHERE SoTaiKhoanLienQuan = ? ORDER BY ThoiGianGhiLog DESC", ps -> ps.setString(1, stk), "MaLog","MaGiaoDich","SoTaiKhoanLienQuan","HanhDong","SoTienThayDoi","SoDuSauThayDoi","ThoiGianGhiLog");
-    }
-    @Override public List<Map<String,Object>> layGiaoDich(String stk) {
-        return query("SELECT gd.MaGiaoDich, gd.MaTaiKhoanNguon, gd.MaTaiKhoanDich, gd.SoTien, gd.NgayGiaoDich, gd.NoiDung, gd.MaLoaiGD, gd.TrangThai, ISNULL(lg.TenLoaiGD, N'Chuyển khoản') AS TenLoaiGD FROM GiaoDichChuyenTien gd LEFT JOIN LoaiGiaoDich lg ON gd.MaLoaiGD = lg.MaLoaiGD WHERE gd.MaTaiKhoanNguon = ? OR gd.MaTaiKhoanDich = ? ORDER BY gd.NgayGiaoDich DESC", ps -> { ps.setString(1, stk); ps.setString(2, stk); }, "MaGiaoDich","MaTaiKhoanNguon","MaTaiKhoanDich","SoTien","NgayGiaoDich","NoiDung","MaLoaiGD","TrangThai","TenLoaiGD");
+
+    @Override
+    public List<Map<String, Object>> layGiaoDich(String soTaiKhoan, String maKhachHang, String tenDangNhap) {
+        return query("{call dbo.sp_KH_GiaoDichTaiKhoan(?, ?, ?)}", statement -> {
+            statement.setString(1, soTaiKhoan);
+            statement.setString(2, maKhachHang);
+            statement.setString(3, tenDangNhap);
+        }, "MaGiaoDich", "MaTaiKhoanNguon", "MaTaiKhoanDich", "SoTien", "NgayGiaoDich",
+                "NoiDung", "MaLoaiGD", "TrangThai", "TenLoaiGD");
     }
 }

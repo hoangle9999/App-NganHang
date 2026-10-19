@@ -1,8 +1,8 @@
 package org.example.appnganhang.model.entity;
 public class CSKHDashboardStats {
-    private final int tongKhachHang, tongTaiKhoanHoatDong, giaoDichHomNay;
-    public CSKHDashboardStats(int kh, int tk, int gd) {
-        tongKhachHang=kh; tongTaiKhoanHoatDong=tk; giaoDichHomNay=gd;
+    private final int tongKhachHang, tongTaiKhoanHoatDong, giaoDichHomNay, khieuNaiCho;
+    public CSKHDashboardStats(int kh, int tk, int gd, int khieuNaiCho) {
+        tongKhachHang=kh; tongTaiKhoanHoatDong=tk; giaoDichHomNay=gd; this.khieuNaiCho=khieuNaiCho;
     }
     public int getTongKhachHang(){
         return tongKhachHang;
@@ -12,5 +12,8 @@ public class CSKHDashboardStats {
     }
     public int getGiaoDichHomNay(){
         return giaoDichHomNay;
+    }
+    public int getKhieuNaiCho(){
+        return khieuNaiCho;
     }
 }
