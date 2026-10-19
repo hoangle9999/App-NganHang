@@ -76,11 +76,6 @@ public class CustomerBalanceHistoryController {
             System.err.println("Lỗi nạp danh sách tài khoản: " + e.getMessage());
         }
 
-        if (listSTK.isEmpty()) {
-            listSTK.add("1000000001");
-            listSTK.add("1000000002");
-        }
-
         cboChonTaiKhoan.setItems(listSTK);
 
         String savedSTK = CustomerSession.getSelectedSoTaiKhoan();
@@ -92,7 +87,7 @@ public class CustomerBalanceHistoryController {
             currentSTK = cboChonTaiKhoan.getValue();
         }
 
-        lblSoTKInfo.setText("Tài khoản: " + currentSTK);
+        lblSoTKInfo.setText(currentSTK == null || currentSTK.isBlank() ? "Chưa có tài khoản" : "Tài khoản: " + currentSTK);
     }
 
     private void cauHinhBangBienDong() {
@@ -187,23 +182,6 @@ public class CustomerBalanceHistoryController {
             System.err.println("Lỗi nạp lịch sử biến động số dư: " + e.getMessage());
         }
 
-        if (danhSachTatCaLogs.isEmpty()) {
-            themDuLieuMauNeuTrong();
-        }
-
-        // Tính lại tổng nếu dùng dữ liệu mẫu
-        if (tongVao.compareTo(BigDecimal.ZERO) == 0 && tongRa.compareTo(BigDecimal.ZERO) == 0) {
-            for (BalanceFluctuationRow r : danhSachTatCaLogs) {
-                if (r.getSoTienThayDoi() != null) {
-                    if (r.getSoTienThayDoi().compareTo(BigDecimal.ZERO) >= 0) {
-                        tongVao = tongVao.add(r.getSoTienThayDoi());
-                    } else {
-                        tongRa = tongRa.add(r.getSoTienThayDoi().abs());
-                    }
-                }
-            }
-        }
-
         lblTongTienVao.setText("+" + dfTien.format(tongVao));
         lblTongTienRa.setText("-" + dfTien.format(tongRa));
 
@@ -217,15 +195,6 @@ public class CustomerBalanceHistoryController {
     private static BigDecimal decimal(Object value) {
         if (value == null) return BigDecimal.ZERO;
         return value instanceof BigDecimal ? (BigDecimal) value : new BigDecimal(value.toString());
-    }
-
-    private void themDuLieuMauNeuTrong() {
-        BalanceFluctuationRow b1 = new BalanceFluctuationRow(1, "GD20261017-001", currentSTK, "Chuyển tiền mua hàng hóa", new BigDecimal("-5000000"), new BigDecimal("15000000"), LocalDateTime.now().minusMinutes(25));
-        BalanceFluctuationRow b2 = new BalanceFluctuationRow(2, "NT20261017-002", currentSTK, "Nộp tiền mặt tại quầy SMART BANK", new BigDecimal("20000000"), new BigDecimal("20000000"), LocalDateTime.now().minusHours(2));
-        BalanceFluctuationRow b3 = new BalanceFluctuationRow(3, "GD20261016-003", currentSTK, "Nhận chuyển khoản từ đối tác", new BigDecimal("10000000"), new BigDecimal("35000000"), LocalDateTime.now().minusDays(1));
-        BalanceFluctuationRow b4 = new BalanceFluctuationRow(4, "RT20261015-004", currentSTK, "Rút tiền mặt tại ATM", new BigDecimal("-2000000"), new BigDecimal("25000000"), LocalDateTime.now().minusDays(2));
-
-        danhSachTatCaLogs.addAll(b1, b2, b3, b4);
     }
 
     private void capNhatBadgeTabs() {

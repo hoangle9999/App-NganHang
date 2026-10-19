@@ -26,26 +26,27 @@ public class CustomerSession {
         currentDiaChi = diaChi != null ? diaChi : "";
     }
 
-    public static void loadSessionFromDB(String maNguoiDung, String tenDangNhap) {
+    public static boolean loadSessionFromDB(String maNguoiDung, String tenDangNhap) {
+        clear();
         currentTenDangNhap = tenDangNhap != null ? tenDangNhap : "";
         currentMaKhachHang = maNguoiDung != null ? maNguoiDung : "";
         try {
             java.util.Optional<java.util.Map<String, Object>> profile =
                     portalService.timHoSo(currentMaKhachHang, currentTenDangNhap);
-            if (profile.isEmpty()) profile = portalService.timHoSoCoTaiKhoanDauTien();
-            if (profile.isPresent()) {
-                java.util.Map<String, Object> row = profile.get();
-                currentMaKhachHang = text(row, "MaKhachHang", currentMaKhachHang);
-                currentHoTen = text(row, "HoTen", "Khách Hàng");
-                currentSoCCCD = text(row, "SoCCCD", "");
-                currentSoDienThoai = text(row, "SoDienThoai", "");
-                currentEmail = text(row, "Email", "");
-                currentDiaChi = text(row, "DiaChi", "");
-                currentTenDangNhap = text(row, "TenDangNhap", currentTenDangNhap);
-            }
+            if (profile.isEmpty()) { clear(); return false; }
+            java.util.Map<String, Object> row = profile.get();
+            currentMaKhachHang = text(row, "MaKhachHang", "");
+            currentHoTen = text(row, "HoTen", "Khách Hàng");
+            currentSoCCCD = text(row, "SoCCCD", "");
+            currentSoDienThoai = text(row, "SoDienThoai", "");
+            currentEmail = text(row, "Email", "");
+            currentDiaChi = text(row, "DiaChi", "");
+            currentTenDangNhap = text(row, "TenDangNhap", "");
+            return !currentMaKhachHang.isBlank() && !currentTenDangNhap.isBlank();
         } catch (RuntimeException e) {
             System.err.println("Lỗi nạp session khách hàng: " + e.getMessage());
-            // Không tự gán hồ sơ giả; giữ thông tin nhận được từ đăng nhập.
+            clear();
+            return false;
         }
     }
 

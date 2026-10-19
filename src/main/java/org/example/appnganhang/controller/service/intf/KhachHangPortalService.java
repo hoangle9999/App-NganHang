@@ -7,7 +7,6 @@ import java.util.Optional;
 
 public interface KhachHangPortalService {
     Optional<Map<String,Object>> timHoSo(String maKhachHang, String tenDangNhap);
-    Optional<Map<String,Object>> timHoSoCoTaiKhoanDauTien();
     List<Map<String,Object>> layTaiKhoanKhachHang(String maKhachHang, String tenDangNhap);
     List<String> laySoTaiKhoanKhachHang(String maKhachHang, String tenDangNhap);
     BigDecimal laySoDu(String soTaiKhoan);

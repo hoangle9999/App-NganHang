@@ -16,7 +16,7 @@ import java.util.List;
 public class CSKHBalanceHistoryDAOImpl implements CSKHBalanceHistoryDAO {
     private static final String SELECT_LOGS =
             "SELECT MaLog, MaGiaoDich, SoTaiKhoanLienQuan, HanhDong, " +
-                    "SoTienThayDoi, SoDuSauThayDoi, TrangThai, ThoiGianGhiLog " +
+                    "SoTienThayDoi, SoDuSauThayDoi, ThoiGianGhiLog " +
                     "FROM LichSuGiaoDich";
 
     @Override
@@ -57,7 +57,6 @@ public class CSKHBalanceHistoryDAOImpl implements CSKHBalanceHistoryDAO {
                     log.setHanhDong(result.getString("HanhDong"));
                     log.setSoTienThayDoi(result.getBigDecimal("SoTienThayDoi"));
                     log.setSoDuSauThayDoi(result.getBigDecimal("SoDuSauThayDoi"));
-                    log.setTrangThai(result.getString("TrangThai"));
                     Timestamp timestamp = result.getTimestamp("ThoiGianGhiLog");
                     log.setThoiGianGhiLog(timestamp == null ? null : timestamp.toLocalDateTime());
                     danhSach.add(log);

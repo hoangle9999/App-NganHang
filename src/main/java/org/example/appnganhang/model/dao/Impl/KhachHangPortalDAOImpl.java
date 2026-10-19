@@ -23,18 +23,14 @@ public class KhachHangPortalDAOImpl implements KhachHangPortalDAO {
     }
     @FunctionalInterface private interface Binder { void bind(PreparedStatement ps) throws SQLException; }
     @Override public Optional<Map<String,Object>> timHoSo(String ma, String ten) {
-        List<Map<String,Object>> rows = query("SELECT TOP 1 MaKhachHang, HoTen, SoCCCD, SoDienThoai, Email, DiaChi, TenDangNhap FROM KhachHang WHERE MaKhachHang = ? OR TenDangNhap = ?", ps -> { ps.setString(1, ma == null ? "" : ma); ps.setString(2, ten == null ? "" : ten); }, "MaKhachHang","HoTen","SoCCCD","SoDienThoai","Email","DiaChi","TenDangNhap");
-        return rows.stream().findFirst();
-    }
-    @Override public Optional<Map<String,Object>> timHoSoCoTaiKhoanDauTien() {
-        List<Map<String,Object>> rows = query("SELECT TOP 1 kh.MaKhachHang, kh.HoTen, kh.SoCCCD, kh.SoDienThoai, kh.Email, kh.DiaChi, kh.TenDangNhap FROM KhachHang kh JOIN TaiKhoanNganHang tk ON kh.MaKhachHang = tk.MaKhachHang ORDER BY kh.MaKhachHang", ps -> {}, "MaKhachHang","HoTen","SoCCCD","SoDienThoai","Email","DiaChi","TenDangNhap");
+        List<Map<String,Object>> rows = query("SELECT TOP 1 MaKhachHang, HoTen, SoCCCD, SoDienThoai, Email, DiaChi, TenDangNhap FROM KhachHang WHERE MaKhachHang = ? AND TenDangNhap = ?", ps -> { ps.setString(1, ma == null ? "" : ma); ps.setString(2, ten == null ? "" : ten); }, "MaKhachHang","HoTen","SoCCCD","SoDienThoai","Email","DiaChi","TenDangNhap");
         return rows.stream().findFirst();
     }
     @Override public List<Map<String,Object>> layTaiKhoanKhachHang(String ma, String ten) {
-        return query("SELECT tk.MaTaiKhoan, tk.SoTaiKhoan, tk.SoDu, tk.TrangThai, ISNULL(nh.TenNganHang, 'SMART BANK') AS TenNganHang, ISNULL(cn.TenChiNhanh, N'Hội sở SMART BANK') AS TenChiNhanh, ISNULL(hm.TenHanMuc, N'Mặc định') AS TenHanMuc, ISNULL(hm.HanMucNgay, 50000000) AS HanMucNgay FROM TaiKhoanNganHang tk LEFT JOIN NganHang nh ON tk.MaNganHang = nh.MaNganHang LEFT JOIN ChiNhanh cn ON tk.MaChiNhanh = cn.MaChiNhanh LEFT JOIN [HanMucGiaoDịch] hm ON tk.MaHanMuc = hm.MaHanMuc WHERE tk.MaKhachHang = ? OR tk.MaKhachHang IN (SELECT MaKhachHang FROM KhachHang WHERE TenDangNhap = ?)", ps -> { ps.setString(1, ma == null ? "" : ma); ps.setString(2, ten == null ? "" : ten); }, "MaTaiKhoan","SoTaiKhoan","SoDu","TrangThai","TenNganHang","TenChiNhanh","TenHanMuc","HanMucNgay");
+        return query("SELECT tk.MaTaiKhoan, tk.SoTaiKhoan, tk.SoDu, tk.TrangThai, ISNULL(nh.TenNganHang, 'SMART BANK') AS TenNganHang, ISNULL(cn.TenChiNhanh, N'Hội sở SMART BANK') AS TenChiNhanh, ISNULL(hm.TenHanMuc, N'Mặc định') AS TenHanMuc, ISNULL(hm.HanMucNgay, 50000000) AS HanMucNgay FROM TaiKhoanNganHang tk LEFT JOIN NganHang nh ON tk.MaNganHang = nh.MaNganHang LEFT JOIN ChiNhanh cn ON tk.MaChiNhanh = cn.MaChiNhanh LEFT JOIN [HanMucGiaoDịch] hm ON tk.MaHanMuc = hm.MaHanMuc WHERE tk.MaKhachHang = ? AND EXISTS (SELECT 1 FROM KhachHang kh WHERE kh.MaKhachHang = tk.MaKhachHang AND kh.TenDangNhap = ?)", ps -> { ps.setString(1, ma == null ? "" : ma); ps.setString(2, ten == null ? "" : ten); }, "MaTaiKhoan","SoTaiKhoan","SoDu","TrangThai","TenNganHang","TenChiNhanh","TenHanMuc","HanMucNgay");
     }
     @Override public List<String> laySoTaiKhoanKhachHang(String ma, String ten) {
-        List<Map<String,Object>> rows = query("SELECT SoTaiKhoan FROM TaiKhoanNganHang WHERE MaKhachHang = ? OR MaKhachHang IN (SELECT MaKhachHang FROM KhachHang WHERE TenDangNhap = ?) ORDER BY SoTaiKhoan", ps -> { ps.setString(1, ma == null ? "" : ma); ps.setString(2, ten == null ? "" : ten); }, "SoTaiKhoan");
+        List<Map<String,Object>> rows = query("SELECT tk.SoTaiKhoan FROM TaiKhoanNganHang tk WHERE tk.MaKhachHang = ? AND EXISTS (SELECT 1 FROM KhachHang kh WHERE kh.MaKhachHang = tk.MaKhachHang AND kh.TenDangNhap = ?) ORDER BY tk.SoTaiKhoan", ps -> { ps.setString(1, ma == null ? "" : ma); ps.setString(2, ten == null ? "" : ten); }, "SoTaiKhoan");
         List<String> result = new ArrayList<>(); for (Map<String,Object> r : rows) if (r.get("SoTaiKhoan") != null) result.add(r.get("SoTaiKhoan").toString()); return result;
     }
     @Override public BigDecimal laySoDu(String stk) {
@@ -45,6 +41,6 @@ public class KhachHangPortalDAOImpl implements KhachHangPortalDAO {
         return query("SELECT MaLog, MaGiaoDich, SoTaiKhoanLienQuan, HanhDong, SoTienThayDoi, SoDuSauThayDoi, ThoiGianGhiLog FROM LichSuGiaoDich WHERE SoTaiKhoanLienQuan = ? ORDER BY ThoiGianGhiLog DESC", ps -> ps.setString(1, stk), "MaLog","MaGiaoDich","SoTaiKhoanLienQuan","HanhDong","SoTienThayDoi","SoDuSauThayDoi","ThoiGianGhiLog");
     }
     @Override public List<Map<String,Object>> layGiaoDich(String stk) {
-        return query("SELECT gd.MaGiaoDich, gd.MaTaiKhoanNguon, gd.MaTaiKhoanDich, gd.SoTien, gd.NgayGiaoDich, gd.NoiDung, gd.MaLoaiGD, gd.TrangThai, ISNULL(lg.TenLoaiGD, N'Chuyển khoản') AS TenLoaiGD FROM GiaoDichChuyenTien gd LEFT JOIN LoaiGiaoDich lg ON gd.MaLoaiGD = lg.MaLoaiGD WHERE gd.MaTaiKhoanNguon = ? OR gd.MaTaiKhoanDich = ? ORDER BY gd.NgayGiaoDich DESC", ps -> { ps.setString(1, stk); ps.setString(2, stk); }, "MaGiaoDich","MaTaiKhoanNguon","MaTaiKhoanDich","SoTien","NgayGiaoDich","NoiDung","MaLoaiGD","TrangThai","TenLoaiGD");
+        return query("SELECT gd.MaGiaoDich, tkNguon.SoTaiKhoan AS SoTaiKhoanNguon, tkDich.SoTaiKhoan AS SoTaiKhoanDich, gd.SoTien, gd.NgayGiaoDich, gd.NoiDung, gd.MaLoaiGD, gd.TrangThai, ISNULL(lg.TenLoaiGD, N'Chuyển khoản') AS TenLoaiGD FROM GiaoDichChuyenTien gd LEFT JOIN TaiKhoanNganHang tkNguon ON gd.MaTaiKhoanNguon = tkNguon.MaTaiKhoan LEFT JOIN TaiKhoanNganHang tkDich ON gd.MaTaiKhoanDich = tkDich.MaTaiKhoan LEFT JOIN LoaiGiaoDich lg ON gd.MaLoaiGD = lg.MaLoaiGD WHERE tkNguon.SoTaiKhoan = ? OR tkDich.SoTaiKhoan = ? ORDER BY gd.NgayGiaoDich DESC", ps -> { ps.setString(1, stk); ps.setString(2, stk); }, "MaGiaoDich","SoTaiKhoanNguon","SoTaiKhoanDich","SoTien","NgayGiaoDich","NoiDung","MaLoaiGD","TrangThai","TenLoaiGD");
     }
 }

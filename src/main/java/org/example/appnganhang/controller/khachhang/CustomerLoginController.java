@@ -111,7 +111,10 @@ public class CustomerLoginController {
         if (hopLe) {
             anLoi();
             // Nạp session khách hàng theo MaNguoiDung liên kết MaKhachHang
-            CustomerSession.loadSessionFromDB(maNguoiDung, tenDN);
+            if (!CustomerSession.loadSessionFromDB(maNguoiDung, tenDN)) {
+                hienLoi("Không tìm thấy hồ sơ khách hàng tương ứng với tài khoản đăng nhập.");
+                return;
+            }
 
             // Chuyển sang màn hình Trang chủ khách hàng
             try {
@@ -162,5 +165,15 @@ public class CustomerLoginController {
     @FXML
     public void onChuyenSangLoginChung(ActionEvent event) {
         moView("login-view.fxml", event);
+    }
+
+    @FXML
+    public void onRegisterLinkClick(ActionEvent event) {
+        moView("register-view.fxml", event);
+    }
+
+    @FXML
+    public void onExitButtonClick() {
+        ((Stage) txtTenDangNhap.getScene().getWindow()).close();
     }
 }

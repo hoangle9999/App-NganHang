@@ -148,13 +148,6 @@ public class CustomerHomeController {
             System.err.println("Lỗi nạp tài khoản khách hàng: " + e.getMessage());
         }
 
-        if (danhSachTaiKhoan.isEmpty()) {
-            themDuLieuMauNeuTrong();
-            for (CustomerAccountItem it : danhSachTaiKhoan) {
-                listSTK.add(it.getSoTaiKhoan());
-            }
-        }
-
         cboChonTaiKhoan.setItems(listSTK);
 
         // Chọn tài khoản đầu tiên hoặc tài khoản đã lưu
@@ -165,6 +158,16 @@ public class CustomerHomeController {
         } else if (!danhSachTaiKhoan.isEmpty()) {
             cboChonTaiKhoan.getSelectionModel().selectFirst();
             hienThiTheTaiKhoan(danhSachTaiKhoan.get(0));
+        } else {
+            CustomerSession.setSelectedSoTaiKhoan("");
+            currentAccount = null;
+            lblTenNganHang.setText("Chưa có tài khoản");
+            lblCardTrangThai.setText("—");
+            lblCardTrangThaiText.setText("—");
+            lblSoTaiKhoan.setText("---");
+            lblSoDuKhachHang.setText("0 VNĐ");
+            lblCardChiNhanh.setText("—");
+            lblCardHanMuc.setText("—");
         }
     }
 
@@ -174,12 +177,6 @@ public class CustomerHomeController {
     private static BigDecimal decimal(Object value) {
         if (value == null) return BigDecimal.ZERO;
         return value instanceof BigDecimal ? (BigDecimal) value : new BigDecimal(value.toString());
-    }
-
-    private void themDuLieuMauNeuTrong() {
-        CustomerAccountItem a1 = new CustomerAccountItem("TK001", "1000000001", new BigDecimal("15000000"), "Hoạt động", "SMART BANK", "Hội sở chính SMART BANK", "Tiêu chuẩn", new BigDecimal("50000000"));
-        CustomerAccountItem a2 = new CustomerAccountItem("TK002", "1000000002", new BigDecimal("85000000"), "Hoạt động", "SMART BANK", "Chi nhánh Ba Đình", "VIP", new BigDecimal("200000000"));
-        danhSachTaiKhoan.addAll(a1, a2);
     }
 
     private void chonTheoSoTaiKhoan(String stk) {

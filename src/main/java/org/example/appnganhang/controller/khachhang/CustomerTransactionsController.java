@@ -90,11 +90,6 @@ public class CustomerTransactionsController {
             System.err.println("Lỗi nạp danh sách tài khoản: " + e.getMessage());
         }
 
-        if (listSTK.isEmpty()) {
-            listSTK.add("1000000001");
-            listSTK.add("1000000002");
-        }
-
         cboChonTaiKhoan.setItems(listSTK);
 
         String savedSTK = CustomerSession.getSelectedSoTaiKhoan();
@@ -230,8 +225,8 @@ public class CustomerTransactionsController {
             for (java.util.Map<String, Object> rs : portalService.layGiaoDich(currentSTK)) {
                 CustomerTransactionRow row = new CustomerTransactionRow();
                 row.setMaGiaoDich(str(rs, "MaGiaoDich"));
-                row.setMaTaiKhoanNguon(str(rs, "MaTaiKhoanNguon"));
-                row.setMaTaiKhoanDich(str(rs, "MaTaiKhoanDich"));
+                row.setMaTaiKhoanNguon(str(rs, "SoTaiKhoanNguon"));
+                row.setMaTaiKhoanDich(str(rs, "SoTaiKhoanDich"));
                 row.setSoTien(decimal(rs.get("SoTien")));
                 Object ts = rs.get("NgayGiaoDich");
                 row.setNgayGiaoDich(ts instanceof java.sql.Timestamp ? ((java.sql.Timestamp) ts).toLocalDateTime() : LocalDateTime.now());
@@ -248,10 +243,6 @@ public class CustomerTransactionsController {
             System.err.println("Lỗi nạp giao dịch khách hàng: " + e.getMessage());
         }
 
-        if (danhSachTatCaGD.isEmpty()) {
-            themDuLieuMauNeuTrong();
-        }
-
         capNhatBadgeTabs();
         locDuLieu();
     }
@@ -262,15 +253,6 @@ public class CustomerTransactionsController {
     private static BigDecimal decimal(Object value) {
         if (value == null) return BigDecimal.ZERO;
         return value instanceof BigDecimal ? (BigDecimal) value : new BigDecimal(value.toString());
-    }
-
-    private void themDuLieuMauNeuTrong() {
-        CustomerTransactionRow r1 = new CustomerTransactionRow("GD20261017-001", currentSTK, "1000000008", new BigDecimal("5000000"), LocalDateTime.now().minusMinutes(30), "Chuyen tien mua hang hoa", "CK01", "Chuyển khoản", "Thành công", true, "1000000008");
-        CustomerTransactionRow r2 = new CustomerTransactionRow("GD20261016-002", "1000000099", currentSTK, new BigDecimal("25000000"), LocalDateTime.now().minusDays(1), "Nhan luong thang 10", "CK01", "Chuyển khoản", "Thành công", false, "1000000099");
-        CustomerTransactionRow r3 = new CustomerTransactionRow("GD20261015-003", currentSTK, "1000000055", new BigDecimal("12000000"), LocalDateTime.now().minusDays(2), "Chuyen tien du an", "CK01", "Chuyển khoản", "Chờ xử lý", true, "1000000055");
-        CustomerTransactionRow r4 = new CustomerTransactionRow("GD20261014-004", currentSTK, "1000000033", new BigDecimal("80000000"), LocalDateTime.now().minusDays(3), "Vuot han muc ngay", "CK01", "Chuyển khoản", "Thất bại", true, "1000000033");
-        CustomerTransactionRow r5 = new CustomerTransactionRow("GD20261012-005", currentSTK, "1000000012", new BigDecimal("1000000"), LocalDateTime.now().minusDays(5), "Yeu cau huy giao dich", "CK01", "Chuyển khoản", "Đã hủy", true, "1000000012");
-        danhSachTatCaGD.addAll(r1, r2, r3, r4, r5);
     }
 
     private void capNhatBadgeTabs() {

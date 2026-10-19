@@ -9,6 +9,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.appnganhang.MainApp;
+import org.example.appnganhang.controller.khachhang.CustomerSession;
 //import org.example.appnganhang.controller.nhanvien.DashboardController;
 import org.example.appnganhang.controller.service.intf.AuthService;
 import org.example.appnganhang.controller.service.Iml.AuthServiceImpl;
@@ -75,6 +76,11 @@ public class LoginController {
                     break;
 
                 case "Khách hàng":
+                    if (!CustomerSession.loadSessionFromDB(currentUser.getMaNguoiDung(), tenDangNhap)) {
+                        lblThongBao.setStyle("-fx-text-fill: red;");
+                        lblThongBao.setText("Không tìm thấy hồ sơ khách hàng tương ứng với tài khoản đăng nhập.");
+                        return;
+                    }
                     fxmlPath =
                             "/org/example/appnganhang/khachHang-view/customer-home-view.fxml";
                     break;

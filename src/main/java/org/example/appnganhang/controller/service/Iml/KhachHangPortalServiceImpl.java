@@ -14,7 +14,6 @@ import java.util.Optional;
 public class KhachHangPortalServiceImpl implements KhachHangPortalService {
     private final KhachHangPortalDAO dao = new KhachHangPortalDAOImpl();
     public Optional<Map<String,Object>> timHoSo(String ma, String ten) { return dao.timHoSo(ma, ten); }
-    public Optional<Map<String,Object>> timHoSoCoTaiKhoanDauTien() { return dao.timHoSoCoTaiKhoanDauTien(); }
     public List<Map<String,Object>> layTaiKhoanKhachHang(String ma, String ten) { return dao.layTaiKhoanKhachHang(ma, ten); }
     public List<String> laySoTaiKhoanKhachHang(String ma, String ten) { return dao.laySoTaiKhoanKhachHang(ma, ten); }
     public BigDecimal laySoDu(String stk) { return dao.laySoDu(stk); }
