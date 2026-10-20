@@ -1,5 +1,6 @@
 package org.example.appnganhang.controller.cskh;
 
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -10,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import org.example.appnganhang.controller.util.StaffHeader;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 import org.example.appnganhang.controller.service.Impl.CSKHTransactionLookupServiceImpl;
 import org.example.appnganhang.controller.service.intf.CSKHTransactionLookupService;
@@ -147,6 +149,7 @@ public class CSKHTransactionLookupController {
 
     @FXML
     public void initialize() {
+        StaffHeader.loadCustomerService(lblStaffName);
         // Setup columns
         colMaGD.setCellValueFactory(new PropertyValueFactory<>("maGiaoDich"));
         colTKSource.setCellValueFactory(new PropertyValueFactory<>("maTaiKhoanNguon"));

@@ -1,5 +1,6 @@
 package org.example.appnganhang.controller.cskh;
 
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -9,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import org.example.appnganhang.controller.util.StaffHeader;
 import org.example.appnganhang.model.entity.KhachHang;
 import org.example.appnganhang.controller.service.Impl.CSKHCustomerServiceImpl;
 import org.example.appnganhang.controller.service.intf.CSKHCustomerService;
@@ -196,6 +198,7 @@ public class CSKHCustomerController {
 
     @FXML
     public void initialize() {
+        StaffHeader.loadCustomerService(lblStaffName);
         // Setup main table columns
         colMaKH.setCellValueFactory(new PropertyValueFactory<>("maKhachHang"));
         colHoTen.setCellValueFactory(new PropertyValueFactory<>("hoTen"));

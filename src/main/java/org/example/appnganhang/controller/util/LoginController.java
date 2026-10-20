@@ -45,8 +45,7 @@ public class LoginController {
 
         if (authService.login(tenDangNhap, matKhau)) {
 
-            TaiKhoanDangNhap_VaiTro currentUser =
-                    authService.getCurrentUser();
+            TaiKhoanDangNhap_VaiTro currentUser = authService.getCurrentUser();
 
             if (currentUser == null) {
                 lblThongBao.setStyle("-fx-text-fill: red;");
@@ -56,9 +55,12 @@ public class LoginController {
 
             String roleName = currentUser.getRoleName();
             TellerSession.clear();
+            org.example.appnganhang.controller.cskh.CSKHSession.clear();
 
             if ("Giao dịch viên".equals(roleName)) {
                 TellerSession.setCurrentUsername(currentUser.getTenDangNhap());
+            } else if ("Nhân viên CSKH".equals(roleName)) {
+                org.example.appnganhang.controller.cskh.CSKHSession.setTenDangNhap(currentUser.getTenDangNhap());
             }
 
             String fxmlPath;
@@ -97,9 +99,7 @@ public class LoginController {
             }
 
             try {
-                FXMLLoader loader = new FXMLLoader(
-                        MainApp.class.getResource(fxmlPath)
-                );
+                FXMLLoader loader = new FXMLLoader(MainApp.class.getResource(fxmlPath));
 
                 if (loader.getLocation() == null) {
                     throw new IOException(

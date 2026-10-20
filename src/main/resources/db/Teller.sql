@@ -2,6 +2,61 @@
 -- Chạy file này sau khi đã tạo Database_AppNganhang_DoLeGiaHan.sql.
 GO
 
+-- Trả về tên hành động sổ cái tương ứng với loại giao dịch tại quầy.
+CREATE OR ALTER FUNCTION dbo.fn_GDV_LayHanhDongTienMat
+(
+    @MaLoaiGD VARCHAR(10)
+)
+RETURNS NVARCHAR(100)
+AS
+BEGIN
+    RETURN CASE @MaLoaiGD
+        WHEN 'NT01' THEN N'Nạp tiền mặt'
+        WHEN 'RT01' THEN N'Rút tiền mặt'
+        WHEN 'TT01' THEN N'Thanh toán hóa đơn tại quầy'
+        ELSE NULL
+    END;
+END;
+GO
+
+-- Trả về số tiền có dấu: nạp là số dương, rút/thanh toán là số âm.
+CREATE OR ALTER FUNCTION dbo.fn_GDV_TinhBienDongSoDu
+(
+    @MaLoaiGD VARCHAR(10),
+    @SoTien DECIMAL(18,2)
+)
+RETURNS DECIMAL(18,2)
+AS
+BEGIN
+    RETURN CASE
+        WHEN @MaLoaiGD = 'NT01' THEN @SoTien
+        WHEN @MaLoaiGD IN ('RT01', 'TT01') THEN -@SoTien
+        ELSE NULL
+    END;
+END;
+GO
+
+-- Tính hạn mức còn lại; phần truy vấn tổng giao dịch và khóa dữ liệu vẫn ở procedure.
+CREATE OR ALTER FUNCTION dbo.fn_GDV_TinhHanMucConLai
+(
+    @HanMucNgay DECIMAL(18,2),
+    @DaGiaoDich DECIMAL(18,2),
+    @SoTienSapGiaoDich DECIMAL(18,2)
+)
+RETURNS DECIMAL(18,2)
+AS
+BEGIN
+    IF @HanMucNgay IS NULL OR @DaGiaoDich IS NULL OR @SoTienSapGiaoDich IS NULL
+        RETURN NULL;
+
+    RETURN CASE
+        WHEN @HanMucNgay - @DaGiaoDich - @SoTienSapGiaoDich > 0
+            THEN @HanMucNgay - @DaGiaoDich - @SoTienSapGiaoDich
+        ELSE 0
+    END;
+END;
+GO
+
 CREATE OR ALTER PROCEDURE dbo.sp_Teller_Dashboard
 AS
 BEGIN
@@ -99,8 +154,9 @@ BEGIN
     SET NOCOUNT ON;
     SELECT tk.MaTaiKhoan, tk.SoTaiKhoan, tk.SoDu, tk.TrangThai, hm.HanMucNgay,
            COALESCE(used.DaChuyenHomNay, 0) AS DaChuyenHomNay,
-           CASE WHEN hm.HanMucNgay - COALESCE(used.DaChuyenHomNay, 0) < 0 THEN 0
-                ELSE hm.HanMucNgay - COALESCE(used.DaChuyenHomNay, 0) END AS HanMucConLai,
+           dbo.fn_GDV_TinhHanMucConLai(
+               hm.HanMucNgay, COALESCE(used.DaChuyenHomNay, 0), 0
+           ) AS HanMucConLai,
            kh.HoTen, kh.SoDienThoai
     FROM dbo.TaiKhoanNganHang tk
     INNER JOIN dbo.[HanMucGiaoDịch] hm ON hm.MaHanMuc = tk.MaHanMuc
@@ -208,8 +264,9 @@ BEGIN
                    (@MaGiaoDich, @SoTaiKhoanDich, N'Cộng tiền nhận chuyển khoản', @SoTien, @SoDuDich + @SoTien);
         END;
 
-        SET @HanMucConLai = CASE WHEN @HanMucNgay - @DaChuyenHomNay - @SoTien < 0 THEN 0
-                                 ELSE @HanMucNgay - @DaChuyenHomNay - @SoTien END;
+        SET @HanMucConLai = dbo.fn_GDV_TinhHanMucConLai(
+            @HanMucNgay, @DaChuyenHomNay, @SoTien
+        );
         COMMIT TRANSACTION;
         SELECT @MaGiaoDich AS MaGiaoDich, @TrangThaiGD AS TrangThai,
                @SoDuSauGD AS SoDuNguonSauGiaoDich, @HanMucConLai AS HanMucConLai;
@@ -280,18 +337,17 @@ BEGIN
 
         IF @MaLoaiGD = 'NT01'
         BEGIN
-            SET @SoDuSau = @SoDu + @SoTien;
-            SET @HanhDong = N'Nạp tiền mặt';
-            SET @SoTienThayDoi = @SoTien;
+            SET @SoTienThayDoi = dbo.fn_GDV_TinhBienDongSoDu(@MaLoaiGD, @SoTien);
         END
         ELSE
         BEGIN
-            IF @SoDu < @SoTien
+            SET @SoTienThayDoi = dbo.fn_GDV_TinhBienDongSoDu(@MaLoaiGD, @SoTien);
+            IF @SoDu + @SoTienThayDoi < 0
                 THROW 52257, N'Số dư tài khoản không đủ.', 1;
-            SET @SoDuSau = @SoDu - @SoTien;
-            SET @HanhDong = CASE WHEN @MaLoaiGD = 'RT01' THEN N'Rút tiền mặt' ELSE N'Thanh toán hóa đơn tại quầy' END;
-            SET @SoTienThayDoi = -@SoTien;
         END;
+
+        SET @SoDuSau = @SoDu + @SoTienThayDoi;
+        SET @HanhDong = dbo.fn_GDV_LayHanhDongTienMat(@MaLoaiGD);
 
         UPDATE dbo.TaiKhoanNganHang
         SET SoDu = @SoDuSau

@@ -3,6 +3,17 @@
     Run after the base schema and seed data have been created.
 */
 
+-- Generates a bank account number from the sequence in the base schema.
+CREATE OR ALTER PROCEDURE dbo.sp_TaoSoTaiKhoan
+    @Ma VARCHAR(15) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT @Ma = CONVERT(VARCHAR(15), NEXT VALUE FOR dbo.Seq_SoTaiKhoan);
+END;
+GO
+
 CREATE OR ALTER VIEW dbo.vw_KH_TaiKhoan
 AS
     SELECT tk.MaTaiKhoan,

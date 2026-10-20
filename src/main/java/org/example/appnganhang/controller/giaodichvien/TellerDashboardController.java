@@ -10,8 +10,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import org.example.appnganhang.controller.util.StaffHeader;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
-import org.example.appnganhang.model.entity.NhanVien;
 import org.example.appnganhang.model.entity.TellerDashboardStats;
 import org.example.appnganhang.controller.service.Impl.TellerDashboardServiceImpl;
 import org.example.appnganhang.controller.service.intf.TellerDashboardService;
@@ -67,24 +67,12 @@ public class TellerDashboardController {
 
     private void taiDuLieuGiaoDichVien() {
         String username = TellerSession.getTenDangNhap();
-        if (username == null || username.isBlank()) {
-            hienCanhBao("Phiên đăng nhập không hợp lệ", "Vui lòng đăng nhập lại để tải thông tin giao dịch viên.");
-            lblTellerName.setText("Giao dịch viên");
-            lblTellerBranch.setText("Chưa xác định chi nhánh");
-            return;
-        }
-        try {
-            NhanVien nv = dashboardService.timNhanVienTheoTenDangNhap(username).orElse(null);
-            if (nv == null) {
-                lblTellerName.setText(username);
-                lblTellerBranch.setText("Chưa có thông tin chi nhánh");
+        if (!StaffHeader.loadTeller(lblTellerName, lblTellerBranch)) {
+            if (username == null || username.isBlank()) {
+                hienCanhBao("Phiên đăng nhập không hợp lệ", "Vui lòng đăng nhập lại để tải thông tin giao dịch viên.");
+            } else {
                 hienCanhBao("Không tìm thấy hồ sơ", "Tài khoản đăng nhập chưa được liên kết với hồ sơ nhân viên.");
-                return;
             }
-            lblTellerName.setText(nv.getHoTen());
-            lblTellerBranch.setText(nv.getTenChiNhanh() == null ? "Chưa phân công chi nhánh" : nv.getTenChiNhanh());
-        } catch (RuntimeException e) {
-            hienCanhBao("Lỗi tải thông tin giao dịch viên", e.getMessage());
         }
     }
 

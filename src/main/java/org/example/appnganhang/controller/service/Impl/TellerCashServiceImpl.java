@@ -12,7 +12,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class TellerCashServiceImpl implements TellerCashService {
-    private final TellerCashDAO dao = new TellerCashDAOImpl();
+    private final TellerCashDAO dao;
+
+    public TellerCashServiceImpl() {
+        this.dao = new TellerCashDAOImpl();
+    }
 
     @Override public List<NganHang> layDanhSachNganHangNoiBo() { return dao.layDanhSachNganHangNoiBo(); }
 

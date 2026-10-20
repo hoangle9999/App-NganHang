@@ -16,6 +16,23 @@ GRANT EXECUTE                         ON SCHEMA::dbo TO role_BankAdmin;
 GRANT VIEW DEFINITION                 ON SCHEMA::dbo TO role_BankAdmin;
 GO
 
+-- Trả về 1 nếu số điện thoại có 10 hoặc 11 chữ số; ngược lại trả về 0.
+CREATE OR ALTER FUNCTION dbo.fn_Admin_SoDienThoaiHopLe
+(
+    @SoDienThoai VARCHAR(20)
+)
+RETURNS BIT
+AS
+BEGIN
+    RETURN CASE
+        WHEN @SoDienThoai IS NOT NULL
+         AND LEN(@SoDienThoai) BETWEEN 10 AND 11
+         AND @SoDienThoai NOT LIKE '%[^0-9]%'
+        THEN 1 ELSE 0
+    END;
+END;
+GO
+
 -- ============================================================
 -- PHẦN 3: STORED PROCEDURES CHO ADMIN
 -- ============================================================
@@ -114,7 +131,7 @@ BEGIN
     IF NULLIF(LTRIM(RTRIM(@TenDangNhap)), '') IS NULL THROW 52101, N'Tên đăng nhập không được để trống.', 1;
     IF NULLIF(LTRIM(RTRIM(@MatKhau)), '') IS NULL THROW 52102, N'Mật khẩu không được để trống.', 1;
     IF NULLIF(LTRIM(RTRIM(@HoTen)), N'') IS NULL THROW 52103, N'Họ tên không được để trống.', 1;
-    IF @SoDienThoai IS NULL OR LEN(@SoDienThoai) NOT BETWEEN 10 AND 11 OR @SoDienThoai LIKE '%[^0-9]%'
+    IF dbo.fn_Admin_SoDienThoaiHopLe(@SoDienThoai) = 0
         THROW 52104, N'Số điện thoại phải gồm 10 hoặc 11 chữ số.', 1;
     IF @RoleName NOT IN (N'Admin', N'Nhân viên CSKH', N'Giao dịch viên', N'Khách hàng')
         THROW 52105, N'Vai trò không hợp lệ.', 1;
@@ -323,7 +340,7 @@ BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
     IF NULLIF(LTRIM(RTRIM(@HoTen)), N'') IS NULL THROW 52201, N'Họ tên không được để trống.', 1;
-    IF @SoDienThoai IS NULL OR LEN(@SoDienThoai) NOT BETWEEN 10 AND 11 OR @SoDienThoai LIKE '%[^0-9]%'
+    IF dbo.fn_Admin_SoDienThoaiHopLe(@SoDienThoai) = 0
         THROW 52202, N'Số điện thoại phải gồm 10 hoặc 11 chữ số.', 1;
     IF @ChucVu NOT IN (N'Admin', N'Nhân viên CSKH', N'Giao dịch viên')
         THROW 52203, N'Chức vụ không hợp lệ.', 1;
@@ -357,7 +374,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     IF NULLIF(LTRIM(RTRIM(@HoTen)), N'') IS NULL THROW 52211, N'Họ tên không được để trống.', 1;
-    IF @SoDienThoai IS NULL OR LEN(@SoDienThoai) NOT BETWEEN 10 AND 11 OR @SoDienThoai LIKE '%[^0-9]%'
+    IF dbo.fn_Admin_SoDienThoaiHopLe(@SoDienThoai) = 0
         THROW 52212, N'Số điện thoại phải gồm 10 hoặc 11 chữ số.', 1;
     IF @ChucVu NOT IN (N'Admin', N'Nhân viên CSKH', N'Giao dịch viên')
         THROW 52213, N'Chức vụ không hợp lệ.', 1;

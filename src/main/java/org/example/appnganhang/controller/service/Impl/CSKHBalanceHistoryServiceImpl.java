@@ -10,7 +10,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class CSKHBalanceHistoryServiceImpl implements CSKHBalanceHistoryService {
-    private final CSKHBalanceHistoryDAO dao = new CSKHBalanceHistoryDAOImpl();
+    private final CSKHBalanceHistoryDAO dao;
+
+    public CSKHBalanceHistoryServiceImpl() {
+        this.dao = new CSKHBalanceHistoryDAOImpl();
+    }
 
     @Override
     public List<LichSuGiaoDich> layDanhSachLog(String tuKhoa, LocalDate tuNgay, LocalDate denNgay) throws SQLException {

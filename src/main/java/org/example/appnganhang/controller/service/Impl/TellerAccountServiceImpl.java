@@ -15,7 +15,11 @@ import java.util.Set;
 
 public class TellerAccountServiceImpl implements TellerAccountService {
     private static final Set<String> TRANG_THAI_HOP_LE = Set.of("Hoạt động", "Bị khóa", "Đóng");
-    private final TellerAccountDAO dao = new TellerAccountDAOImpl();
+    private final TellerAccountDAO dao;
+
+    public TellerAccountServiceImpl() {
+        this.dao = new TellerAccountDAOImpl();
+    }
 
     @Override public List<TellerAccountInfo> layDanhSachTaiKhoan() { return dao.layDanhSachTaiKhoan(); }
     @Override public List<ChiNhanh> layDanhSachChiNhanh() { return dao.layDanhSachChiNhanh(); }

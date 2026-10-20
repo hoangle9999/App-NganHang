@@ -8,10 +8,14 @@ import org.example.appnganhang.model.entity.CSKHAccountLookupItem;
 import java.util.List;
 
 public class CSKHAccountLookupServiceImpl implements CSKHAccountLookupService {
-    private final CSKHAccountLookupDAO accountLookupDAO = new CSKHAccountLookupDAOImpl();
+    private final CSKHAccountLookupDAO dao;
+
+    public CSKHAccountLookupServiceImpl() {
+        this.dao = new CSKHAccountLookupDAOImpl();
+    }
 
     @Override
     public List<CSKHAccountLookupItem> timKiemTaiKhoan(String tuKhoa) throws Exception {
-        return accountLookupDAO.timKiemTaiKhoan(tuKhoa);
+        return dao.timKiemTaiKhoan(tuKhoa);
     }
 }

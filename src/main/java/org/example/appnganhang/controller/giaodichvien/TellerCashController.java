@@ -1,11 +1,13 @@
 package org.example.appnganhang.controller.giaodichvien;
 
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import org.example.appnganhang.controller.util.StaffHeader;
 import org.example.appnganhang.controller.service.Impl.TellerCashServiceImpl;
 import org.example.appnganhang.controller.service.intf.TellerCashService;
 import org.example.appnganhang.model.entity.NganHang;
@@ -88,6 +90,7 @@ public class TellerCashController {
 
     @FXML
     public void initialize() {
+        StaffHeader.loadTeller(lblTellerName, lblTellerBranch);
         khoiTaoDanhSachNganHang();
 
         // Lắng nghe thay đổi số tiền để chuyển sang chữ và kiểm tra số dư rút tiền

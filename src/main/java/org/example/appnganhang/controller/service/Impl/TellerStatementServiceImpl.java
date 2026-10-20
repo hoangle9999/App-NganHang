@@ -16,7 +16,11 @@ import java.util.Comparator;
 import java.util.List;
 
 public class TellerStatementServiceImpl implements TellerStatementService {
-    private final TellerStatementDAO dao = new TellerStatementDAOImpl();
+    private final TellerStatementDAO dao;
+
+    public TellerStatementServiceImpl() {
+        this.dao = new TellerStatementDAOImpl();
+    }
 
     @Override public List<LoaiGiaoDich> layDanhSachLoaiGiaoDich() { return dao.layDanhSachLoaiGiaoDich(); }
 

@@ -137,8 +137,6 @@ public class RegisterController {
                     false
             );
         }
-
-
         lamSachForm();
     }
     @FXML

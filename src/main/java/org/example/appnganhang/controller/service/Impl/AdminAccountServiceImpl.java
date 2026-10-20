@@ -12,14 +12,38 @@ import java.util.List;
 public class AdminAccountServiceImpl implements AdminAccountService {
     private final AdminAccountDAO dao;
 
-    public AdminAccountServiceImpl() { this.dao = new AdminAccountDAOImpl(); }
+    public AdminAccountServiceImpl() {
+        this.dao = new AdminAccountDAOImpl();
+    }
 
-    @Override public List<ChiNhanh> layDanhSachChiNhanh() { return dao.layDanhSachChiNhanh(); }
-    @Override public List<HanMucGiaoDich> layDanhSachHanMuc() { return dao.layDanhSachHanMuc(); }
-    @Override public List<TaiKhoanDangNhap_VaiTro> layDanhSachTaiKhoan() { return dao.layDanhSachTaiKhoan(); }
-    @Override public String taoTaiKhoan(String tenDangNhap, String matKhau, String roleName,
-                                        String hoTen, String soCCCD, String soDienThoai,
-                                        String email, String diaChi, String maChiNhanh, String maHanMuc) {
+    @Override
+    public List<ChiNhanh> layDanhSachChiNhanh() {
+        return dao.layDanhSachChiNhanh();
+    }
+
+    @Override
+    public List<HanMucGiaoDich> layDanhSachHanMuc() {
+        return dao.layDanhSachHanMuc();
+    }
+
+    @Override
+    public List<TaiKhoanDangNhap_VaiTro> layDanhSachTaiKhoan() {
+        return dao.layDanhSachTaiKhoan();
+    }
+
+    @Override
+    public String taoTaiKhoan(
+            String tenDangNhap,
+            String matKhau,
+            String roleName,
+            String hoTen,
+            String soCCCD,
+            String soDienThoai,
+            String email,
+            String diaChi,
+            String maChiNhanh,
+            String maHanMuc
+    ) {
         if (tenDangNhap == null || tenDangNhap.isBlank()) throw new IllegalArgumentException("Tên đăng nhập không được để trống.");
         if (matKhau == null || matKhau.length() < 6) throw new IllegalArgumentException("Mật khẩu phải có ít nhất 6 ký tự.");
         if (hoTen == null || hoTen.isBlank()) throw new IllegalArgumentException("Họ tên không được để trống.");
@@ -28,13 +52,33 @@ public class AdminAccountServiceImpl implements AdminAccountService {
         if ("Khách hàng".equals(roleName) && (soCCCD == null || !soCCCD.matches("[0-9]{12}")))
             throw new IllegalArgumentException("CCCD khách hàng phải gồm đúng 12 chữ số.");
         if (maChiNhanh == null || maChiNhanh.isBlank()) throw new IllegalArgumentException("Vui lòng nhập mã chi nhánh hợp lệ.");
-        return dao.taoTaiKhoan(tenDangNhap.trim(), matKhau, roleName, hoTen.trim(), soCCCD,
-                soDienThoai, email, diaChi, maChiNhanh.trim(), maHanMuc);
+        return dao.taoTaiKhoan(
+                tenDangNhap.trim(),
+                matKhau,
+                roleName,
+                hoTen.trim(),
+                soCCCD,
+                soDienThoai,
+                email,
+                diaChi,
+                maChiNhanh.trim(),
+                maHanMuc
+        );
     }
-    @Override public void doiVaiTro(String tenDangNhap, String roleNameMoi) { dao.doiVaiTro(tenDangNhap, roleNameMoi); }
-    @Override public void datLaiMatKhau(String tenDangNhap, String matKhauMoi) {
+
+    @Override
+    public void doiVaiTro(String tenDangNhap, String roleNameMoi) {
+        dao.doiVaiTro(tenDangNhap, roleNameMoi);
+    }
+
+    @Override
+    public void datLaiMatKhau(String tenDangNhap, String matKhauMoi) {
         if (matKhauMoi == null || matKhauMoi.length() < 6) throw new IllegalArgumentException("Mật khẩu mới phải có tối thiểu 6 ký tự.");
         dao.datLaiMatKhau(tenDangNhap, matKhauMoi);
     }
-    @Override public void xoaTaiKhoan(String tenDangNhap) { dao.xoaTaiKhoan(tenDangNhap); }
+
+    @Override
+    public void xoaTaiKhoan(String tenDangNhap) {
+        dao.xoaTaiKhoan(tenDangNhap);
+    }
 }

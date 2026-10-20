@@ -174,8 +174,8 @@ public class AdminAccountController {
             if (chiNhanh == null) throw new IllegalArgumentException("Vui lòng chọn chi nhánh.");
 
             HanMucGiaoDich hanMuc = cboModalHanMuc.getValue();
-            boolean laNhanVien = "Nhân viên CSKH".equals(cboModalRoleName.getValue()) || "Giao dịch viên".equals(cboModalRoleName.getValue());
-            if (laNhanVien && hanMuc == null) throw new IllegalArgumentException("Vui lòng chọn hạn mức giao dịch.");
+            boolean laKhachHang = "Khách hàng".equals(cboModalRoleName.getValue());
+            if (laKhachHang && hanMuc == null) throw new IllegalArgumentException("Vui lòng chọn hạn mức giao dịch.");
             String ma = service.taoTaiKhoan(txtModalTenDangNhap.getText(), txtModalMatKhau.getText(),
                     cboModalRoleName.getValue(), txtModalHoTen.getText(), txtModalCCCD.getText(),
                     txtModalSDT.getText(), txtModalEmail.getText(), txtModalDiaChi.getText(),

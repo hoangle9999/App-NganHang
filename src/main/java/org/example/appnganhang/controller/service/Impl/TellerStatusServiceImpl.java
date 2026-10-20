@@ -8,7 +8,11 @@ import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
 import java.util.List;
 
 public class TellerStatusServiceImpl implements TellerStatusService {
-    private final TellerStatusDAO dao = new TellerStatusDAOImpl();
+    private final TellerStatusDAO dao;
+
+    public TellerStatusServiceImpl() {
+        this.dao = new TellerStatusDAOImpl();
+    }
 
     @Override public List<GiaoDichChuyenTien> layDanhSachGiaoDich() {
         return dao.layDanhSachGiaoDich();

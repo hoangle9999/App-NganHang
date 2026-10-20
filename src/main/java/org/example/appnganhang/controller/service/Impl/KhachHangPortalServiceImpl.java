@@ -10,7 +10,11 @@ import java.util.Map;
 import java.util.Optional;
 
 public class KhachHangPortalServiceImpl implements KhachHangPortalService {
-    private final KhachHangPortalDAO dao = new KhachHangPortalDAOImpl();
+    private final KhachHangPortalDAO dao;
+
+    public KhachHangPortalServiceImpl() {
+        this.dao = new KhachHangPortalDAOImpl();
+    }
 
     public Optional<Map<String, Object>> timHoSo(String ma, String ten) { return dao.timHoSo(ma, ten); }
     public List<Map<String, Object>> layTaiKhoanKhachHang(String ma, String ten) { return dao.layTaiKhoanKhachHang(ma, ten); }

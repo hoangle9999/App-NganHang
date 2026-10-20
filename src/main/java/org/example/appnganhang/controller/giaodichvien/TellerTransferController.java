@@ -1,11 +1,13 @@
 package org.example.appnganhang.controller.giaodichvien;
 
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import org.example.appnganhang.controller.util.StaffHeader;
 import org.example.appnganhang.controller.service.Impl.TellerTransferServiceImpl;
 import org.example.appnganhang.controller.service.intf.TellerTransferService;
 import org.example.appnganhang.model.entity.LoaiGiaoDich;
@@ -108,6 +110,7 @@ public class TellerTransferController {
 
     @FXML
     public void initialize() {
+        StaffHeader.loadTeller(lblTellerName, lblTellerBranch);
         khoiTaoDanhSachNganHang();
         khoiTaoDanhSachLoaiGD();
 

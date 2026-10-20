@@ -3,6 +3,34 @@
     Prerequisites: application tables and dbo.Seq_MaKhachHang.
 */
 
+-- Trả danh sách giao dịch theo bộ lọc; thủ tục gọi hàm sẽ áp dụng giới hạn và sắp xếp.
+CREATE OR ALTER FUNCTION dbo.fn_CSKH_TimGiaoDich
+(
+    @TuKhoa NVARCHAR(100),
+    @TuNgay DATE,
+    @DenNgay DATE,
+    @MaLoaiGD VARCHAR(10),
+    @TrangThai NVARCHAR(30)
+)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT gd.MaGiaoDich, gd.MaTaiKhoanNguon, gd.MaTaiKhoanDich, gd.SoTien,
+           gd.NgayGiaoDich, gd.NoiDung, gd.MaLoaiGD, gd.TrangThai
+    FROM dbo.GiaoDichChuyenTien AS gd
+    CROSS APPLY (VALUES (NULLIF(LTRIM(RTRIM(@TuKhoa)), N''))) AS kw(TuKhoaChuanHoa)
+    WHERE (kw.TuKhoaChuanHoa IS NULL
+           OR gd.MaGiaoDich LIKE N'%' + kw.TuKhoaChuanHoa + N'%'
+           OR gd.MaTaiKhoanNguon LIKE N'%' + kw.TuKhoaChuanHoa + N'%'
+           OR gd.MaTaiKhoanDich LIKE N'%' + kw.TuKhoaChuanHoa + N'%')
+      AND (@TuNgay IS NULL OR gd.NgayGiaoDich >= CONVERT(DATETIME, @TuNgay))
+      AND (@DenNgay IS NULL OR gd.NgayGiaoDich < DATEADD(DAY, 1, CONVERT(DATETIME, @DenNgay)))
+      AND (@MaLoaiGD IS NULL OR gd.MaLoaiGD = @MaLoaiGD)
+      AND (@TrangThai IS NULL OR gd.TrangThai = @TrangThai)
+);
+GO
+
 CREATE OR ALTER PROCEDURE dbo.sp_TaoMaKhachHang
     @MaKhachHang VARCHAR(20) OUTPUT
 AS
@@ -98,6 +126,25 @@ BEGIN
     SET XACT_ABORT ON;
 
     DECLARE @MaKhachHang VARCHAR(20);
+    DECLARE @MaTaiKhoan VARCHAR(20), @SoTaiKhoan VARCHAR(15);
+    DECLARE @MaChiNhanh VARCHAR(10), @MaHanMuc VARCHAR(10);
+
+    SELECT TOP (1) @MaChiNhanh = MaChiNhanh
+    FROM dbo.ChiNhanh
+    ORDER BY MaChiNhanh;
+    IF @MaChiNhanh IS NULL
+        THROW 52401, N'Chưa có chi nhánh để mở tài khoản ngân hàng.', 1;
+
+    SELECT @MaHanMuc = MaHanMuc
+    FROM dbo.[HanMucGiaoDịch]
+    WHERE MaHanMuc = 'HM001';
+    IF @MaHanMuc IS NULL
+        SELECT TOP (1) @MaHanMuc = MaHanMuc
+        FROM dbo.[HanMucGiaoDịch]
+        ORDER BY MaHanMuc;
+    IF @MaHanMuc IS NULL
+        THROW 52402, N'Chưa có gói hạn mức để mở tài khoản ngân hàng.', 1;
+
     EXEC dbo.sp_TaoMaKhachHang @MaKhachHang = @MaKhachHang OUTPUT;
 
     BEGIN TRY
@@ -110,6 +157,14 @@ BEGIN
             (MaKhachHang, HoTen, SoCCCD, SoDienThoai, Email, DiaChi, TenDangNhap)
         VALUES
             (@MaKhachHang, @HoTen, @SoCCCD, @SoDienThoai, @Email, @DiaChi, @TenDangNhap);
+
+        EXEC dbo.sp_TaoMaTaiKhoan @Ma = @MaTaiKhoan OUTPUT;
+        EXEC dbo.sp_TaoSoTaiKhoan @Ma = @SoTaiKhoan OUTPUT;
+
+        INSERT INTO dbo.TaiKhoanNganHang
+            (MaTaiKhoan, MaKhachHang, SoTaiKhoan, SoDu, TrangThai, MaChiNhanh, MaHanMuc, MaNganHang)
+        VALUES
+            (@MaTaiKhoan, @MaKhachHang, @SoTaiKhoan, 0, N'Hoạt động', @MaChiNhanh, @MaHanMuc, 'SMART');
 
         COMMIT TRANSACTION;
         SELECT @MaKhachHang AS MaKhachHang;
@@ -176,7 +231,7 @@ BEGIN
     SET NOCOUNT ON;
     SELECT TOP (500) MaGiaoDich, MaTaiKhoanNguon, MaTaiKhoanDich, SoTien,
            NgayGiaoDich, NoiDung, MaLoaiGD, TrangThai
-    FROM dbo.GiaoDichChuyenTien
+    FROM dbo.fn_CSKH_TimGiaoDich(NULL, NULL, NULL, NULL, NULL)
     ORDER BY NgayGiaoDich DESC;
 END;
 GO
@@ -187,17 +242,9 @@ CREATE OR ALTER PROCEDURE dbo.sp_CSKH_TimGiaoDich
 AS
 BEGIN
     SET NOCOUNT ON;
-    DECLARE @Keyword NVARCHAR(100) = NULLIF(LTRIM(RTRIM(@TuKhoa)), N'');
     SELECT TOP (500) MaGiaoDich, MaTaiKhoanNguon, MaTaiKhoanDich, SoTien,
            NgayGiaoDich, NoiDung, MaLoaiGD, TrangThai
-    FROM dbo.GiaoDichChuyenTien
-    WHERE (@Keyword IS NULL OR MaGiaoDich LIKE N'%' + @Keyword + N'%'
-           OR MaTaiKhoanNguon LIKE N'%' + @Keyword + N'%'
-           OR MaTaiKhoanDich LIKE N'%' + @Keyword + N'%')
-      AND (@TuNgay IS NULL OR NgayGiaoDich >= CONVERT(DATETIME, @TuNgay))
-      AND (@DenNgay IS NULL OR NgayGiaoDich < DATEADD(DAY, 1, CONVERT(DATETIME, @DenNgay)))
-      AND (@MaLoaiGD IS NULL OR MaLoaiGD = @MaLoaiGD)
-      AND (@TrangThai IS NULL OR TrangThai = @TrangThai)
+    FROM dbo.fn_CSKH_TimGiaoDich(@TuKhoa, @TuNgay, @DenNgay, @MaLoaiGD, @TrangThai)
     ORDER BY NgayGiaoDich DESC;
 END;
 GO

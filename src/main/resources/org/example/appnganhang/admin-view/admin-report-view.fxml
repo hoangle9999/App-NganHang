@@ -38,10 +38,10 @@
                 <Region prefHeight="15" />
 
                 <!-- User Profile Badge -->
-                <VBox spacing="4" style="-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 12; -fx-padding: 12 15;">
+                <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 12; -fx-padding: 12 15;"><VBox alignment="CENTER" prefWidth="36" prefHeight="36" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 18;"><Label text="👤" style="-fx-font-size: 16px;" /></VBox><VBox spacing="4">
                     <Label style="-fx-font-size: 11px; -fx-text-fill: #BDBDD2;" text="Xin chào" />
                     <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;" text="Quản trị viên" />
-                </VBox>
+                </VBox></HBox>
 
                 <Region prefHeight="10" />
 
@@ -49,31 +49,31 @@
 
                 <!-- Sidebar Nav Buttons -->
                 <VBox spacing="6" VBox.vgrow="ALWAYS">
-               <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTrangChu" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="Tổng quan Admin">
+               <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTrangChu" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="📊  Tổng quan Admin">
                   <cursor>
                      <Cursor fx:constant="HAND" />
                   </cursor>
                </Button>
-                    <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTaiKhoan" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="Tài khoản &amp; Phân quyền">
+                    <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTaiKhoan" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="👤  Tài khoản &amp; Phân quyền">
                         <cursor>
                             <Cursor fx:constant="HAND" />
                         </cursor>
                     </Button>
 
-                    <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onNhanVienChiNhanh" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="Nhân viên &amp; Chi nhánh">
+                    <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onNhanVienChiNhanh" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="👥  Nhân viên &amp; Chi nhánh">
                         <cursor>
                             <Cursor fx:constant="HAND" />
                         </cursor>
                     </Button>
 
-                    <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onCauHinhDanhMuc" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="Cấu hình hệ thống">
+                    <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onCauHinhDanhMuc" style="-fx-background-color: transparent; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-background-radius: 10; -fx-cursor: hand;" text="⚙️  Cấu hình hệ thống">
                         <cursor>
                             <Cursor fx:constant="HAND" />
                         </cursor>
                     </Button>
 
                     <!-- Active Button -->
-                    <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onThongKeBaoCao" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10; -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 10 12; -fx-cursor: hand;" text="Báo cáo &amp; Rủi ro">
+                    <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onThongKeBaoCao" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10; -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 10 12; -fx-cursor: hand;" text="📈  Báo cáo &amp; Rủi ro">
                         <cursor>
                             <Cursor fx:constant="HAND" />
                         </cursor>
@@ -81,7 +81,7 @@
                 </VBox>
 
                 <!-- Logout Button -->
-                <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onDangXuat" style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;" text="Đăng xuất">
+                <Button alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onDangXuat" style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-text-fill: #D0D0E0; -fx-font-size: 13px; -fx-padding: 10 12; -fx-cursor: hand;" text="🚪  Đăng xuất">
                     <cursor>
                         <Cursor fx:constant="HAND" />
                     </cursor>

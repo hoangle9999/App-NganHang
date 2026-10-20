@@ -1,5 +1,6 @@
 package org.example.appnganhang.controller.giaodichvien;
 
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
+import org.example.appnganhang.controller.util.StaffHeader;
 import org.example.appnganhang.controller.service.Impl.TellerAccountServiceImpl;
 import org.example.appnganhang.controller.service.intf.TellerAccountService;
 import org.example.appnganhang.model.entity.ChiNhanh;
@@ -100,6 +102,7 @@ public class TellerAccountController {
 
     @FXML
     public void initialize() {
+        StaffHeader.loadTeller(lblTellerName, lblTellerBranch);
         khoiTaoBoLoc();
         cauHinhBangTaiKhoan();
         tblTaiKhoan.getSelectionModel().selectedItemProperty().addListener((obs, oldRow, row) -> {

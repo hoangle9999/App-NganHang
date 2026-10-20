@@ -1,5 +1,6 @@
 package org.example.appnganhang.controller.cskh;
 
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -8,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import org.example.appnganhang.controller.util.StaffHeader;
 import org.example.appnganhang.model.entity.LichSuGiaoDich;
 import org.example.appnganhang.controller.service.Impl.CSKHBalanceHistoryServiceImpl;
 import org.example.appnganhang.controller.service.intf.CSKHBalanceHistoryService;
@@ -113,6 +115,7 @@ public class CSKHBalanceHistoryController {
 
     @FXML
     public void initialize() {
+        StaffHeader.loadCustomerService(lblStaffName);
         // ---- Main table columns ----
         colMaLog.setCellValueFactory(cellData -> {
             Integer maLog = cellData.getValue().getMaLog();

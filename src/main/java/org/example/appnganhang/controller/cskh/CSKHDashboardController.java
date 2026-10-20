@@ -3,6 +3,7 @@ package org.example.appnganhang.controller.cskh;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import org.example.appnganhang.controller.util.StaffHeader;
 import org.example.appnganhang.controller.service.Impl.CSKHDashboardServiceImpl;
 import org.example.appnganhang.controller.service.intf.CSKHDashboardService;
 import org.example.appnganhang.model.entity.CSKHDashboardStats;
@@ -28,6 +29,7 @@ public class CSKHDashboardController {
 
     @FXML
     public void initialize() {
+        StaffHeader.loadCustomerService(lblStaffName);
         loadStats();
     }
 
@@ -98,6 +100,7 @@ public class CSKHDashboardController {
 
     @FXML
     public void onDangXuat(ActionEvent event) {
+        CSKHSession.clear();
         try {
             moView("login-view.fxml", event);
         } catch (Exception e) {

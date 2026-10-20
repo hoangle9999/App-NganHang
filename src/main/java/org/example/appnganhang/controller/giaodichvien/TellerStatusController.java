@@ -1,5 +1,6 @@
 package org.example.appnganhang.controller.giaodichvien;
 
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.example.appnganhang.controller.util.StaffHeader;
 import org.example.appnganhang.controller.service.Impl.TellerStatusServiceImpl;
 import org.example.appnganhang.controller.service.intf.TellerStatusService;
 import org.example.appnganhang.model.entity.GiaoDichChuyenTien;
@@ -74,6 +76,7 @@ public class TellerStatusController {
 
     @FXML
     public void initialize() {
+        StaffHeader.loadTeller(lblTellerName, lblTellerBranch);
         cauHinhBangGiaoDich();
         taiDuLieuGiaoDich();
     }

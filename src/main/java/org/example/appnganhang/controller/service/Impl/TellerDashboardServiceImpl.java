@@ -11,7 +11,11 @@ import java.util.Optional;
 import org.example.appnganhang.model.entity.TellerDashboardStats;
 
 public class TellerDashboardServiceImpl implements TellerDashboardService {
-    private final TellerDashboardDAO dao = new TellerDashboardDAOImpl();
+    private final TellerDashboardDAO dao;
+
+    public TellerDashboardServiceImpl() {
+        this.dao = new TellerDashboardDAOImpl();
+    }
     @Override public Optional<NhanVien> timNhanVienTheoTenDangNhap(String username) { return dao.timNhanVienTheoTenDangNhap(username); }
     @Override public TellerDashboardStats layThongKeDashboard() { return dao.layThongKeDashboard(); }
     @Override public List<GiaoDichChuyenTien> layGiaoDichGanDay(int gioiHan) { return dao.layGiaoDichGanDay(gioiHan); }

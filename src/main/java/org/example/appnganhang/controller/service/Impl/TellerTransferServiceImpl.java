@@ -14,7 +14,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class TellerTransferServiceImpl implements TellerTransferService {
-    private final TellerTransferDAO dao = new TellerTransferDAOImpl();
+    private final TellerTransferDAO dao;
+
+    public TellerTransferServiceImpl() {
+        this.dao = new TellerTransferDAOImpl();
+    }
 
     @Override public List<NganHang> layDanhSachNganHangHoatDong() { return dao.layDanhSachNganHangHoatDong(); }
     @Override public List<LoaiGiaoDich> layDanhSachLoaiGiaoDich() { return dao.layDanhSachLoaiGiaoDich(); }
