@@ -10,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.Alert;
 import org.example.appnganhang.controller.service.Impl.KhachHangPortalServiceImpl;
 import org.example.appnganhang.controller.service.intf.KhachHangPortalService;
 
@@ -321,7 +322,24 @@ public class CustomerTransactionsController {
 
     @FXML
     public void onApDungLoc() {
+        LocalDate tuNgay = dpTuNgay.getValue();
+        LocalDate denNgay = dpDenNgay.getValue();
+        LocalDate homNay = LocalDate.now();
+
         taiDuLieuGiaoDich();
+        // Kiểm tra ngày bắt đầu lớn hơn ngày kết thúc
+        if (tuNgay != null && denNgay != null
+                && tuNgay.isAfter(denNgay)) {
+            hienCanhBao("Ngày bắt đầu không được lớn hơn ngày kết thúc!");
+            return;
+        }
+
+        // Kiểm tra ngày nằm trong tương lai
+        if ((tuNgay != null && tuNgay.isAfter(homNay))
+                || (denNgay != null && denNgay.isAfter(homNay))) {
+            hienCanhBao("Không thể chọn ngày trong tương lai!");
+            return;
+        }
     }
 
     private void locDuLieu() {
@@ -398,6 +416,14 @@ public class CustomerTransactionsController {
             modal.setVisible(false);
             modal.setManaged(false);
         }
+    }
+
+    private void hienCanhBao(String noiDung) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Cảnh báo");
+        alert.setHeaderText("Ngày lọc không hợp lệ");
+        alert.setContentText(noiDung);
+        alert.showAndWait();
     }
 
     // =========================================================

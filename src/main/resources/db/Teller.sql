@@ -2,7 +2,7 @@
 -- Chạy file này sau khi đã tạo Database_AppNganhang_DoLeGiaHan.sql.
 GO
 
--- Trả về tên hành động sổ cái tương ứng với loại giao dịch tại quầy.
+-- Trả về tên loại giao dịch tại quầy.
 CREATE OR ALTER FUNCTION dbo.fn_GDV_LayHanhDongTienMat
 (
     @MaLoaiGD VARCHAR(10)
@@ -186,6 +186,8 @@ CREATE OR ALTER PROCEDURE dbo.SP_GDV_ThucHienChuyenTien
     @NoiDung NVARCHAR(255)
 AS
 BEGIN
+
+    -- kiểm tra dữ liệu đầu vào
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
     IF @SoTien IS NULL OR @SoTien <= 0 THROW 52230, N'Số tiền phải lớn hơn 0.', 1;
@@ -204,6 +206,7 @@ BEGIN
                 @TrangThaiDich NVARCHAR(20), @TenNguoiNhanDB NVARCHAR(100),
                 @TrangThaiGD NVARCHAR(30), @SoDuSauGD DECIMAL(18,2), @HanMucConLai DECIMAL(18,2);
 
+        -- kiểm tra tài khoản nguồn
         SELECT @MaTaiKhoanNguon = tk.MaTaiKhoan, @SoDuNguon = tk.SoDu,
                @TrangThaiNguon = tk.TrangThai, @HanMucNgay = hm.HanMucNgay
         FROM dbo.TaiKhoanNganHang tk WITH (UPDLOCK, HOLDLOCK)
@@ -212,11 +215,13 @@ BEGIN
         IF @MaTaiKhoanNguon IS NULL THROW 52226, N'Không tìm thấy tài khoản nguồn SMART BANK.', 1;
         IF @TrangThaiNguon <> N'Hoạt động' THROW 52234, N'Tài khoản nguồn không ở trạng thái hoạt động.', 1;
 
+        -- kiểm tra ngân hàng đích
         IF NOT EXISTS (SELECT 1 FROM dbo.NganHang WHERE MaNganHang = @MaNganHangDich AND TrangThai = N'Hoạt động')
             THROW 52202, N'Ngân hàng đích không tồn tại hoặc đang ngừng hoạt động.', 1;
         IF NOT EXISTS (SELECT 1 FROM dbo.LoaiGiaoDich WHERE MaLoaiGD = @MaLoaiGD)
             THROW 52235, N'Loại giao dịch không tồn tại.', 1;
 
+        -- kiểm tra số dư và hạn mức ngày
         SELECT @DaChuyenHomNay = COALESCE(SUM(SoTien), 0)
         FROM dbo.GiaoDichChuyenTien WITH (UPDLOCK, HOLDLOCK)
         WHERE MaTaiKhoanNguon = @MaTaiKhoanNguon
@@ -238,6 +243,8 @@ BEGIN
             IF @MaTaiKhoanDich = @MaTaiKhoanNguon THROW 52239, N'Tài khoản nguồn và đích không được trùng nhau.', 1;
             SET @TenNguoiNhan = COALESCE(@TenNguoiNhanDB, @TenNguoiNhan);
             SET @TrangThaiGD = N'Thành công';
+
+            --  cập nhật số dư tài khoản nguồn và tài khoản đích
             UPDATE dbo.TaiKhoanNganHang SET SoDu = SoDu - @SoTien WHERE MaTaiKhoan = @MaTaiKhoanNguon;
             UPDATE dbo.TaiKhoanNganHang SET SoDu = SoDu + @SoTien WHERE MaTaiKhoan = @MaTaiKhoanDich;
             SET @SoDuSauGD = @SoDuNguon - @SoTien;
@@ -306,6 +313,7 @@ BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
 
+    -- kiểm tra tham số đầu vào
     IF @SoTien IS NULL OR @SoTien <= 0
         THROW 52250, N'Số tiền giao dịch phải lớn hơn 0.', 1;
     IF @MaLoaiGD NOT IN ('NT01', 'RT01', 'TT01')
@@ -349,10 +357,12 @@ BEGIN
         SET @SoDuSau = @SoDu + @SoTienThayDoi;
         SET @HanhDong = dbo.fn_GDV_LayHanhDongTienMat(@MaLoaiGD);
 
+        --  cập nhật số dư
         UPDATE dbo.TaiKhoanNganHang
         SET SoDu = @SoDuSau
         WHERE MaTaiKhoan = @MaTaiKhoan;
 
+        -- ghi giao dịch
         INSERT dbo.GiaoDichChuyenTien
             (MaGiaoDich, MaTaiKhoanNguon, MaTaiKhoanDich, MaNganHangDich,
              SoTaiKhoanDich, SoTien, NgayGiaoDich, NoiDung, MaLoaiGD, TrangThai)
@@ -536,3 +546,27 @@ BEGIN
 END;
 GO
 
+
+-- ===== Index, trigger va demo phan quyen Teller =====
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.GiaoDichChuyenTien') AND name=N'IX_GiaoDich_TaiKhoanNgay')
+    CREATE INDEX IX_GiaoDich_TaiKhoanNgay ON dbo.GiaoDichChuyenTien(MaTaiKhoanNguon,NgayGiaoDich DESC) INCLUDE (MaTaiKhoanDich,SoTien,TrangThai,MaLoaiGD);
+GO
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.LichSuGiaoDich') AND name=N'IX_LichSu_TaiKhoanThoiGian')
+    CREATE INDEX IX_LichSu_TaiKhoanThoiGian ON dbo.LichSuGiaoDich(SoTaiKhoanLienQuan,ThoiGianGhiLog DESC) INCLUDE (MaGiaoDich,HanhDong,SoTienThayDoi,SoDuSauThayDoi);
+GO
+CREATE OR ALTER TRIGGER dbo.trg_Teller_GiaoDich_ValidateInsert
+ON dbo.GiaoDichChuyenTien AFTER INSERT AS
+BEGIN
+ SET NOCOUNT ON;
+ IF EXISTS(SELECT 1 FROM inserted WHERE SoTien<=0)
+  THROW 52501,N'So tien giao dich phai lon hon 0.',1;
+END;
+GO
+IF DATABASE_PRINCIPAL_ID(N'role_Teller') IS NULL CREATE ROLE role_Teller AUTHORIZATION dbo;
+GO
+GRANT EXECUTE ON OBJECT::dbo.SP_GDV_ThucHienChuyenTien TO role_Teller;
+GRANT EXECUTE ON OBJECT::dbo.SP_GDV_ThucHienGiaoDich TO role_Teller;
+GRANT EXECUTE ON OBJECT::dbo.SP_GDV_DuyetGiaoDichChoXuLy TO role_Teller;
+GRANT EXECUTE ON OBJECT::dbo.SP_GDV_HuyGiaoDichChoXuLy TO role_Teller;
+DENY INSERT, UPDATE, DELETE ON SCHEMA::dbo TO role_Teller;
+GO

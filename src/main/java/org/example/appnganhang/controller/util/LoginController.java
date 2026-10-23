@@ -112,6 +112,7 @@ public class LoginController {
                 Stage stage = (Stage) txtTenDangNhap.getScene().getWindow();
 
                 stage.setScene(new Scene(root));
+                AppSession.attachStage(stage);
                 stage.setTitle("SMART BANK - Trang Chủ");
                 stage.centerOnScreen();
                 stage.show();

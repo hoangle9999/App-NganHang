@@ -1,6 +1,13 @@
 USE DB_ChuyenTienNganHang;
 GO
 
+-- Migrare an toan cho database da ton tai: trang thai nay duoc app kiem tra moi lan truy cap DB.
+IF COL_LENGTH(N'dbo.TaiKhoanDangNhap_VaiTro', N'QuyenHoatDong') IS NULL
+    ALTER TABLE dbo.TaiKhoanDangNhap_VaiTro
+        ADD QuyenHoatDong BIT NOT NULL
+            CONSTRAINT DF_TaiKhoan_QuyenHoatDong DEFAULT (1) WITH VALUES;
+GO
+
 
 -- ============================================================
 -- PHẦN 1: DATABASE ROLE CHO ADMIN
@@ -106,9 +113,26 @@ CREATE OR ALTER PROCEDURE dbo.SP_Admin_DanhSachTaiKhoanDangNhap
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT TenDangNhap, RoleName, MaNguoiDung
+    SELECT TenDangNhap, RoleName, MaNguoiDung, QuyenHoatDong
     FROM dbo.TaiKhoanDangNhap_VaiTro
     ORDER BY RoleName, TenDangNhap;
+END;
+GO
+
+-- Thu hoi/khoi phuc quyen tai khoan app. Khong cho phep Admin khoa tai khoan Admin.
+CREATE OR ALTER PROCEDURE dbo.SP_Admin_DatTrangThaiQuyen
+    @TenDangNhap VARCHAR(50),
+    @ChoPhep BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF EXISTS (SELECT 1 FROM dbo.TaiKhoanDangNhap_VaiTro WHERE TenDangNhap=@TenDangNhap AND RoleName=N'Admin')
+        THROW 52150, N'Khong the thu hoi quyen tai khoan Admin bang thao tac nay.', 1;
+
+    UPDATE dbo.TaiKhoanDangNhap_VaiTro
+    SET QuyenHoatDong=@ChoPhep
+    WHERE TenDangNhap=@TenDangNhap;
+    IF @@ROWCOUNT=0 THROW 52151, N'Khong tim thay tai khoan dang nhap.', 1;
 END;
 GO
 
@@ -658,5 +682,23 @@ BEGIN
     WHERE MaNganHang=@MaNganHang;
     IF @@ROWCOUNT=0 THROW 52381, N'Không tìm thấy ngân hàng.', 1;
     SELECT TrangThai AS TrangThaiMoi FROM dbo.NganHang WHERE MaNganHang=@MaNganHang;
+END;
+GO
+
+-- ===== Index va trigger nghiep vu Admin =====
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.NhanVien') AND name=N'IX_NhanVien_MaChiNhanh')
+    CREATE INDEX IX_NhanVien_MaChiNhanh ON dbo.NhanVien(MaChiNhanh);
+GO
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.TaiKhoanDangNhap_VaiTro') AND name=N'IX_TaiKhoan_RoleName')
+    CREATE INDEX IX_TaiKhoan_RoleName ON dbo.TaiKhoanDangNhap_VaiTro(RoleName, TenDangNhap) INCLUDE (MaNguoiDung);
+GO
+CREATE OR ALTER TRIGGER dbo.trg_Admin_NhanVien_Audit
+ON dbo.NhanVien AFTER UPDATE, DELETE AS
+BEGIN
+ SET NOCOUNT ON;
+ INSERT dbo.AuditNganHang(BangDuLieu,KhoaDuLieu,HanhDong,ChiTiet)
+ SELECT N'NhanVien', d.MaNhanVien, CASE WHEN i.MaNhanVien IS NULL THEN N'Xoa nhan vien' ELSE N'Cap nhat nhan vien' END,
+        CONCAT(N'HoTen: ',d.HoTen,CASE WHEN i.MaNhanVien IS NULL THEN N'' ELSE CONCAT(N' -> ',i.HoTen) END)
+ FROM deleted d LEFT JOIN inserted i ON i.MaNhanVien=d.MaNhanVien;
 END;
 GO

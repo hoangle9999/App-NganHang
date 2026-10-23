@@ -5,6 +5,7 @@ public class TaiKhoanDangNhap_VaiTro {
     private String matKhau;
     private String roleName;
     private String maNguoiDung;
+    private boolean quyenHoatDong = true;
 
     public TaiKhoanDangNhap_VaiTro() {}
 
@@ -45,4 +46,7 @@ public class TaiKhoanDangNhap_VaiTro {
     public void setMaNguoiDung(String maNguoiDung) {
         this.maNguoiDung = maNguoiDung;
     }
+
+    public boolean isQuyenHoatDong() { return quyenHoatDong; }
+    public void setQuyenHoatDong(boolean quyenHoatDong) { this.quyenHoatDong = quyenHoatDong; }
 }

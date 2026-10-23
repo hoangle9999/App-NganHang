@@ -292,3 +292,31 @@ BEGIN
     WHERE tk.SoTaiKhoan = @SoTaiKhoan;
 END;
 GO
+
+-- ===== Index va trigger nghiep vu CSKH =====
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.GiaoDichChuyenTien') AND name=N'IX_GiaoDich_NgayTrangThai')
+    CREATE INDEX IX_GiaoDich_NgayTrangThai ON dbo.GiaoDichChuyenTien(NgayGiaoDich DESC,TrangThai) INCLUDE (MaLoaiGD,SoTien,MaTaiKhoanNguon,MaTaiKhoanDich);
+GO
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.KhachHang') AND name=N'IX_KhachHang_HoTen')
+    CREATE INDEX IX_KhachHang_HoTen ON dbo.KhachHang(HoTen) INCLUDE (SoDienThoai,Email);
+GO
+
+CREATE OR ALTER TRIGGER dbo.trg_CSKH_KhachHang_AuditInsert
+ON dbo.KhachHang AFTER INSERT AS
+BEGIN
+ SET NOCOUNT ON;
+ INSERT dbo.AuditNganHang(BangDuLieu,KhoaDuLieu,HanhDong,ChiTiet)
+ SELECT N'KhachHang',i.MaKhachHang,N'Tao ho so khach hang',CONCAT(N'HoTen=',i.HoTen) FROM inserted i;
+END;
+GO
+
+-- Demo phan quyen SQL Server cho CSKH; khong lien quan phan quyen backend.
+IF DATABASE_PRINCIPAL_ID(N'role_CSKH') IS NULL CREATE ROLE role_CSKH AUTHORIZATION dbo;
+GO
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_DanhSachKhachHang TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_ThemKhachHang TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_CapNhatKhachHang TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_DanhSachGiaoDich TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_TimGiaoDich TO role_CSKH;
+DENY INSERT, UPDATE, DELETE ON SCHEMA::dbo TO role_CSKH;
+GO

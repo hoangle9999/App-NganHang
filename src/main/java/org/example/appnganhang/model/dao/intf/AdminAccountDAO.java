@@ -15,6 +15,7 @@ public interface AdminAccountDAO {
                        String hoTen, String soCCCD, String soDienThoai,
                        String email, String diaChi, String maChiNhanh, String maHanMuc);
     void doiVaiTro(String tenDangNhap, String roleNameMoi);
+    void datQuyenHoatDong(String tenDangNhap, boolean choPhep);
     void datLaiMatKhau(String tenDangNhap, String matKhauMoi);
     void xoaTaiKhoan(String tenDangNhap);
 }

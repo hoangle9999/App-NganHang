@@ -26,6 +26,8 @@ public class Navigation {
 
     public static void moView(String tenFile, ActionEvent event) {
 
+        if ("login-view.fxml".equals(tenFile)) AppSession.clear();
+
         for (String folder : VIEW_FOLDERS){
             String DUONG_DAN = BASE_PATH + folder + tenFile;
             if (Navigation.class.getResource(DUONG_DAN) != null){

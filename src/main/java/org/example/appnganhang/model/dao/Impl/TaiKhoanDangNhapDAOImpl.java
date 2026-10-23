@@ -27,6 +27,7 @@ public class TaiKhoanDangNhapDAOImpl implements TaiKhoanDangNhapDAO {
             FROM TaiKhoanDangNhap_VaiTro
             WHERE TenDangNhap = ?
               AND MatKhau = ?
+              AND QuyenHoatDong = 1
             """;
 
     private static final String SQL_CHANGE_PASSWORD = """

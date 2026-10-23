@@ -72,6 +72,11 @@ public class AdminAccountServiceImpl implements AdminAccountService {
     }
 
     @Override
+    public void datQuyenHoatDong(String tenDangNhap, boolean choPhep) {
+        dao.datQuyenHoatDong(tenDangNhap, choPhep);
+    }
+
+    @Override
     public void datLaiMatKhau(String tenDangNhap, String matKhauMoi) {
         if (matKhauMoi == null || matKhauMoi.length() < 6) throw new IllegalArgumentException("Mật khẩu mới phải có tối thiểu 6 ký tự.");
         dao.datLaiMatKhau(tenDangNhap, matKhauMoi);

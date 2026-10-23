@@ -55,6 +55,7 @@ public class AdminAccountDAOImpl implements AdminAccountDAO {
                 // Không cần đọc mật khẩu để hiển thị trong bảng.
                 tk.setRoleName(rs.getString("RoleName"));
                 tk.setMaNguoiDung(rs.getString("MaNguoiDung"));
+                tk.setQuyenHoatDong(rs.getBoolean("QuyenHoatDong"));
                 result.add(tk);
             }
             return result;
@@ -93,6 +94,18 @@ public class AdminAccountDAOImpl implements AdminAccountDAO {
     @Override
     public void doiVaiTro(String tenDangNhap, String roleNameMoi) {
         goiProcHaiThamSo("{CALL dbo.SP_Admin_DoiVaiTroTaiKhoan(?,?)}", tenDangNhap, roleNameMoi);
+    }
+
+    @Override
+    public void datQuyenHoatDong(String tenDangNhap, boolean choPhep) {
+        try (Connection c = DBConnection.getConnection();
+             CallableStatement st = c.prepareCall("{CALL dbo.SP_Admin_DatTrangThaiQuyen(?,?)}")) {
+            st.setString(1, tenDangNhap);
+            st.setBoolean(2, choPhep);
+            st.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(layThongBaoSql(e), e);
+        }
     }
 
     @Override

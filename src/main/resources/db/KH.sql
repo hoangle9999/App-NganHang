@@ -13,7 +13,6 @@ BEGIN
     SELECT @Ma = CONVERT(VARCHAR(15), NEXT VALUE FOR dbo.Seq_SoTaiKhoan);
 END;
 GO
-
 CREATE OR ALTER VIEW dbo.vw_KH_TaiKhoan
 AS
     SELECT tk.MaTaiKhoan,
@@ -156,4 +155,34 @@ BEGIN
        OR (gd.MaKhachHangDich = @MaKhachHang AND gd.MaTaiKhoanDich = @SoTaiKhoan)
     ORDER BY gd.NgayGiaoDich DESC;
 END;
+GO
+
+-- ===== Index, trigger va demo phan quyen SQL Server cho khach hang =====
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.LichSuGiaoDich') AND name=N'IX_LichSu_SoTaiKhoanThoiGian')
+    CREATE INDEX IX_LichSu_SoTaiKhoanThoiGian
+        ON dbo.LichSuGiaoDich(SoTaiKhoanLienQuan,ThoiGianGhiLog DESC)
+        INCLUDE (MaGiaoDich,HanhDong,SoTienThayDoi,SoDuSauThayDoi);
+GO
+
+-- Lich su tai khoan la bang chi ghi them de bao toan dau vet giao dich.
+CREATE OR ALTER TRIGGER dbo.trg_KH_LichSu_AppendOnly
+ON dbo.LichSuGiaoDich AFTER UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    THROW 52511,N'Lich su giao dich la du lieu chi ghi them, khong duoc sua hoac xoa.',1;
+END;
+GO
+
+-- Demo phan quyen SQL Server; role nay doc du lieu qua cac stored procedure.
+IF DATABASE_PRINCIPAL_ID(N'role_Customer') IS NULL
+    CREATE ROLE role_Customer AUTHORIZATION dbo;
+GO
+GRANT EXECUTE ON OBJECT::dbo.sp_KH_TimHoSo TO role_Customer;
+GRANT EXECUTE ON OBJECT::dbo.sp_KH_DanhSachTaiKhoan TO role_Customer;
+GRANT EXECUTE ON OBJECT::dbo.sp_KH_DanhSachSoTaiKhoan TO role_Customer;
+GRANT EXECUTE ON OBJECT::dbo.sp_KH_SoDuTaiKhoan TO role_Customer;
+GRANT EXECUTE ON OBJECT::dbo.sp_KH_LichSuBienDong TO role_Customer;
+GRANT EXECUTE ON OBJECT::dbo.sp_KH_GiaoDichTaiKhoan TO role_Customer;
+DENY SELECT, INSERT, UPDATE, DELETE ON SCHEMA::dbo TO role_Customer;
 GO

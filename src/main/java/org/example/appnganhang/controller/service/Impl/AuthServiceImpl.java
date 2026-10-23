@@ -9,6 +9,7 @@ import org.example.appnganhang.model.dao.intf.TaiKhoanDangNhapDAO;
 import org.example.appnganhang.model.entity.KhachHang;
 import org.example.appnganhang.model.entity.TaiKhoanDangNhap_VaiTro;
 import org.example.appnganhang.controller.service.intf.AuthService;
+import org.example.appnganhang.controller.util.AppSession;
 
 import java.util.Optional;
 
@@ -31,10 +32,12 @@ public class AuthServiceImpl implements AuthService {
 
         if (result.isPresent()) {
             currentUser = result.get();
+            AppSession.activate(currentUser.getTenDangNhap(), currentUser.getRoleName());
             return true;
         }
 
         currentUser = null;
+        AppSession.clear();
         return false;
     }
 
@@ -90,6 +93,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout() {
         currentUser = null;
+        AppSession.clear();
     }
 
     @Override

@@ -166,4 +166,5 @@ SELECT * FROM dbo.LoaiGiaoDich;
 SELECT * FROM dbo.NhanVien;
 SELECT * FROM dbo.GiaoDichChuyenTien;
 SELECT * FROM dbo.LichSuGiaoDich;
+SELECT * FROM dbo.AuditNganHang;
 GO

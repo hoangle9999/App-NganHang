@@ -36,6 +36,7 @@ CREATE TABLE dbo.TaiKhoanDangNhap_VaiTro (
     MatKhau      VARCHAR(255)  NOT NULL,
     RoleName     NVARCHAR(30)  NOT NULL,
     MaNguoiDung  VARCHAR(20)   NOT NULL,
+    QuyenHoatDong BIT NOT NULL CONSTRAINT DF_TaiKhoan_QuyenHoatDong DEFAULT (1),
 
     CONSTRAINT CK_TaiKhoanDangNhap_Role
         CHECK (RoleName IN (

@@ -24,7 +24,7 @@ public class AdminAccountController {
     @FXML private TextField txtTimKiem;
     @FXML private ComboBox<String> cboLocVaiTro;
     @FXML private TableView<TaiKhoanDangNhap_VaiTro> tblTaiKhoan;
-    @FXML private TableColumn<TaiKhoanDangNhap_VaiTro, String> colTenDangNhap, colMaNguoiDung, colRoleName;
+    @FXML private TableColumn<TaiKhoanDangNhap_VaiTro, String> colTenDangNhap, colMaNguoiDung, colRoleName, colTrangThaiQuyen;
 
     @FXML private StackPane modalTaoTaiKhoan;
     @FXML private TextField txtModalTenDangNhap, txtModalHoTen, txtModalCCCD, txtModalSDT,
@@ -70,6 +70,8 @@ public class AdminAccountController {
         colTenDangNhap.setCellValueFactory(new PropertyValueFactory<>("tenDangNhap"));
         colMaNguoiDung.setCellValueFactory(new PropertyValueFactory<>("maNguoiDung"));
         colRoleName.setCellValueFactory(new PropertyValueFactory<>("roleName"));
+        if (colTrangThaiQuyen != null) colTrangThaiQuyen.setCellValueFactory(cell ->
+                new javafx.beans.property.SimpleStringProperty(cell.getValue().isQuyenHoatDong() ? "Đang hoạt động" : "Đã thu hồi"));
 
         // Ba nút thao tác đã được bố trí sẵn bên dưới bảng trong FXML.
         // Không tạo thêm nút trong từng dòng để tránh bị lặp giao diện.
@@ -190,6 +192,25 @@ public class AdminAccountController {
     @FXML public void onMoPopupSuaVaiTro() {
         TaiKhoanDangNhap_VaiTro tk = tblTaiKhoan.getSelectionModel().getSelectedItem();
         if (tk == null) hienThongBaoChuaChonDong(); else moPopupSuaVaiTroCho(tk);
+    }
+
+    @FXML public void onThuHoiKhoiPhucQuyen() {
+        TaiKhoanDangNhap_VaiTro tk = tblTaiKhoan.getSelectionModel().getSelectedItem();
+        if (tk == null) { hienThongBaoChuaChonDong(); return; }
+        if ("Admin".equals(tk.getRoleName())) {
+            hienCanhBao("Không thể thu hồi", "Không thể thu hồi quyền của tài khoản Admin.");
+            return;
+        }
+        boolean choPhep = !tk.isQuyenHoatDong();
+        try {
+            service.datQuyenHoatDong(tk.getTenDangNhap(), choPhep);
+            taiDuLieuTaiKhoan();
+            hienThongTin("Phân quyền", choPhep
+                    ? "Đã khôi phục quyền truy cập. Người dùng cần đăng nhập lại."
+                    : "Đã thu hồi quyền. Phiên ứng dụng của người dùng sẽ bị kết thúc trong tối đa 1 giây.");
+        } catch (RuntimeException e) {
+            hienCanhBao("Không thể cập nhật quyền", e.getMessage());
+        }
     }
     private void moPopupSuaVaiTroCho(TaiKhoanDangNhap_VaiTro tk) {
         taiKhoanDangChon = tk; txtModalSuaTenDangNhap.setText(tk.getTenDangNhap());
