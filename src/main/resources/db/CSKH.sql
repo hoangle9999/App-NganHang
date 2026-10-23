@@ -55,7 +55,6 @@ BEGIN
     END;
 END;
 GO
-
 CREATE OR ALTER VIEW dbo.vw_CSKH_TaiKhoanKhachHang
 AS
     SELECT tk.MaTaiKhoan,
@@ -310,13 +309,4 @@ BEGIN
 END;
 GO
 
--- Demo phan quyen SQL Server cho CSKH; khong lien quan phan quyen backend.
-IF DATABASE_PRINCIPAL_ID(N'role_CSKH') IS NULL CREATE ROLE role_CSKH AUTHORIZATION dbo;
-GO
-GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_DanhSachKhachHang TO role_CSKH;
-GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_ThemKhachHang TO role_CSKH;
-GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_CapNhatKhachHang TO role_CSKH;
-GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_DanhSachGiaoDich TO role_CSKH;
-GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_TimGiaoDich TO role_CSKH;
-DENY INSERT, UPDATE, DELETE ON SCHEMA::dbo TO role_CSKH;
-GO
+\r\n

@@ -547,7 +547,7 @@ END;
 GO
 
 
--- ===== Index, trigger va demo phan quyen Teller =====
+-- ===== Index va trigger nghiep vu Teller =====
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.GiaoDichChuyenTien') AND name=N'IX_GiaoDich_TaiKhoanNgay')
     CREATE INDEX IX_GiaoDich_TaiKhoanNgay ON dbo.GiaoDichChuyenTien(MaTaiKhoanNguon,NgayGiaoDich DESC) INCLUDE (MaTaiKhoanDich,SoTien,TrangThai,MaLoaiGD);
 GO
@@ -561,12 +561,4 @@ BEGIN
  IF EXISTS(SELECT 1 FROM inserted WHERE SoTien<=0)
   THROW 52501,N'So tien giao dich phai lon hon 0.',1;
 END;
-GO
-IF DATABASE_PRINCIPAL_ID(N'role_Teller') IS NULL CREATE ROLE role_Teller AUTHORIZATION dbo;
-GO
-GRANT EXECUTE ON OBJECT::dbo.SP_GDV_ThucHienChuyenTien TO role_Teller;
-GRANT EXECUTE ON OBJECT::dbo.SP_GDV_ThucHienGiaoDich TO role_Teller;
-GRANT EXECUTE ON OBJECT::dbo.SP_GDV_DuyetGiaoDichChoXuLy TO role_Teller;
-GRANT EXECUTE ON OBJECT::dbo.SP_GDV_HuyGiaoDichChoXuLy TO role_Teller;
-DENY INSERT, UPDATE, DELETE ON SCHEMA::dbo TO role_Teller;
 GO
