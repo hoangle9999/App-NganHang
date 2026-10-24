@@ -308,5 +308,3 @@ BEGIN
  SELECT N'KhachHang',i.MaKhachHang,N'Tao ho so khach hang',CONCAT(N'HoTen=',i.HoTen) FROM inserted i;
 END;
 GO
-
-\r\n
