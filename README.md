@@ -16,6 +16,6 @@ Lê Quang Hưng *
 
 Hướng dữ sử dụng các file sql:
 
-Chạy file Database_AppNganhang_DoLeGiaHan.sql ➡️ DuLieu.sql ➡️ Admin.sql ➡️ CSKH.sql ➡️ KH.sql ➡️ Teller.sql ➡️ Trigger.sql ➡️ Security.sql
+Chạy file Database_AppNganhang_DoLeGiaHan.sql ➡️ DuLieu.sql ➡️ Admin.sql ➡️ CSKH.sql ➡️ KH.sql ➡️ Teller.sql 
 
 File ResetModules.sql dùng để xóa các view, func, proc đã tạo trong DuLieu.sql, Admin.sql, CSKH.sql, KH.sql, Teller.sql
