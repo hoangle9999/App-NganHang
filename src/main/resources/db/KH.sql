@@ -14,6 +14,11 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.LichSuG
         INCLUDE (MaGiaoDich,HanhDong,SoTienThayDoi,SoDuSauThayDoi);
 GO
 
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.GiaoDichChuyenTien') AND name = N'IX_GiaoDich_MaTaiKhoanNguon_NgayGiaoDich')
+    CREATE INDEX IX_GiaoDich_MaTaiKhoanNguon_NgayGiaoDich
+    ON dbo.GiaoDichChuyenTien( MaTaiKhoanNguon, NgayGiaoDich DESC);
+GO
+    
 -- Lich su tai khoan la bang chi ghi them de bao toan dau vet giao dich.
 CREATE OR ALTER TRIGGER dbo.trg_KH_LichSu_AppendOnly
 ON dbo.LichSuGiaoDich 
