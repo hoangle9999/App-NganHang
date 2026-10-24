@@ -21,7 +21,7 @@ AFTER UPDATE, DELETE
 AS
 BEGIN
     SET NOCOUNT ON;
-    THROW 52511,N'Lich su giao dich la du lieu chi ghi them, khong duoc sua hoac xoa.',1;
+    THROW 52511,N'Lịch sử giao dịchh chỉ ghi thêm, không được sửa hoặc xóa',1;
 END;
 GO
 
