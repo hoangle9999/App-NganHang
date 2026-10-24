@@ -316,7 +316,7 @@ TO role_Customer;
 GRANT EXECUTE ON OBJECT::dbo.sp_KH_GiaoDichTaiKhoan
 TO role_Customer;
 
-GRANT EXECUTE ON OBJECT::dbo.fn_KH_KiemTraDuSoDu
+GRANT EXECUTE ON dbo.fn_KH_KiemTraDuSoDu
 TO role_Customer;
 GO
 
