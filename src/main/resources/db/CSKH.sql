@@ -308,3 +308,39 @@ BEGIN
  SELECT N'KhachHang',i.MaKhachHang,N'Tao ho so khach hang',CONCAT(N'HoTen=',i.HoTen) FROM inserted i;
 END;
 GO
+
+-- ===== Phân quyền cho role_CSKH =====
+IF DATABASE_PRINCIPAL_ID(N'role_CSKH') IS NULL
+    CREATE ROLE role_CSKH;
+GO
+
+-- Tra cứu & quản lý khách hàng
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_DanhSachKhachHang    TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_TonTaiCCCD           TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_TonTaiSoDienThoai    TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_ThemKhachHang        TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_CapNhatKhachHang     TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_TaiKhoanTheoKhachHang TO role_CSKH;
+
+-- Tra cứu tài khoản & giao dịch
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_TraCuuTaiKhoan       TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_TenChuTaiKhoan       TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_Dashboard            TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_DanhSachGiaoDich     TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_TimGiaoDich          TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_TenLoaiGiaoDich      TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_MaLoaiGiaoDich       TO role_CSKH;
+GRANT EXECUTE ON OBJECT::dbo.sp_CSKH_LichSuGiaoDich       TO role_CSKH;
+
+-- Function tra cứu giao dịch
+GRANT SELECT ON dbo.fn_CSKH_TimGiaoDich                   TO role_CSKH;
+
+-- Đọc view (cần cho các SP nội bộ)
+GRANT SELECT ON OBJECT::dbo.vw_CSKH_TaiKhoanKhachHang    TO role_CSKH;
+GRANT SELECT ON OBJECT::dbo.vw_CSKH_LichSuGiaoDich        TO role_CSKH;
+
+-- CSKH chỉ đọc, không được sửa/xóa dữ liệu tài chính
+DENY INSERT, UPDATE, DELETE ON OBJECT::dbo.GiaoDichChuyenTien TO role_CSKH;
+DENY INSERT, UPDATE, DELETE ON OBJECT::dbo.LichSuGiaoDich     TO role_CSKH;
+DENY INSERT, UPDATE, DELETE ON OBJECT::dbo.TaiKhoanNganHang   TO role_CSKH;
+GO
