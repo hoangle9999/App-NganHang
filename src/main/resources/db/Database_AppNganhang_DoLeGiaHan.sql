@@ -302,6 +302,27 @@ CREATE TABLE dbo.LichSuGiaoDich (
 );
 GO
 
+-- ----------------------------------------------------------
+-- 1.11 Nhật ký kiểm toán toàn hệ thống
+-- ----------------------------------------------------------
+CREATE TABLE dbo.AuditNganHang (
+    MaAudit         BIGINT IDENTITY(1,1) NOT NULL
+        CONSTRAINT PK_AuditNganHang PRIMARY KEY,
+    BangDuLieu      NVARCHAR(100) NOT NULL,
+    KhoaDuLieu      NVARCHAR(100) NOT NULL,
+    HanhDong        NVARCHAR(100) NOT NULL,
+    ChiTiet         NVARCHAR(MAX) NULL,
+    NguoiThucHien   NVARCHAR(256) NOT NULL
+        CONSTRAINT DF_AuditNganHang_NguoiThucHien DEFAULT (SUSER_SNAME()),
+    ThoiGian        DATETIME2(0) NOT NULL
+        CONSTRAINT DF_AuditNganHang_ThoiGian DEFAULT (SYSDATETIME())
+);
+GO
+
+CREATE INDEX IX_AuditNganHang_ThoiGian
+    ON dbo.AuditNganHang(ThoiGian DESC);
+GO
+
 
 -- ============================================================
 -- BƯỚC 2: SEQUENCE – TỰ SINH MÃ

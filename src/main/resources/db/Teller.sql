@@ -549,16 +549,53 @@ GO
 
 -- ===== Index va trigger nghiep vu Teller =====
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.GiaoDichChuyenTien') AND name=N'IX_GiaoDich_TaiKhoanNgay')
-    CREATE INDEX IX_GiaoDich_TaiKhoanNgay ON dbo.GiaoDichChuyenTien(MaTaiKhoanNguon,NgayGiaoDich DESC) INCLUDE (MaTaiKhoanDich,SoTien,TrangThai,MaLoaiGD);
+    CREATE INDEX IX_GiaoDich_TaiKhoanNgay
+    ON dbo.GiaoDichChuyenTien(MaTaiKhoanNguon,NgayGiaoDich DESC) INCLUDE (MaTaiKhoanDich,SoTien,TrangThai,MaLoaiGD);
 GO
+
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.LichSuGiaoDich') AND name=N'IX_LichSu_TaiKhoanThoiGian')
-    CREATE INDEX IX_LichSu_TaiKhoanThoiGian ON dbo.LichSuGiaoDich(SoTaiKhoanLienQuan,ThoiGianGhiLog DESC) INCLUDE (MaGiaoDich,HanhDong,SoTienThayDoi,SoDuSauThayDoi);
+    CREATE INDEX IX_LichSu_TaiKhoanThoiGian
+    ON dbo.LichSuGiaoDich(SoTaiKhoanLienQuan,ThoiGianGhiLog DESC) INCLUDE (MaGiaoDich,HanhDong,SoTienThayDoi,SoDuSauThayDoi);
 GO
-CREATE OR ALTER TRIGGER dbo.trg_Teller_GiaoDich_ValidateInsert
+
+CREATE OR ALTER TRIGGER dbo.trg_Teller_GiaoDich_AuditInsert
 ON dbo.GiaoDichChuyenTien AFTER INSERT AS
 BEGIN
- SET NOCOUNT ON;
- IF EXISTS(SELECT 1 FROM inserted WHERE SoTien<=0)
-  THROW 52501,N'So tien giao dich phai lon hon 0.',1;
+    SET NOCOUNT ON;
+
+    INSERT dbo.AuditNganHang (BangDuLieu, KhoaDuLieu, HanhDong, ChiTiet)
+    SELECT
+        N'GiaoDichChuyenTien',
+        CONVERT(NVARCHAR(100), i.MaGiaoDich),
+        N'Tạo giao dịch',
+        CONCAT(
+            N'Nguồn=', i.MaTaiKhoanNguon,
+            N'; Đích=', COALESCE(i.SoTaiKhoanDich, i.MaTaiKhoanDich, N'N/A'),
+            N'; Số tiền=', CONVERT(NVARCHAR(50), i.SoTien),
+            N'; Loại=', i.MaLoaiGD,
+            N'; Trạng thái=', i.TrangThai,
+            N'; Thời gian=', CONVERT(NVARCHAR(30), i.NgayGiaoDich, 126)
+        )
+    FROM inserted AS i;
 END;
+GO
+
+IF DATABASE_PRINCIPAL_ID('role_GDV') IS NULL
+	CREATE ROLE role_GDV AUTHORIZATION dbo
+IF DATABASE_PRINCIPAL_ID('user_GDV') IS NULL
+	CREATE USER user_GDV WITHOUT LOGIN
+
+ALTER ROLE role_GDV ADD MEMBER user_GDV
+
+GRANT EXEC ON dbo.sp_Teller_Dashboard TO user_GDV
+REVOKE EXEC ON dbo.sp_Teller_Dashboard FROM user_GDV
+DENY EXEC ON dbo.sp_Teller_Dashboard TO user_GDV
+
+EXEC AS USER = 'user_GDV'
+GO
+
+EXEC dbo.sp_Teller_Dashboard;
+GO
+
+REVERT;
 GO

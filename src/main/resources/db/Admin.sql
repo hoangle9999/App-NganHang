@@ -17,13 +17,18 @@ IF DATABASE_PRINCIPAL_ID(N'role_BankAdmin') IS NULL
     CREATE ROLE role_BankAdmin AUTHORIZATION dbo;
 GO
 
--- Admin có quyền đầy đủ trên toàn schema dbo
+-- Cap quyen nghiep vu cho role Admin.
 GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::dbo TO role_BankAdmin;
 GRANT EXECUTE                         ON SCHEMA::dbo TO role_BankAdmin;
-GRANT VIEW DEFINITION                 ON SCHEMA::dbo TO role_BankAdmin;
+-- ALTER chi cap tren hai bang dang co index do Admin.sql tao.
+GRANT ALTER ON OBJECT::dbo.NhanVien TO role_BankAdmin;
+GRANT ALTER ON OBJECT::dbo.TaiKhoanDangNhap_VaiTro TO role_BankAdmin;
 GO
 
--- Trả về 1 nếu số điện thoại có 10 hoặc 11 chữ số; ngược lại trả về 0.
+-- ============================================================
+-- PHAN 2: FUNCTION
+-- ============================================================
+-- Function scalar tra ve 1 neu so dien thoai co 10 hoac 11 chu so.
 CREATE OR ALTER FUNCTION dbo.fn_Admin_SoDienThoaiHopLe
 (
     @SoDienThoai VARCHAR(20)
@@ -41,16 +46,8 @@ END;
 GO
 
 -- ============================================================
--- PHẦN 3: STORED PROCEDURES CHO ADMIN
+-- PHAN 3: STORED PROCEDURES
 -- ============================================================
-
--- ----------------------------------------------------------
--- 3.1  Dashboard tổng quan toàn hệ thống hoặc theo chi nhánh
---      Giao diện: AdminViewController
---      Java gọi: {call sp_GetDashboardDB(?)}  (NULL = tất cả)
---      SP sp_GetDashboardDB đã tạo trong 1_TaoBang.sql.
---      SP dưới đây là alias rõ ràng cho Admin.
--- ----------------------------------------------------------
 CREATE OR ALTER PROCEDURE dbo.sp_Admin_Dashboard
 AS
 BEGIN
@@ -97,18 +94,6 @@ BEGIN
 END;
 GO
 
--- ----------------------------------------------------------
--- 3.2  Danh sách khách hàng, tìm kiếm đa tiêu chí
---      Giao diện: AdminAccountController
---      Java gọi trực tiếp qua KhachHangDAOImpl (SELECT + LIKE)
--- ----------------------------------------------------------
-
--- ----------------------------------------------------------
--- 3.3  Tạo khách hàng mới (Admin tạo thay cho KH)
---      Giao diện: AdminAccountController
---      Java gọi qua DangKyDAOImpl.taoKhachHangTuNhanVien()
---      SP này chuẩn hoá quy trình phía DB khi Admin tạo.
--- ----------------------------------------------------------
 CREATE OR ALTER PROCEDURE dbo.SP_Admin_DanhSachTaiKhoanDangNhap
 AS
 BEGIN
@@ -136,6 +121,7 @@ BEGIN
 END;
 GO
 
+-- Nhom tai khoan he thong
 CREATE OR ALTER PROCEDURE dbo.SP_Admin_TaoTaiKhoanHeThong
     @TenDangNhap VARCHAR(50),
     @MatKhau VARCHAR(255),
@@ -297,9 +283,7 @@ BEGIN
 END;
 GO
 
--- ============================================================
--- PHẦN 4: NHÂN VIÊN VÀ CHI NHÁNH
--- ============================================================
+-- Nhom nhan vien va chi nhanh
 CREATE OR ALTER PROCEDURE dbo.sp_TaoMaNhanVien
     @Ma VARCHAR(20) OUTPUT
 AS
@@ -316,6 +300,9 @@ BEGIN
 END;
 GO
 
+-- ------------------------------------------------------------
+-- Nhom nhan vien va chi nhanh
+-- ------------------------------------------------------------
 CREATE OR ALTER PROCEDURE dbo.SP_Admin_DanhSachChiNhanh
 AS
 BEGIN
@@ -484,9 +471,7 @@ BEGIN
 END;
 GO
 
--- ============================================================
--- PHẦN 5: CẤU HÌNH DANH MỤC HỆ THỐNG
--- ============================================================
+-- Nhom han muc
 CREATE OR ALTER PROCEDURE dbo.sp_TaoMaHanMuc
     @Ma VARCHAR(10) OUTPUT
 AS
@@ -594,6 +579,7 @@ BEGIN
 END;
 GO
 
+-- Nhom loai giao dich
 CREATE OR ALTER PROCEDURE dbo.SP_Admin_DanhSachLoaiGiaoDich
 AS
 BEGIN
@@ -664,6 +650,7 @@ BEGIN
 END;
 GO
 
+-- Nhom ngan hang
 CREATE OR ALTER PROCEDURE dbo.SP_Admin_DanhSachNganHang
 AS
 BEGIN
@@ -685,13 +672,38 @@ BEGIN
 END;
 GO
 
--- ===== Index va trigger nghiep vu Admin =====
+-- ============================================================
+-- PHAN 4: VIEW
+-- role_BankAdmin duoc GRANT SELECT tren schema dbo o phan dau file.
+-- ============================================================
+CREATE OR ALTER VIEW dbo.vw_Admin_DanhSachNhanVien
+AS
+    SELECT
+        nv.MaNhanVien,
+        nv.HoTen,
+        nv.SoDienThoai,
+        nv.DiaChi,
+        nv.ChucVu,
+        nv.MaChiNhanh,
+        cn.TenChiNhanh,
+        nv.TenDangNhap
+    FROM dbo.NhanVien AS nv
+    LEFT JOIN dbo.ChiNhanh AS cn
+        ON cn.MaChiNhanh = nv.MaChiNhanh;
+GO
+
+-- ============================================================
+-- PHAN 5: INDEX
+-- ============================================================
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.NhanVien') AND name=N'IX_NhanVien_MaChiNhanh')
     CREATE INDEX IX_NhanVien_MaChiNhanh ON dbo.NhanVien(MaChiNhanh);
 GO
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.TaiKhoanDangNhap_VaiTro') AND name=N'IX_TaiKhoan_RoleName')
     CREATE INDEX IX_TaiKhoan_RoleName ON dbo.TaiKhoanDangNhap_VaiTro(RoleName, TenDangNhap) INCLUDE (MaNguoiDung);
 GO
+-- ============================================================
+-- PHAN 6: TRIGGER AUDIT
+-- ============================================================
 CREATE OR ALTER TRIGGER dbo.trg_Admin_NhanVien_Audit
 ON dbo.NhanVien AFTER UPDATE, DELETE AS
 BEGIN
@@ -702,3 +714,42 @@ BEGIN
  FROM deleted d LEFT JOIN inserted i ON i.MaNhanVien=d.MaNhanVien;
 END;
 GO
+
+-- ============================================================
+-- DANH SACH OBJECT ADMIN DE DOI CHIEU VOI PHAN QUYEN
+-- ============================================================
+-- FUNCTION scalar (EXECUTE):
+--   fn_Admin_SoDienThoaiHopLe
+-- VIEW (SELECT):
+--   vw_Admin_DanhSachNhanVien
+-- TRIGGER (tu dong khi UPDATE/DELETE NhanVien):
+--   trg_Admin_NhanVien_Audit
+-- INDEX (can ALTER tren bang chua index):
+--   NhanVien.IX_NhanVien_MaChiNhanh
+--   TaiKhoanDangNhap_VaiTro.IX_TaiKhoan_RoleName
+-- TRANSACTION (nam ben trong cac procedure):
+--   SP_Admin_TaoTaiKhoanHeThong
+--   SP_Admin_TaoNhanVien
+--   SP_Admin_TaoLoaiGiaoDich
+-- STORED PROCEDURES (EXECUTE):
+--   Tai khoan: sp_Admin_Dashboard, SP_Admin_DanhSachTaiKhoanDangNhap,
+--              SP_Admin_DatTrangThaiQuyen, SP_Admin_TaoTaiKhoanHeThong,
+--              SP_Admin_DoiVaiTroTaiKhoan, SP_Admin_DatLaiMatKhau,
+--              SP_Admin_XoaTaiKhoanDangNhap
+--   Sinh ma:   sp_TaoMaKhachHang, sp_TaoMaTaiKhoan, sp_TaoMaNhanVien,
+--              sp_TaoMaHanMuc
+--   Nhan vien/chi nhanh: SP_Admin_DanhSachChiNhanh,
+--              SP_Admin_DanhSachNhanVien, SP_Admin_TaiKhoanNhanVienChuaGan,
+--              SP_Admin_TaoNhanVien, SP_Admin_CapNhatNhanVien,
+--              SP_Admin_LienKetTaiKhoanNhanVien, SP_Admin_XoaNhanVien,
+--              SP_Admin_TaoChiNhanh, SP_Admin_CapNhatChiNhanh,
+--              SP_Admin_XoaChiNhanh
+--   Han muc:   SP_Admin_DanhSachHanMuc, SP_Admin_TaoHanMuc,
+--              SP_Admin_CapNhatHanMuc, SP_Admin_XoaHanMuc,
+--              SP_Admin_TraCuuTaiKhoanHanMuc, SP_Admin_GanHanMucTaiKhoan,
+--              SP_Admin_DoiTrangThaiTaiKhoan
+--   Giao dich/ngan hang: SP_Admin_DanhSachLoaiGiaoDich,
+--              SP_Admin_TaoLoaiGiaoDich, SP_Admin_CapNhatLoaiGiaoDich,
+--              SP_Admin_XoaLoaiGiaoDich, SP_Admin_DanhSachNganHang,
+--              SP_Admin_DoiTrangThaiNganHang
+-- ============================================================

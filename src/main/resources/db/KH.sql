@@ -3,7 +3,98 @@
     Run after the base schema and seed data have been created.
 */
 
--- Generates a bank account number from the sequence in the base schema.
+
+USE DB_ChuyenTienNganHang;
+GO
+
+-- ===== Index va trigger nghiep vu khach hang =====
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.LichSuGiaoDich') AND name=N'IX_LichSu_SoTaiKhoanThoiGian')
+    CREATE INDEX IX_LichSu_SoTaiKhoanThoiGian
+        ON dbo.LichSuGiaoDich(SoTaiKhoanLienQuan,ThoiGianGhiLog DESC)
+        INCLUDE (MaGiaoDich,HanhDong,SoTienThayDoi,SoDuSauThayDoi);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.GiaoDichChuyenTien') AND name = N'IX_GiaoDich_MaTaiKhoanNguon_NgayGiaoDich')
+    CREATE INDEX IX_GiaoDich_MaTaiKhoanNguon_NgayGiaoDich
+    ON dbo.GiaoDichChuyenTien( MaTaiKhoanNguon, NgayGiaoDich DESC);
+GO
+
+-- Lich su tai khoan la bang chi ghi them de bao toan dau vet giao dich.
+CREATE OR ALTER TRIGGER dbo.trg_KH_LichSu_AppendOnly
+ON dbo.LichSuGiaoDich
+AFTER UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    THROW 52511,N'Lịch sử giao dịchh chỉ ghi thêm, không được sửa hoặc xóa',1;
+END;
+GO
+
+
+IF OBJECT_ID(N'dbo.AuditNganHang', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditNganHang (
+        MaAudit BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AuditNganHang PRIMARY KEY,
+        BangDuLieu SYSNAME NOT NULL,
+        KhoaDuLieu NVARCHAR(100) NOT NULL,
+        HanhDong NVARCHAR(30) NOT NULL,
+        ChiTiet NVARCHAR(1000) NULL,
+        NguoiThucHien SYSNAME NOT NULL
+            CONSTRAINT DF_AuditNganHang_Nguoi DEFAULT ORIGINAL_LOGIN(),
+        ThoiGian DATETIME2(0) NOT NULL
+            CONSTRAINT DF_AuditNganHang_ThoiGian DEFAULT SYSUTCDATETIME()
+    );
+END;
+GO
+
+CREATE OR ALTER TRIGGER dbo.trg_KhachHang_AuditCapNhat
+ON dbo.KhachHang
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT dbo.AuditNganHang (BangDuLieu, KhoaDuLieu, HanhDong, ChiTiet)
+    SELECT N'KhachHang', i.MaKhachHang, N'Cập nhật hồ sơ',
+           CONCAT(N'Trường thay đổi: ',
+               CASE WHEN i.HoTen <> d.HoTen THEN N'Họ tên ' ELSE N'' END,
+               CASE WHEN i.SoDienThoai <> d.SoDienThoai THEN N'Số điện thoại ' ELSE N'' END,
+               CASE WHEN ISNULL(i.Email, '') <> ISNULL(d.Email, '') THEN N'Email ' ELSE N'' END,
+               CASE WHEN ISNULL(i.DiaChi, N'') <> ISNULL(d.DiaChi, N'') THEN N'Địa chỉ ' ELSE N'' END,
+               CASE WHEN ISNULL(i.TenDangNhap, '') <> ISNULL(d.TenDangNhap, '') THEN N'Tên đăng nhập ' ELSE N'' END)
+    FROM inserted AS i
+    JOIN deleted AS d ON d.MaKhachHang = i.MaKhachHang
+    WHERE i.HoTen <> d.HoTen
+       OR i.SoDienThoai <> d.SoDienThoai
+       OR ISNULL(i.Email, '') <> ISNULL(d.Email, '')
+       OR ISNULL(i.DiaChi, N'') <> ISNULL(d.DiaChi, N'')
+       OR ISNULL(i.TenDangNhap, '') <> ISNULL(d.TenDangNhap, '');
+END;
+GO
+
+-- == FUNCTION ==
+CREATE OR ALTER FUNCTION dbo.fn_KH_KiemTraDuSoDu
+(
+    @SoDu DECIMAL(18,2),
+    @SoTienChuyen DECIMAL(18,2)
+)
+RETURNS BIT
+AS
+BEGIN
+    IF @SoDu IS NULL
+       OR @SoTienChuyen IS NULL
+       OR @SoDu < 0
+       OR @SoTienChuyen <= 0
+        RETURN 0;
+
+    RETURN CASE
+        WHEN @SoDu >= @SoTienChuyen THEN 1
+        ELSE 0
+    END;
+END;
+GO
+
+
+-- === Generates a bank account number from the sequence in the base schema. ===
 CREATE OR ALTER PROCEDURE dbo.sp_TaoSoTaiKhoan
     @Ma VARCHAR(15) OUTPUT
 AS
@@ -124,16 +215,38 @@ CREATE OR ALTER PROCEDURE dbo.sp_KH_LichSuBienDong
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT ls.MaLog, ls.MaGiaoDich, ls.SoTaiKhoanLienQuan,
-           ls.HanhDong, ls.SoTienThayDoi, ls.SoDuSauThayDoi, ls.ThoiGianGhiLog
-    FROM dbo.vw_KH_BienDongSoDu AS ls
-    INNER JOIN dbo.vw_KH_TaiKhoan AS tk ON tk.SoTaiKhoan = ls.SoTaiKhoanLienQuan
-    INNER JOIN dbo.KhachHang AS kh
-        ON kh.MaKhachHang = tk.MaKhachHang
-       AND kh.TenDangNhap = @TenDangNhap
-    WHERE tk.MaKhachHang = @MaKhachHang
-      AND tk.SoTaiKhoan = @SoTaiKhoan
-    ORDER BY ls.ThoiGianGhiLog DESC;
+    SET XACT_ABORT ON;
+
+    BEGIN TRY
+        SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+        BEGIN TRANSACTION;
+
+        SELECT
+            ls.MaLog,
+            ls.MaGiaoDich,
+            ls.SoTaiKhoanLienQuan,
+            ls.HanhDong,
+            ls.SoTienThayDoi,
+            ls.SoDuSauThayDoi,
+            ls.ThoiGianGhiLog
+        FROM dbo.vw_KH_BienDongSoDu AS ls
+        INNER JOIN dbo.vw_KH_TaiKhoan AS tk
+            ON tk.SoTaiKhoan = ls.SoTaiKhoanLienQuan
+        INNER JOIN dbo.KhachHang AS kh
+            ON kh.MaKhachHang = tk.MaKhachHang
+           AND kh.TenDangNhap = @TenDangNhap
+        WHERE tk.MaKhachHang = @MaKhachHang
+          AND tk.SoTaiKhoan = @SoTaiKhoan
+        ORDER BY ls.ThoiGianGhiLog DESC;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH;
 END;
 GO
 
@@ -144,32 +257,88 @@ CREATE OR ALTER PROCEDURE dbo.sp_KH_GiaoDichTaiKhoan
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT gd.MaGiaoDich, gd.MaTaiKhoanNguon, gd.MaTaiKhoanDich,
-           gd.SoTien, gd.NgayGiaoDich, gd.NoiDung, gd.MaLoaiGD,
-           gd.TrangThai, gd.TenLoaiGD
-    FROM dbo.vw_KH_GiaoDich AS gd
-    INNER JOIN dbo.KhachHang AS kh
-        ON kh.MaKhachHang = @MaKhachHang
-       AND kh.TenDangNhap = @TenDangNhap
-    WHERE (gd.MaKhachHangNguon = @MaKhachHang AND gd.MaTaiKhoanNguon = @SoTaiKhoan)
-       OR (gd.MaKhachHangDich = @MaKhachHang AND gd.MaTaiKhoanDich = @SoTaiKhoan)
-    ORDER BY gd.NgayGiaoDich DESC;
+    SET XACT_ABORT ON;
+
+    BEGIN TRY
+        SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+        BEGIN TRANSACTION;
+
+        SELECT
+            gd.MaGiaoDich,
+            gd.MaTaiKhoanNguon,
+            gd.MaTaiKhoanDich,
+            gd.SoTien,
+            gd.NgayGiaoDich,
+            gd.NoiDung,
+            gd.MaLoaiGD,
+            gd.TrangThai,
+            gd.TenLoaiGD
+        FROM dbo.vw_KH_GiaoDich AS gd
+        INNER JOIN dbo.KhachHang AS kh
+            ON kh.MaKhachHang = @MaKhachHang
+           AND kh.TenDangNhap = @TenDangNhap
+        WHERE
+            (gd.MaKhachHangNguon = @MaKhachHang
+             AND gd.MaTaiKhoanNguon = @SoTaiKhoan)
+            OR
+            (gd.MaKhachHangDich = @MaKhachHang
+             AND gd.MaTaiKhoanDich = @SoTaiKhoan)
+        ORDER BY gd.NgayGiaoDich DESC;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH;
 END;
 GO
 
--- ===== Index va trigger nghiep vu khach hang =====
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.LichSuGiaoDich') AND name=N'IX_LichSu_SoTaiKhoanThoiGian')
-    CREATE INDEX IX_LichSu_SoTaiKhoanThoiGian
-        ON dbo.LichSuGiaoDich(SoTaiKhoanLienQuan,ThoiGianGhiLog DESC)
-        INCLUDE (MaGiaoDich,HanhDong,SoTienThayDoi,SoDuSauThayDoi);
+-- === PHÂN QUYỀN ===
+-- 1. Tao role neu chua ton tai
+IF DATABASE_PRINCIPAL_ID('role_Customer') IS NULL
+    CREATE ROLE role_Customer;
 GO
 
--- Lich su tai khoan la bang chi ghi them de bao toan dau vet giao dich.
-CREATE OR ALTER TRIGGER dbo.trg_KH_LichSu_AppendOnly
-ON dbo.LichSuGiaoDich AFTER UPDATE, DELETE
-AS
-BEGIN
-    SET NOCOUNT ON;
-    THROW 52511,N'Lich su giao dich la du lieu chi ghi them, khong duoc sua hoac xoa.',1;
-END;
+-- 2. Cap quyen tra cuu thong tin khach hang
+GRANT EXECUTE ON OBJECT::dbo.sp_KH_TimHoSo
+TO role_Customer;
+
+GRANT EXECUTE ON OBJECT::dbo.sp_KH_DanhSachTaiKhoan
+TO role_Customer;
+
+GRANT EXECUTE ON OBJECT::dbo.sp_KH_DanhSachSoTaiKhoan
+TO role_Customer;
+
+GRANT EXECUTE ON OBJECT::dbo.sp_KH_SoDuTaiKhoan
+TO role_Customer;
+
+GRANT EXECUTE ON OBJECT::dbo.sp_KH_LichSuBienDong
+TO role_Customer;
+
+GRANT EXECUTE ON OBJECT::dbo.sp_KH_GiaoDichTaiKhoan
+TO role_Customer;
+
+GRANT EXECUTE ON dbo.fn_KH_KiemTraDuSoDu
+TO role_Customer;
+GO
+
+-- 3. Cam khach hang them, sua, xoa giao dich
+DENY INSERT, UPDATE, DELETE
+ON OBJECT::dbo.GiaoDichChuyenTien
+TO role_Customer;
+
+DENY INSERT, UPDATE, DELETE
+ON OBJECT::dbo.LichSuGiaoDich
+TO role_Customer;
+
+DENY INSERT, UPDATE, DELETE
+ON OBJECT::dbo.TaiKhoanNganHang
+TO role_Customer;
+
+DENY INSERT, UPDATE, DELETE
+ON OBJECT::dbo.KhachHang
+TO role_Customer;
 GO
